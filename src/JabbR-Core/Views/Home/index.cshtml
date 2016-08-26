@@ -15,17 +15,17 @@
     <link href="~/Content/images/logo32.png" rel="icon" type="image/png" sizes="32x32">
     <link href="~/Content/images/logo64.png" rel="icon" type="image/png" sizes="64x64">
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" sizes="16x16">
-    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/Content/bootstrap-responsive.min.css" />
-    <link rel="stylesheet" href="~/Content/font-awesome.min.css" />
-    <link rel="stylesheet" href="~/Content/themes/default/Chat.css" />
-    <link rel="stylesheet" href="~/Content/themes/default/Chat.nuget.css" />
-    <link rel="stylesheet" href="~/Content/themes/default/Chat.bbcnews.css" />
-    <link rel="stylesheet" href="~/Content/themes/default/Chat.githubissues.css" />
-    <link rel="stylesheet" href="~/Content/themes/default/Chat.dictionary.css" />
-    <link rel="stylesheet" href="~/Content/Highlight/github.css" />
-    <link rel="stylesheet" href="~/Content/KeyTips.css" />
-    <link rel="stylesheet" href="~/Content/emoji20.css" />
+    <link href="~/lib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+    <link href="~/lib/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/themes/default/Chat.css" />
+    <link rel="stylesheet" href="~/css/themes/default/Chat.nuget.css" />
+    <link rel="stylesheet" href="~/css/themes/default/Chat.bbcnews.css" />
+    <link rel="stylesheet" href="~/css/themes/default/Chat.githubissues.css" />
+    <link rel="stylesheet" href="~/css/themes/default/Chat.dictionary.css" />
+    <link rel="stylesheet" href="~/lib/highlight/css/github.css" />
+    <link href="~/css/KeyTips.css" rel="stylesheet" />
+    <link href="~/css/emoji20.css" rel="stylesheet" />
+    <link href="~/font/font-awesome.min.css" rel="stylesheet" />
 
           @if (!String.IsNullOrEmpty(Model.GoogleAnalytics)) { <script type="text/javascript">
         var _gaq = _gaq || [];
@@ -431,8 +431,8 @@
             </div>
         </form>
         <audio id="notificationSound" hidden="hidden" aria-hidden="true">
-            <source src="Content/sounds/notification.wav" type="audio/wave" />
-            <source src="Content/sounds/notification.mp3" type="audio/mpeg" />
+            <source src="/sounds/notification.wav" type="audio/wave" />
+            <source src="/sounds/notification.mp3" type="audio/mpeg" />
         </audio>
         <section id="dialog-container" aria-hidden="true" aria-haspopup="true">
             <div id="disconnect-dialog" class="modal hide fade">

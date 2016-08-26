@@ -30,7 +30,7 @@ namespace JabbR_Core
             }
 
             app.UseMvc();
-
+            app.UseStaticFiles();
         }
     }
 }
