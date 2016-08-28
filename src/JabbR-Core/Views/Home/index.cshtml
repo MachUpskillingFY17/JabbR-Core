@@ -27,17 +27,23 @@
     <link href="~/css/emoji20.css" rel="stylesheet" />
     <link href="~/font/font-awesome.min.css" rel="stylesheet" />
 
-          @if (!String.IsNullOrEmpty(Model.GoogleAnalytics)) { <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', '@Model.GoogleAnalytics']);
-        _gaq.push(['_trackPageview']);
+    @if (!String.IsNullOrEmpty(Model.GoogleAnalytics))
+    {
+        <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', '@Model.GoogleAnalytics']);
+            _gaq.push(['_trackPageview']);
 
-        (function () {
-          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-    </script>
+            (function () {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
     }
     @if (!String.IsNullOrEmpty(Model.AppInsights))
     {
@@ -49,14 +55,22 @@
         </script>
     }
     
-    @* These <script> tags are jquery templates that will be refactored *@
-    @Html.Partial("Partials/Templates/NewMessage");
-    @Html.Partial("Partials/Templates/NewNotification");    
-
+    @* Load jQuery templates *@
+    @Html.Partial("Partials/Templates/CommandConfirm");
+    @Html.Partial("Partials/Templates/CommandHelp");
+    @Html.Partial("Partials/Templates/GitHubIssues");    
+    @Html.Partial("Partials/Templates/GitHubIssuesComment");
+    @Html.Partial("Partials/Templates/GravatarProfile");
     @Html.Partial("Partials/Templates/MessageSeparator");
+    @Html.Partial("Partials/Templates/ModalMessage");
+    @Html.Partial("Partials/Templates/MultilineContent");
     @Html.Partial("Partials/Templates/NewLobbyRoom");
+    @Html.Partial("Partials/Templates/NewMessage");
+    @Html.Partial("Partials/Templates/NewNotification");
+    @Html.Partial("Partials/Templates/NewTab");
     @Html.Partial("Partials/Templates/NewUser");
     @Html.Partial("Partials/Templates/NewUserList");
+    @Html.Partial("Partials/Templates/Tweet");
 
 </head>
 <body class="home@(Model.IsAdmin ? " home-admin" : "")">
