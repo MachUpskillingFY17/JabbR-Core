@@ -1,0 +1,31 @@
+﻿@using JabbR_Core;
+
+<script id="new-user-template" type="text/x-jquery-tmpl">
+    <li class="user" data-name="${name}">
+        <div class="user-status-container">
+            <i class="user-status"></i>
+        </div>
+        <div class="gravatar-wrapper">
+            <img class="gravatar" src="https://secure.gravatar.com/avatar/${hash}?s=16&d=mm" />
+            <div class="jabbr-user-card ${status} ${presence} hide">
+                <div class="user-status-container">
+                    <i class="user-status"></i>
+                </div>
+                <img src="https://secure.gravatar.com/avatar/${hash}?s=96&d=mm" class="gravatar-large" />
+                <span class="name">${name}</span>
+            </div>
+        </div>
+        <div class="details {{if admin}}admin{{/if}}">
+            <div class="flag-container">
+                <div class="flag{{if flagClass}} ${flagClass}{{/if}}" {{if flag}} title="${country}" {{/if}}></div>
+            </div>
+            <div class="name-container">
+                <div class="name" {{if note}} title="${note}" {{else}} title="${name}" {{/if}}>${name}</div>
+                <div class="inactive-since"></div>
+                {{if admin}}<div class="admin">(@LanguageResources.Client_AdminTag)</div>{{/if}}
+            </div>
+            <div style="clear:both"></div>
+        </div>
+        <div style="clear:both"></div>
+    </li>
+</script>
