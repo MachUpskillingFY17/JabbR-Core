@@ -249,7 +249,7 @@
                             <p class="author">
                                 @Html.Raw(String.Format(LanguageResources.GithubContent_UserOpenedIssueAtTime, "${user.login}", "${created_at}"))
                             </p>
-                            <a href="${html_url}" target="_blank"><h2 class="content-title">${title}</h2></a>
+                            <a href="${html_url}" target="_self"><h2 class="content-title">${title}</h2></a>
                             <div class="infobar clearfix">
                                 <p class="milestone js-milestone-infobar-item-wrapper">@LanguageResources.GithubContent_NoMilestone</p>
                                 {{if assignee}}
@@ -290,7 +290,7 @@
                             <p class="author">
                                 @Html.Raw(String.Format(LanguageResources.GithubContent_UserCommentedAtTime, "${user.login}", "${created_at}"))
                             </p>
-                            <a href="${html_url}" target="_blank"><h2 class="content-title">${title}</h2></a>
+                            <a href="${html_url}" target="_self"><h2 class="content-title">${title}</h2></a>
                             <div class="formatted-content">
                                 <div class="content-body wikistyle">
                                     <p>
@@ -316,7 +316,7 @@
                     <div class="user">
                         <img src="${thumbnailUrl}">
                         <span class="name">${preferredUsername}</span>{{if name.formatted}} (${name.formatted}){{/if}}
-                        <p><a href="${profileUrl}" target="_blank">${profileUrl}</a></p>
+                        <p><a href="${profileUrl}" target="_self">${profileUrl}</a></p>
                     </div>
                 </div>
             </div>
@@ -357,11 +357,11 @@
                 <div id="preferences" class="navbar account pull-right">
                     <div class="navbar-inner">
                         <ul class="nav">
-                            <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_blank"><i class="icon-comments"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
-                            <li><a class="" title="@LanguageResources.Client_AccountSettings" href="@Url.Content("~/account")" target="_blank"><i class="icon-user"></i></a></li>
+                            <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_self"><i class="icon-comments"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
+                            <li><a class="" title="@LanguageResources.Client_AccountSettings" href="@Url.Content("~/account")" target="_self"><i class="icon-user"></i></a></li>
                             @if (Model.IsAdmin)
                             {
-                                <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_blank"><i class="icon-cog"></i></a></li>
+                                <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_self"><i class="icon-cog"></i></a></li>
                             }
                             <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
                             <li><a class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-signout"></i></a></li>
