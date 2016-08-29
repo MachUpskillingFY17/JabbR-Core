@@ -291,7 +291,7 @@
 
         updateTitle();
     }
-
+        
     // Room commands
 
     // When the /join command gets raised this is called
