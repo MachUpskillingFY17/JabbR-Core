@@ -1,0 +1,31 @@
+﻿@using JabbR_Core;
+
+<!-- /GitHub Issues Comment Content Provider -->
+<script id="github-issues-comment-template" type="text/x-jquery-tmpl">
+    <div class="new-comments">
+        <div class="avatar-bubble js-comment-container">
+            <span class="avatar">
+                <img height="48" width="48" src="${user.avatar_url}">
+                <span class="overlay size-48"></span>
+            </span>
+            <div class="bubble">
+                <div class="comment starting-comment ">
+                    <div class="body">
+                        <p class="author">
+                            @Html.Raw(String.Format(LanguageResources.GithubContent_UserCommentedAtTime, "${user.login}", "${created_at}"))
+                        </p>
+                        <a href="${html_url}" target="_blank"><h2 class="content-title">${title}</h2></a>
+                        <div class="formatted-content">
+                            <div class="content-body wikistyle">
+                                <p>
+                                    {{html body}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<!-- /Github Issus Comment Content Provider -->
