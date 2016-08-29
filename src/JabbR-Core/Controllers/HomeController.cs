@@ -15,7 +15,8 @@ namespace JabbR_Core.Controllers
         [HttpGet("/")]
         public IActionResult Index()
         {
-            return View(new SettingsViewModel());
+            var settings = new SettingsViewModel();
+            return View(settings);
         }
     }
 }
