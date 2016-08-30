@@ -1,26 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace JabbR_Core
+﻿namespace JabbR_Core
 {
+    // Class object to replace repo and EF models.. hard coded in Chat.cs for invoke functions
+    // user data is gathered upon login/auth which populates models
+
     public class UserData
     {
         // members
-        public string name;
-        public string hash;
-        public string owner;
-        public string active;
-        public string noteClass;
-        public string note;
-        public string flagClass;
-        public string flag;
-        public string country;
-        public string lastActive;
-        public string timeAgo;
-        public bool admin;
-        public bool afk;
+        public string Name;
+        public string Hash;
+        public string Owner;
+        public string Active;
+        public string NoteClass;
+        public string Note;
+        public string FlagClass;
+        public string Flag;
+        public string Country;
+        public string LastActive;
+        public string TimeAgo;
+        public bool Admin;
+        public bool Afk;
                                                                   
     }
 }
