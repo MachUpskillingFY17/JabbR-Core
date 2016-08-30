@@ -31,9 +31,21 @@ namespace JabbR_Core
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            var thing = Configuration["db"];
+
+            // Use `dotnet user-secrets set db dbpassword` to save the passsword as an env variable
+            // on your machine. Most of the connection string can exist as plain text, so you can 
+            // do this for your login information and format that into your connection string, as below.
+            //
+            // var user = Configuration["db-user"];
+            // var pass = Configuration["db-pass"];
+            // 
+            // var connectionString = $"Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={user};Password={pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+            // services.AddDbContext<MyContext>(options => options.UseSqlServer(connectionString));
+
             services.AddMvc();
             services.AddSignalR();
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

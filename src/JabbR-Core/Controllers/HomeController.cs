@@ -22,9 +22,6 @@ namespace JabbR_Core.Controllers
         [HttpGet("/")]
         public IActionResult Index()
         {
-
-            string key = Configure["db"];
-
             var viewModel = new SettingsViewModel
             {
                 //GoogleAnalytics = settings.GoogleAnalytics,
