@@ -1,7 +1,8 @@
 ﻿@using JabbR_Core
 @using JabbR_Core.ViewModels
 @model JabbR_Core.Configuration.ApplicationSettings
-
+@* We can use settings injection with the @inject razor tag. Consider for future *@
+@inject JabbR_Core.Configuration.ApplicationSettings settings
 
 <!DOCTYPE html>
 <html>
