@@ -35,7 +35,7 @@ namespace JabbR_Core
             // on your machine.
             //
             // Store the connection string using the CLI tool. Include your actual username and password
-            // >dotnet user-secrets set connectionString $"Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={user};Password={pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+            // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             // var connectionString = Configuration["connectionString"];
