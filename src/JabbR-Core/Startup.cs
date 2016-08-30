@@ -23,7 +23,7 @@ namespace JabbR_Core
             }
 
             builder.AddEnvironmentVariables();
-
+            
             Configuration = builder.Build();
         }
 
@@ -31,6 +31,7 @@ namespace JabbR_Core
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            var thing = Configuration["db"];
             services.AddMvc();
             services.AddSignalR();
         }
