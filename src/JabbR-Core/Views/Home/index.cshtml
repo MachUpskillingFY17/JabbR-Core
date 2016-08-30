@@ -28,17 +28,23 @@
     <link href="~/font/font-awesome.min.css" rel="stylesheet" />
    
 
-          @if (!String.IsNullOrEmpty(Model.GoogleAnalytics)) { <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', '@Model.GoogleAnalytics']);
-        _gaq.push(['_trackPageview']);
+    @if (!String.IsNullOrEmpty(Model.GoogleAnalytics))
+    {
+        <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', '@Model.GoogleAnalytics']);
+            _gaq.push(['_trackPageview']);
 
-        (function () {
-          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-    </script>
+            (function () {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
     }
     @if (!String.IsNullOrEmpty(Model.AppInsights))
     {
@@ -319,7 +325,7 @@
                     <div class="user">
                         <img src="${thumbnailUrl}">
                         <span class="name">${preferredUsername}</span>{{if name.formatted}} (${name.formatted}){{/if}}
-                        <p><a href="${profileUrl}" target="_blank">${profileUrl}</a></p>
+                        <p><a href="${profileUrl}" target="_self">${profileUrl}</a></p>
                     </div>
                 </div>
             </div>
@@ -329,6 +335,25 @@
     <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.0.3.js"></script>
     <script src="signalr/hubs"></script>
     <!--/Gravatar Profile Template-->
+=======
+    @* Load jQuery templates *@
+    @Html.Partial("Partials/Templates/CommandConfirm");
+    @Html.Partial("Partials/Templates/CommandHelp");
+    @Html.Partial("Partials/Templates/GitHubIssues");    
+    @Html.Partial("Partials/Templates/GitHubIssuesComment");
+    @Html.Partial("Partials/Templates/GravatarProfile");
+    @Html.Partial("Partials/Templates/MessageSeparator");
+    @Html.Partial("Partials/Templates/ModalMessage");
+    @Html.Partial("Partials/Templates/MultilineContent");
+    @Html.Partial("Partials/Templates/NewLobbyRoom");
+    @Html.Partial("Partials/Templates/NewMessage");
+    @Html.Partial("Partials/Templates/NewNotification");
+    @Html.Partial("Partials/Templates/NewTab");
+    @Html.Partial("Partials/Templates/NewUser");
+    @Html.Partial("Partials/Templates/NewUserList");
+    @Html.Partial("Partials/Templates/Tweet");
+
+>>>>>>> partial-html-templates
 </head>
 <body class="home@(Model.IsAdmin ? " home-admin" : "")">
     <section id="page" role="application">
@@ -362,11 +387,11 @@
                 <div id="preferences" class="navbar account pull-right">
                     <div class="navbar-inner">
                         <ul class="nav">
-                            <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_blank"><i class="icon-comments"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
-                            <li><a class="" title="@LanguageResources.Client_AccountSettings" href="@Url.Content("~/account")" target="_blank"><i class="icon-user"></i></a></li>
+                            <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_self"><i class="icon-comments"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
+                            <li><a class="" title="@LanguageResources.Client_AccountSettings" href="@Url.Content("~/account")" target="_self"><i class="icon-user"></i></a></li>
                             @if (Model.IsAdmin)
                             {
-                                <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_blank"><i class="icon-cog"></i></a></li>
+                                <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_self"><i class="icon-cog"></i></a></li>
                             }
                             <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
                             <li><a class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-signout"></i></a></li>

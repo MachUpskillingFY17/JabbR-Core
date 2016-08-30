@@ -1,0 +1,43 @@
+﻿<script id="new-message-template" type="text/x-jquery-tmpl">
+    <li class="message ${highlight} clearfix{{if isMine}} my-message{{/if}}{{if showUser}} first{{/if}}" id="m-${id}" data-name="${name}" data-timestamp="${date}">
+        <div class="left">
+            {{if showUser}}
+            <div class="user ${status} ${presence} message-user" data-name="${name}">
+                <div class="user-status-container">
+                    <i class="user-status"></i>
+                </div>
+                <div class="gravatar-wrapper">
+                    <img src="https://secure.gravatar.com/avatar/${hash}?s=16&d=mm" class="gravatar" />
+                    <div class="jabbr-user-card ${status} ${presence} hide">
+                        <div class="user-status-container">
+                            <i class="user-status"></i>
+                        </div>
+                        <img src="https://secure.gravatar.com/avatar/${hash}?s=96&d=mm" class="gravatar-large" style="display: inline-block; vertical-align: top;" />
+                        <div style="display: inline-block;">
+                            <div class="name" style="display: inline-block;">
+                                <span>${name}</span>
+                                <div class="flag-container">
+                                    <div class="{{if flagClass}}${flagClass}{{/if}}" style="display: inline-block;"></div>
+                                    <span>{{if flagTitle}}${flagTitle}{{/if}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="name">${name}</div>
+            </div>
+            {{/if}}
+            <span class="resend hide"><i class="icon-repeat" title="resend failed message"></i></span>
+            <span class="state">
+                <span class="hide send-pending"><i class="icon-spin icon-repeat"></i></span>
+                <span class="hide send-failed"><i class="icon-warning-sign"></i></span>
+            </span>
+        </div>
+        <div class="middle{{if showUser}} first{{/if}}">
+            {{html message}}
+        </div>
+        <div class="right{{if showUser}} first{{/if}}">
+            <span id="t-${id}" class="time" title="${fulldate}">${when}</span>
+        </div>
+    </li>
+</script>
