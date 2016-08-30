@@ -17,8 +17,6 @@ namespace JabbR_Core.Controllers
 {
     public class HomeController : Controller
     {
-        IConfigurationRoot Configure { get; }
-
         [HttpGet("/")]
         public IActionResult Index()
         {
@@ -36,7 +34,6 @@ namespace JabbR_Core.Controllers
                 //MaxMessageLength = settings.MaxMessageLength,
                 //AllowRoomCreation = settings.AllowRoomCreation || Principal.HasClaim(JabbRClaimTypes.Admin)
             };
-
 
             return View(viewModel);
         }

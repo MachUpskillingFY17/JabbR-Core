@@ -31,7 +31,6 @@ namespace JabbR_Core
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-
             // Use `dotnet user-secrets set db dbpassword` to save the passsword as an env variable
             // on your machine. Most of the connection string can exist as plain text, so you can 
             // do this for your login information and format that into your connection string, as below.
@@ -44,8 +43,6 @@ namespace JabbR_Core
 
             services.AddMvc();
             services.AddSignalR();
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
