@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using JabbR_Core.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Entity;
 
 namespace JabbR_Core.Hubs
 {
@@ -37,7 +39,7 @@ namespace JabbR_Core.Hubs
             //);
         }
 
-        public LobbyRoomViewModel GetRooms()
+        public List<LobbyRoomViewModel> GetRooms()
         {
             //List<string> rooms;
             UserData user = new UserData()
@@ -56,22 +58,28 @@ namespace JabbR_Core.Hubs
                 admin = true,
                 afk = true,
             };
-            return
-                new LobbyRoomViewModel
-                {
-                    Name = user.name,
-                    Count = 1,
-                    Private = false,
-                    Closed = false,
-                    Topic = null
-                };
 
+            var hack = new List<LobbyRoomViewModel>();
+            
+            hack.Add(new LobbyRoomViewModel
+            {
+                Name = user.name,
+                Count = 1,
+                Private = false,
+                Closed = false,
+                Topic = null
+            });
+
+
+            return hack;
         }
+
         public void GetCommands()
         {
-
+           
         }
-        public object GetShortCuts()
+
+        public object GetShortcuts()
         {
             return new[] {
                 new { Name = "Tab or Shift + Tab", Group = "shortcut", IsKeyCombination = true, Description = LanguageResources.Client_ShortcutTabs },
@@ -83,6 +91,7 @@ namespace JabbR_Core.Hubs
         {
 
         }
+
         public void updateActivity()
         {
             //string userId = "1";
