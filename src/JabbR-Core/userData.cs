@@ -16,6 +16,8 @@
         public string Flag;
         public string Country;
         public string LastActive;
+        // used to keep names conventions the same in chat.js line 205
+        public string LastActivity = "2016-08-23 00:26:35.713";
         public string TimeAgo;
         public bool Admin;
         public bool Afk;

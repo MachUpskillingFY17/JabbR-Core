@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using JabbR_Core.ViewModels;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
-using JabbR_Core.ViewModels;
+
 
 namespace JabbR_Core.Hubs
 {
@@ -18,19 +19,9 @@ namespace JabbR_Core.Hubs
         public List<LobbyRoomViewModel> GetRooms()
         {
             //List<string> rooms;
-            UserData user = new UserData()
+            var user = new UserData()
             {
                 Name = "light_meow",
-                Hash = null,
-                Owner = null,
-                Active = null,
-                NoteClass = null,
-                Note = null,
-                FlagClass = null,
-                Flag = null,
-                Country = null,
-                LastActive = "2016-08-23 00:26:35.713",
-                TimeAgo = null,
                 Admin = true,
                 Afk = true,
             };
@@ -41,9 +32,6 @@ namespace JabbR_Core.Hubs
             {
                 Name = user.Name,
                 Count = 1,
-                Private = false,
-                Closed = false,
-                Topic = null
             });
 
             return rooms;
@@ -70,19 +58,9 @@ namespace JabbR_Core.Hubs
 
         public void UpdateActivity()
         {
-            UserData user = new UserData()
+            var user = new UserData()
                 {
                     Name = "light_meow",
-                    Hash = null,
-                    Owner = null,
-                    Active = null,
-                    NoteClass = null,
-                    Note = null,
-                    FlagClass = null,
-                    Flag = null,
-                    Country = null,
-                    LastActive = "2016-08-23 00:26:35.713",
-                    TimeAgo = null,
                     Admin = true,
                     Afk = true,
                 };
