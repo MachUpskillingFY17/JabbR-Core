@@ -8,7 +8,7 @@ namespace JabbR_Core
 {
     public class Startup
     {
-        public IConfigurationRoot Configuration { get; }
+        private IConfigurationRoot _configuration;
 
         public Startup(IHostingEnvironment env)
         {
@@ -24,7 +24,7 @@ namespace JabbR_Core
 
             builder.AddEnvironmentVariables();
             
-            Configuration = builder.Build();
+            _configuration = builder.Build();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
