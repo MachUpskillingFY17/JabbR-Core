@@ -30,8 +30,23 @@ namespace JabbR_Core.Controllers
         [HttpGet("/")]
         public IActionResult Index()
         {
+            SettingsViewModel model = new SettingsViewModel()
+            {
+                 GoogleAnalytics = _settings.GoogleAnalytics,
+                 AppInsights = _settings.AppInsights,
+                 Sha = _settings.Sha,
+                 Branch = _settings.Branch,
+                 Time = _settings.Time,
+                 DebugMode = _settings.DebugMode,
+                 Version = _settings.Version,
+                 IsAdmin = _settings.IsAdmin,
+                 AllowRoomCreation = _settings.AllowRoomCreation,
+                 ClientLanguageResources = _settings.ClientLanguageResources,
+                 MaxMessageLength = _settings.MaxMessageLength
+            };
+
             // Access the settings specified in appsettings.
-            return View(_settings);
+            return View(model);
         }
         private static string BuildClientResources()
         {
