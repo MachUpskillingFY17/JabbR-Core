@@ -47,7 +47,7 @@ namespace JabbR_Core
             services.AddSignalR();
 
             // Establish default settings from appsettings.json
-            services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
+            services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
 
             // Programmatically add other options that cannot be taken from static strings
             services.Configure<ApplicationSettings>(settings => 
