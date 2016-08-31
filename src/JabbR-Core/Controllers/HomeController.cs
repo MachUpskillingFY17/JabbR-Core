@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using JabbR_Core.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using JabbR_Core.ViewModels;
-using Microsoft.AspNetCore.Hosting.Internal;
-using Microsoft.VisualBasic;
-using JabbR_Core;
-using Microsoft.Extensions.Configuration;
 using JabbR_Core.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -20,7 +10,7 @@ namespace JabbR_Core.Controllers
     public class HomeController : Controller
     {
 
-        private ApplicationSettings _settings { get; set; }
+        private ApplicationSettings _settings;
 
         public HomeController(IOptions<ApplicationSettings> settings)
         {
@@ -30,7 +20,7 @@ namespace JabbR_Core.Controllers
         [HttpGet("/")]
         public IActionResult Index()
         {
-            SettingsViewModel model = new SettingsViewModel()
+            var model = new SettingsViewModel()
             {
                  GoogleAnalytics = _settings.GoogleAnalytics,
                  AppInsights = _settings.AppInsights,

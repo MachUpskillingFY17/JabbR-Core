@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using JabbR_Core.Configuration;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using JabbR_Core.Configuration;
-using System;
 
 namespace JabbR_Core
 {
@@ -45,7 +45,6 @@ namespace JabbR_Core
 
             services.AddMvc();
             services.AddSignalR();
-            services.AddOptions();
 
             // Establish default settings from appsettings.json
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
@@ -53,10 +52,8 @@ namespace JabbR_Core
             // Programmatically add other options that cannot be taken from static strings
             services.Configure<ApplicationSettings>(settings => 
             {
-                settings.GoogleAnalytics = null;
-                settings.AppInsights = null;
                 settings.Version = Version.Parse("0.1");
-                settings.Time = DateTime.Now.ToString();
+                settings.Time = DateTimeOffset.UtcNow.ToString();
             });
         }
 
