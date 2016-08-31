@@ -4,5 +4,15 @@
     "inputFiles": [
       "wwwroot/font/font-awesome.css"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/Scripts/all.js",
+    "inputFiles": [
+      "*.json", //<- THIS TOTALLY BREAKS EVERYTHING (VS2015 stalls because it's reading bundleconfig.json but also using it)
+      "wwwroot/Scripts/*.js", //We don't care if we have to specifiy the Scripts directory
+      "wwwroot/**/*.css"     // Or if we have to glob for all files as long as one of these works.
+
+
+    ]
   }
 ]
