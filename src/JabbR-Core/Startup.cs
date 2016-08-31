@@ -8,7 +8,7 @@ namespace JabbR_Core
 {
     public class Startup
     {
-        public IConfigurationRoot Configuration { get; }
+        public IConfigurationRoot Configuration;
 
         public Startup(IHostingEnvironment env)
         {
