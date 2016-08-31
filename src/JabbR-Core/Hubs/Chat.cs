@@ -1,14 +1,24 @@
-﻿using JabbR_Core.ViewModels;
+﻿using JabbR_Core.Models;
+using JabbR_Core.ViewModels;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
-
 
 namespace JabbR_Core.Hubs
 {
 
     public class Chat : Hub
     {
-        public List<string> Rooms;
+        public List<string> ChatRooms;
+        //List<string> rooms;
+        public ChatUser User;
+
+        public Chat()
+        {
+            User = new ChatUser();
+            User.Name = "light_meow";
+            User.Admin = true;
+            User.Afk = true;
+        }
 
         public void Join()
         {
@@ -18,19 +28,11 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            //List<string> rooms;
-            var user = new UserData()
-            {
-                Name = "light_meow",
-                Admin = true,
-                Afk = true,
-            };
-
             var rooms = new List<LobbyRoomViewModel>();
             
             rooms.Add(new LobbyRoomViewModel
             {
-                Name = user.Name,
+                Name = User.Name,
                 Count = 1,
             });
 
@@ -58,17 +60,10 @@ namespace JabbR_Core.Hubs
 
         public void UpdateActivity()
         {
-            var user = new UserData()
-                {
-                    Name = "light_meow",
-                    Admin = true,
-                    Afk = true,
-                };
-
-                UpdateActivity(user, Rooms);
+                UpdateActivity(User, ChatRooms);
         }
 
-        private void UpdateActivity(UserData user, List<string> rooms)
+        private void UpdateActivity(ChatUser user, List<string> rooms)
         {
             
         }

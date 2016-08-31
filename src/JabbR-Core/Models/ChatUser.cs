@@ -1,9 +1,9 @@
-﻿namespace JabbR_Core
+﻿namespace JabbR_Core.Models
 {
     // Class object to replace repo and EF models.. hard coded in Chat.cs for invoke functions
     // user data is gathered upon login/auth which populates models
 
-    public class UserData
+    public class ChatUser
     {
         // members
         public string Name;
