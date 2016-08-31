@@ -20,7 +20,7 @@ namespace JabbR_Core.Hubs
             //List<string> rooms;
             UserData user = new UserData()
             {
-                Name = "soft_meow",
+                Name = "light_meow",
                 Hash = null,
                 Owner = null,
                 Active = null,
@@ -35,9 +35,9 @@ namespace JabbR_Core.Hubs
                 Afk = true,
             };
 
-            var hack = new List<LobbyRoomViewModel>();
+            var rooms = new List<LobbyRoomViewModel>();
             
-            hack.Add(new LobbyRoomViewModel
+            rooms.Add(new LobbyRoomViewModel
             {
                 Name = user.Name,
                 Count = 1,
@@ -46,7 +46,7 @@ namespace JabbR_Core.Hubs
                 Topic = null
             });
 
-            return hack;
+            return rooms;
         }
 
         public void GetCommands()
@@ -68,11 +68,11 @@ namespace JabbR_Core.Hubs
 
         }
 
-        public void updateActivity()
+        public void UpdateActivity()
         {
             UserData user = new UserData()
                 {
-                    Name = "soft_meow",
+                    Name = "light_meow",
                     Hash = null,
                     Owner = null,
                     Active = null,
