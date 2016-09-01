@@ -6,21 +6,19 @@
     public class UserData
     {
         // members
-        public string Name;
-        public string Hash;
-        public string Owner;
-        public string Active;
-        public string NoteClass;
-        public string Note;
-        public string FlagClass;
-        public string Flag;
-        public string Country;
-        public string LastActive;
-        // used to keep names conventions the same in chat.js line 205
-        public string LastActivity = "2016-08-23 00:26:35.713";
-        public string TimeAgo;
-        public bool Admin;
-        public bool Afk;
-                                                                  
+        public string Name { get; set; }
+        public string Hash { get; set; }
+        public string Owner { get; set; }
+        public string Active { get; set; }
+        public string NoteClass { get; set; }
+        public string Note { get; set; }
+        public string FlagClass { get; set; }
+        public string Flag { get; set; }
+        public string Country { get; set; }
+        public string LastActive { get; set; }
+        public string LastActivity { get; set; } 
+        public string TimeAgo { get; set; }
+        public bool Admin { get; set; }
+        public bool Afk { get; set; }
     }
 }
