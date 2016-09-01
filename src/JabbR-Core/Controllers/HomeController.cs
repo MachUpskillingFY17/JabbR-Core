@@ -19,14 +19,15 @@ namespace JabbR_Core.Controllers
         {
             var model = new SettingsViewModel()
             {
-                 GoogleAnalytics = _settings.GoogleAnalytics,
-                 AppInsights = _settings.AppInsights,
-                 Sha = _settings.Sha,
-                 Branch = _settings.Branch,
-                 Time = _settings.Time,
-                 DebugMode = _settings.DebugMode,
-                 Version = _settings.Version,
-                 IsAdmin = _settings.IsAdmin,
+                GoogleAnalytics = _settings.GoogleAnalytics,
+                AppInsights = _settings.AppInsights,
+                Sha = _settings.Sha,
+                Branch = _settings.Branch,
+                Time = _settings.Time,
+                DebugMode = _settings.DebugMode,
+                Version = _settings.Version,
+                IsAdmin = _settings.IsAdmin,
+                ClientLanguageResources = _settings.ClientLanguageResources,
                  AllowRoomCreation = _settings.AllowRoomCreation,
                  MaxMessageLength = _settings.MaxMessageLength
             };
