@@ -25,7 +25,7 @@ namespace JabbR_Core.Hubs
 
         // Constructor populates mock data
         public Chat()
-        {
+        { 
             // populate ChatUser
             User = new ChatUser
             {

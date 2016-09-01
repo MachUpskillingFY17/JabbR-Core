@@ -8,7 +8,6 @@ namespace JabbR_Core.Models
     {
         [Key]
         public int Key { get; set; }
-
         [MaxLength(200)]
         public string Id { get; set; }
         public string Name { get; set; }
@@ -19,15 +18,11 @@ namespace JabbR_Core.Models
         public DateTime LastActivity { get; set; }
         public DateTime? LastNudged { get; set; }
         public int Status { get; set; }
-
         [StringLength(200)]
         public string Note { get; set; }
-
         [StringLength(200)]
         public string AfkNote { get; set; }
-
         public bool IsAfk { get; set; }
-
         [StringLength(255)]
         public string Flag { get; set; }
 
