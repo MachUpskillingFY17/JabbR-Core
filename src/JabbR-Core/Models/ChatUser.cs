@@ -41,16 +41,16 @@ namespace JabbR_Core.Models
         public string RawPreferences { get; set; }
 
         // List of clients that are currently connected for this user
-        //public virtual ICollection<ChatUserIdentity> Identities { get; set; }
-        //public virtual ICollection<ChatClient> ConnectedClients { get; set; }
-        public virtual ICollection<ChatRoom> OwnedRooms { get; set; }
-        public virtual ICollection<ChatRoom> Rooms { get; set; }
+        //public ICollection<ChatUserIdentity> Identities { get; set; }
+        //public ICollection<ChatClient> ConnectedClients { get; set; }
+        public ICollection<ChatRoom> OwnedRooms { get; set; }
+        public ICollection<ChatRoom> Rooms { get; set; }
 
-        //public virtual ICollection<Attachment> Attachments { get; set; }
-        //public virtual ICollection<Notification> Notifications { get; set; }
+        //public ICollection<Attachment> Attachments { get; set; }
+        //public ICollection<Notification> Notifications { get; set; }
 
         // Private rooms this user is allowed to go into
-        public virtual ICollection<ChatRoom> AllowedRooms { get; set; }
+        public ICollection<ChatRoom> AllowedRooms { get; set; }
 
         //public ChatUser()
         //{
