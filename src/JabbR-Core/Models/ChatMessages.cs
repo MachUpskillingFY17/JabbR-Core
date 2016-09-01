@@ -22,8 +22,8 @@ namespace JabbR_Core.Models
         public string Source { get; set; }
         public int MessageType { get; set; }
 
-        public virtual ICollection<Notifications> Notifications { get; set; }
-        public virtual ChatRooms RoomKeyNavigation { get; set; }
-        public virtual ChatUsers UserKeyNavigation { get; set; }
+        public ICollection<Notifications> Notifications { get; set; }
+        public ChatRooms RoomKeyNavigation { get; set; }
+        public ChatUsers UserKeyNavigation { get; set; }
     }
 }

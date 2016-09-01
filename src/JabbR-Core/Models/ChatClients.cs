@@ -13,6 +13,6 @@ namespace JabbR_Core.Models
         public string Name { get; set; }
         public DateTimeOffset LastClientActivity { get; set; }
 
-        public virtual ChatUsers UserKeyNavigation { get; set; }
+        public ChatUsers UserKeyNavigation { get; set; }
     }
 }

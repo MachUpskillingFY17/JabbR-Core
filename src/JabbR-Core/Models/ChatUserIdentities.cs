@@ -11,6 +11,6 @@ namespace JabbR_Core.Models
         public string Identity { get; set; }
         public string ProviderName { get; set; }
 
-        public virtual ChatUsers UserKeyNavigation { get; set; }
+        public ChatUsers UserKeyNavigation { get; set; }
     }
 }

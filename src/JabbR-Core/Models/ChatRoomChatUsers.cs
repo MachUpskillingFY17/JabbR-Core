@@ -8,7 +8,7 @@ namespace JabbR_Core.Models
         public int ChatRoomKey { get; set; }
         public int ChatUserKey { get; set; }
 
-        public virtual ChatRooms ChatRoomKeyNavigation { get; set; }
-        public virtual ChatUsers ChatUserKeyNavigation { get; set; }
+        public ChatRooms ChatRoomKeyNavigation { get; set; }
+        public ChatUsers ChatUserKeyNavigation { get; set; }
     }
 }

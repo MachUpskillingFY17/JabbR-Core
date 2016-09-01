@@ -15,7 +15,7 @@ namespace JabbR_Core.Models
         public string ContentType { get; set; }
         public long Size { get; set; }
 
-        public virtual ChatUsers OwnerKeyNavigation { get; set; }
-        public virtual ChatRooms RoomKeyNavigation { get; set; }
+        public ChatUsers OwnerKeyNavigation { get; set; }
+        public ChatRooms RoomKeyNavigation { get; set; }
     }
 }

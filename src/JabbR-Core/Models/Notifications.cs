@@ -11,8 +11,8 @@ namespace JabbR_Core.Models
         public bool Read { get; set; }
         public int RoomKey { get; set; }
 
-        public virtual ChatMessages MessageKeyNavigation { get; set; }
-        public virtual ChatRooms RoomKeyNavigation { get; set; }
-        public virtual ChatUsers UserKeyNavigation { get; set; }
+        public ChatMessages MessageKeyNavigation { get; set; }
+        public ChatRooms RoomKeyNavigation { get; set; }
+        public ChatUsers UserKeyNavigation { get; set; }
     }
 }

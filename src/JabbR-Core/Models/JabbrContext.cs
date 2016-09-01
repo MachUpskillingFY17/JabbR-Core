@@ -270,17 +270,17 @@ namespace JabbR_Core.Models
             });
         }
 
-        public virtual DbSet<Attachments> Attachments { get; set; }
-        public virtual DbSet<ChatClients> ChatClients { get; set; }
-        public virtual DbSet<ChatMessages> ChatMessages { get; set; }
-        public virtual DbSet<ChatRoomChatUser1> ChatRoomChatUser1 { get; set; }
-        public virtual DbSet<ChatRoomChatUsers> ChatRoomChatUsers { get; set; }
-        public virtual DbSet<ChatRooms> ChatRooms { get; set; }
-        public virtual DbSet<ChatUserChatRooms> ChatUserChatRooms { get; set; }
-        public virtual DbSet<ChatUserIdentities> ChatUserIdentities { get; set; }
-        public virtual DbSet<ChatUsers> ChatUsers { get; set; }
-        public virtual DbSet<MigrationHistory> MigrationHistory { get; set; }
-        public virtual DbSet<Notifications> Notifications { get; set; }
-        public virtual DbSet<Settings> Settings { get; set; }
+        public DbSet<Attachments> Attachments { get; set; }
+        public DbSet<ChatClients> ChatClients { get; set; }
+        public DbSet<ChatMessages> ChatMessages { get; set; }
+        public DbSet<ChatRoomChatUser1> ChatRoomChatUser1 { get; set; }
+        public DbSet<ChatRoomChatUsers> ChatRoomChatUsers { get; set; }
+        public DbSet<ChatRooms> ChatRooms { get; set; }
+        public DbSet<ChatUserChatRooms> ChatUserChatRooms { get; set; }
+        public DbSet<ChatUserIdentities> ChatUserIdentities { get; set; }
+        public DbSet<ChatUsers> ChatUsers { get; set; }
+        public DbSet<MigrationHistory> MigrationHistory { get; set; }
+        public DbSet<Notifications> Notifications { get; set; }
+        public DbSet<Settings> Settings { get; set; }
     }
 }

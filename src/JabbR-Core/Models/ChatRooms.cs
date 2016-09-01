@@ -25,12 +25,12 @@ namespace JabbR_Core.Models
         public string Topic { get; set; }
         public string Welcome { get; set; }
 
-        public virtual ICollection<Attachments> Attachments { get; set; }
-        public virtual ICollection<ChatMessages> ChatMessages { get; set; }
-        public virtual ICollection<ChatRoomChatUser1> ChatRoomChatUser1 { get; set; }
-        public virtual ICollection<ChatRoomChatUsers> ChatRoomChatUsers { get; set; }
-        public virtual ICollection<ChatUserChatRooms> ChatUserChatRooms { get; set; }
-        public virtual ICollection<Notifications> Notifications { get; set; }
-        public virtual ChatUsers CreatorKeyNavigation { get; set; }
+        public ICollection<Attachments> Attachments { get; set; }
+        public ICollection<ChatMessages> ChatMessages { get; set; }
+        public ICollection<ChatRoomChatUser1> ChatRoomChatUser1 { get; set; }
+        public ICollection<ChatRoomChatUsers> ChatRoomChatUsers { get; set; }
+        public ICollection<ChatUserChatRooms> ChatUserChatRooms { get; set; }
+        public ICollection<Notifications> Notifications { get; set; }
+        public ChatUsers CreatorKeyNavigation { get; set; }
     }
 }
