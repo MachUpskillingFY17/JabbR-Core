@@ -28,8 +28,8 @@ namespace JabbR_Core.Controllers
                 Version = _settings.Version,
                 IsAdmin = _settings.IsAdmin,
                 ClientLanguageResources = _settings.ClientLanguageResources,
-                 AllowRoomCreation = _settings.AllowRoomCreation,
-                 MaxMessageLength = _settings.MaxMessageLength
+                AllowRoomCreation = _settings.AllowRoomCreation,
+                MaxMessageLength = _settings.MaxMessageLength
             };
 
             // Access the settings specified in appsettings.
