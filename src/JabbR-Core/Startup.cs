@@ -71,5 +71,6 @@ namespace JabbR_Core
             app.UseStaticFiles();
             app.UseSignalR();
         }
+        
     }
 }
