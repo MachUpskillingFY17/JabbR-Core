@@ -1,4 +1,5 @@
-﻿using JabbR_Core.Models;
+﻿using System;
+using JabbR_Core.Models;
 using JabbR_Core.ViewModels;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
@@ -8,16 +9,49 @@ namespace JabbR_Core.Hubs
 
     public class Chat : Hub
     {
+        // Mock model instances to pass into Hub methods
         public List<string> ChatRooms;
-        //List<string> rooms;
         public ChatUser User;
+        public string RoomNames;
+        public UserViewModel UserModel;
 
+        // Mock List for LoadRooms()
+        public ChatRoom Room;
+        public List<ChatRoom> RoomList;
+    
+        // Mock List for GetRoom()
+        public List<LobbyRoomViewModel> LobbyRoomList;
+        public LobbyRoomViewModel LobbyRoomView;
+
+        // Constructor populates mock data
         public Chat()
         {
-            User = new ChatUser();
-            User.Name = "light_meow";
-            User.Admin = true;
-            User.Afk = true;
+            // populate ChatUser
+            User = new ChatUser
+            {
+                Name = "user1",
+                LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
+                IsAdmin = true,
+                IsAfk = true
+            };
+
+            // instantiate UserViewModel object from User
+            UserModel = new UserViewModel(User);
+
+            // populate ChatRoom and RoomList
+            Room = new ChatRoom {Name = "light_meow"};
+            RoomList = new List<ChatRoom> {Room};
+            
+
+            // populate RoomView
+            LobbyRoomView = new LobbyRoomViewModel
+            {
+                Name = Room.Name,
+                Count = 1,
+            };
+
+            // Add RoomView to RoomList
+            LobbyRoomList = new List<LobbyRoomViewModel> {LobbyRoomView};
         }
 
         public void Join()
@@ -28,15 +62,7 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            var rooms = new List<LobbyRoomViewModel>();
-            
-            rooms.Add(new LobbyRoomViewModel
-            {
-                Name = User.Name,
-                Count = 1,
-            });
-
-            return rooms;
+            return LobbyRoomList;
         }
 
         public void GetCommands()
@@ -53,9 +79,38 @@ namespace JabbR_Core.Hubs
             };
         }
 
-        public void LoadRooms()
+        public void LoadRooms(string[] roomNames)
         {
+            // Can't async whenall because we'd be hitting a single 
+            // EF context with multiple concurrent queries.
+            foreach (var room in RoomList)
+            {
+                if (room == null || (room.Private && !User.AllowedRooms.Contains(room)))
+                {
+                    continue;
+                }
 
+
+                var roomInfo = new RoomViewModel
+                {
+                    Name = "light_meow"
+                };
+
+                //while (true)
+                //{
+                //    try
+                //    {
+                //        // If invoking roomLoaded fails don't get the roomInfo again
+                //        // roomInfo = roomInfo ?? await GetRoomInfoCore(room);
+                //        Clients.Caller.roomLoaded(roomInfo);
+                //        break;
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        // logger.Log(ex);
+                //    }
+                //}
+            }
         }
 
         public void UpdateActivity()
