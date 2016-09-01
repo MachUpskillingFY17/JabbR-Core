@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using JabbR_Core.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using JabbR_Core.ViewModels;
-using Microsoft.AspNetCore.Hosting.Internal;
-using Microsoft.VisualBasic;
-using JabbR_Core;
-using Microsoft.Extensions.Configuration;
+using JabbR_Core.Configuration;
+using Microsoft.Extensions.Options;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,25 +9,34 @@ namespace JabbR_Core.Controllers
 {
     public class HomeController : Controller
     {
+
+        private ApplicationSettings _settings;
+
+        public HomeController(IOptions<ApplicationSettings> settings)
+        {
+            _settings = settings.Value;
+        }
+
         [HttpGet("/")]
         public IActionResult Index()
         {
-            var viewModel = new SettingsViewModel
+            var model = new SettingsViewModel()
             {
-                //GoogleAnalytics = settings.GoogleAnalytics,
-                //AppInsights = settings.AppInsights,
-                //Sha = configuration.DeploymentSha,
-                //Branch = configuration.DeploymentBranch,
-                //Time = configuration.DeploymentTime,
-                // DebugMode = (bool)HostingApplication.Context.Items["_debugMode"],
-                // Version = Constants.JabbRVersion,
-                //IsAdmin = Principal.HasClaim(JabbRClaimTypes.Admin),
-                ClientLanguageResources = BuildClientResources(),
-                //MaxMessageLength = settings.MaxMessageLength,
-                //AllowRoomCreation = settings.AllowRoomCreation || Principal.HasClaim(JabbRClaimTypes.Admin)
+                 GoogleAnalytics = _settings.GoogleAnalytics,
+                 AppInsights = _settings.AppInsights,
+                 Sha = _settings.Sha,
+                 Branch = _settings.Branch,
+                 Time = _settings.Time,
+                 DebugMode = _settings.DebugMode,
+                 Version = _settings.Version,
+                 IsAdmin = _settings.IsAdmin,
+                 AllowRoomCreation = _settings.AllowRoomCreation,
+                 ClientLanguageResources = _settings.ClientLanguageResources,
+                 MaxMessageLength = _settings.MaxMessageLength
             };
 
-            return View(viewModel);
+            // Access the settings specified in appsettings.
+            return View(model);
         }
         private static string BuildClientResources()
         {

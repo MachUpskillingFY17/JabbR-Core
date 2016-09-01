@@ -1,7 +1,9 @@
-﻿using JabbR_Core.ViewModels;
+using System;
+using System.Linq;
+using JabbR_Core.ViewModels;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
-
 
 namespace JabbR_Core.Hubs
 {

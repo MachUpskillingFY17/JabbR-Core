@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using JabbR_Core.Configuration;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -43,6 +45,16 @@ namespace JabbR_Core
 
             services.AddMvc();
             services.AddSignalR();
+
+            // Establish default settings from appsettings.json
+            services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
+
+            // Programmatically add other options that cannot be taken from static strings
+            services.Configure<ApplicationSettings>(settings => 
+            {
+                settings.Version = Version.Parse("0.1");
+                settings.Time = DateTimeOffset.UtcNow.ToString();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
