@@ -22,17 +22,20 @@ namespace JabbR_Core.Hubs
             var user = new UserData()
             {
                 Name = "light_meow",
+                LastActivity = "2016-08-23 00:26:35.713",
                 Admin = true,
                 Afk = true,
+        };
+
+            var rooms = new List<LobbyRoomViewModel>
+            {
+                new LobbyRoomViewModel
+                {
+                    Name = user.Name,
+                    Count = 1,
+                }
             };
 
-            var rooms = new List<LobbyRoomViewModel>();
-            
-            rooms.Add(new LobbyRoomViewModel
-            {
-                Name = user.Name,
-                Count = 1,
-            });
 
             return rooms;
         }
