@@ -55,7 +55,7 @@ namespace JabbR_Core
             {
                 settings.Version = Version.Parse("0.1");
                 settings.Time = DateTimeOffset.UtcNow.ToString();
-                settings.ClientLanguageResources = ClientResourceManager.Resources;
+                settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
         }
 
