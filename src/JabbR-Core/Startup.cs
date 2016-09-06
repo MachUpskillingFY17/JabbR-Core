@@ -42,7 +42,8 @@ namespace JabbR_Core
             // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
-            services.AddDbContext<JabbrContext>(options => options.UseSqlServer(_configuration["connectionString"]));
+            string connection = _configuration["connectionString"]; 
+            services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             services.AddMvc();
             services.AddSignalR();
