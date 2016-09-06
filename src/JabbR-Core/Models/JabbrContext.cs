@@ -83,12 +83,12 @@ namespace JabbR_Core.Models
                 entity.Property(e => e.ChatUserKey).HasColumnName("ChatUser_Key");
 
                 entity.HasOne(d => d.ChatRoomKeyNavigation)
-                    .WithMany(p => p.ChatRoomChatUser1)
+                    .WithMany(p => p.AllowedUsers)
                     .HasForeignKey(d => d.ChatRoomKey)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(d => d.ChatUserKeyNavigation)
-                    .WithMany(p => p.ChatRoomChatUser1)
+                    .WithMany(p => p.AllowedRooms)
                     .HasForeignKey(d => d.ChatUserKey)
                     .OnDelete(DeleteBehavior.Restrict);
             });
@@ -103,12 +103,12 @@ namespace JabbR_Core.Models
                 entity.Property(e => e.ChatUserKey).HasColumnName("ChatUser_Key");
 
                 entity.HasOne(d => d.ChatRoomKeyNavigation)
-                    .WithMany(p => p.ChatRoomChatUsers)
+                    .WithMany(p => p.Owners)
                     .HasForeignKey(d => d.ChatRoomKey)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(d => d.ChatUserKeyNavigation)
-                    .WithMany(p => p.ChatRoomChatUsers)
+                    .WithMany(p => p.OwnedRooms)
                     .HasForeignKey(d => d.ChatUserKey)
                     .OnDelete(DeleteBehavior.Restrict);
             });
@@ -155,12 +155,12 @@ namespace JabbR_Core.Models
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
                 entity.HasOne(d => d.ChatRoomKeyNavigation)
-                    .WithMany(p => p.ChatUserChatRooms)
+                    .WithMany(p => p.Users)
                     .HasForeignKey(d => d.ChatRoomKey)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(d => d.ChatUserKeyNavigation)
-                    .WithMany(p => p.ChatUserChatRooms)
+                    .WithMany(p => p.Rooms)
                     .HasForeignKey(d => d.ChatUserKey)
                     .OnDelete(DeleteBehavior.Restrict);
             });
