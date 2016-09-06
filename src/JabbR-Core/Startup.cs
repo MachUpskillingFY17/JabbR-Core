@@ -1,4 +1,5 @@
 ﻿using System;
+using JabbR_Core.Localization;
 using JabbR_Core.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace JabbR_Core
 {
     public class Startup
-    {
+    {           
         private IConfigurationRoot _configuration;
 
         public Startup(IHostingEnvironment env)
@@ -54,6 +55,7 @@ namespace JabbR_Core
             {
                 settings.Version = Version.Parse("0.1");
                 settings.Time = DateTimeOffset.UtcNow.ToString();
+                settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
         }
 
@@ -71,6 +73,5 @@ namespace JabbR_Core
             app.UseStaticFiles();
             app.UseSignalR();
         }
-        
     }
 }
