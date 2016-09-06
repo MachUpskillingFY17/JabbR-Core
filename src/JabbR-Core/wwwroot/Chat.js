@@ -202,7 +202,7 @@
     }
 
     function getUserViewModel(user, isOwner) {
-        var lastActive = user.LastActivity.fromJsonDate();
+        var lastActive = user.lastActivity.fromJsonDate();
         return {
             name: user.Name,
             hash: user.Hash,
@@ -291,7 +291,7 @@
 
         updateTitle();
     }
-
+        
     // Room commands
 
     // When the /join command gets raised this is called
