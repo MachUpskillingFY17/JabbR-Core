@@ -10,18 +10,18 @@ namespace JabbR_Core.Hubs
     public class Chat : Hub
     {
         // Mock model instances to pass into Hub methods
-        public List<string> ChatRooms;
-        public ChatUser User;
-        public string RoomNames;
-        public UserViewModel UserModel;
+        public List<string> ChatRooms { get; set; }
+        public ChatUser User { get; set; }
+        public string RoomNames { get; set; }
+        public UserViewModel UserModel { get; set; }
 
         // Mock List for LoadRooms()
-        public ChatRoom Room;
-        public List<ChatRoom> RoomList;
-    
+        public ChatRoom Room { get; set; }
+        public List<ChatRoom> RoomList { get; set; }
+
         // Mock List for GetRoom()
-        public List<LobbyRoomViewModel> LobbyRoomList;
-        public LobbyRoomViewModel LobbyRoomView;
+        public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
+        public LobbyRoomViewModel LobbyRoomView { get; set; }
 
         // Constructor populates mock data
         public Chat()
