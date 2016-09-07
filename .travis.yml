@@ -4,6 +4,7 @@ solution: JabbR-Core.sln
 before_install:
     - curl https://raw.githubusercontent.com/dotnet/cli/c0c07ed959cc923cee91d0a2230dee7c701b7baa/scripts/obtain/dotnet-install.sh -o dotnet-install.sh
 script:
+    - ls -al
     - cat src/JabbR-Core/JabbR-Core.xproj
     - sudo ./dotnet-install.sh
     - xbuild JabbR-Core.sln
