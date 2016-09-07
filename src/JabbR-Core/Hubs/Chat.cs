@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using JabbR_Core.Models;
 using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -10,7 +10,49 @@ namespace JabbR_Core.Hubs
 
     public class Chat : Hub
     {
-        public List<string> Rooms;
+        // Mock model instances to pass into Hub methods
+        public List<string> ChatRooms { get; set; }
+        public ChatUser User { get; set; }
+        public string RoomNames { get; set; }
+        public UserViewModel UserModel { get; set; }
+
+        // Mock List for LoadRooms()
+        public ChatRoom Room { get; set; }
+        public List<ChatRoom> RoomList { get; set; }
+
+        // Mock List for GetRoom()
+        public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
+        public LobbyRoomViewModel LobbyRoomView { get; set; }
+
+        // Constructor populates mock data
+        public Chat()
+        { 
+            // populate ChatUser
+            User = new ChatUser
+            {
+                Name = "user1",
+                LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
+                IsAdmin = true,
+                IsAfk = true
+            };
+
+            // instantiate UserViewModel object from User
+            UserModel = new UserViewModel(User);
+
+            // populate ChatRoom and RoomList
+            Room = new ChatRoom {Name = "light_meow"};
+            RoomList = new List<ChatRoom> {Room};
+            
+
+            // populate RoomView
+            LobbyRoomView = new LobbyRoomViewModel
+            {
+                Name = Room.Name,
+                Count = 1,
+            };
+            // Add RoomView to RoomList
+            LobbyRoomList = new List<LobbyRoomViewModel> {LobbyRoomView};
+        }
 
         public void Join()
         {
@@ -20,26 +62,7 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            //List<string> rooms;
-            var user = new UserData()
-            {
-                Name = "light_meow",
-                LastActivity = "2016-08-23 00:26:35.713",
-                Admin = true,
-                Afk = true,
-        };
-
-            var rooms = new List<LobbyRoomViewModel>
-            {
-                new LobbyRoomViewModel
-                {
-                    Name = user.Name,
-                    Count = 1,
-                }
-            };
-
-
-            return rooms;
+            return LobbyRoomList;
         }
 
         public void GetCommands()
@@ -56,24 +79,46 @@ namespace JabbR_Core.Hubs
             };
         }
 
-        public void LoadRooms()
+        public void LoadRooms(string[] roomNames)
         {
+            // Can't async whenall because we'd be hitting a single 
+            // EF context with multiple concurrent queries.
+            foreach (var room in RoomList)
+            {
+                if (room == null || (room.Private && !User.AllowedRooms.Contains(room)))
+                {
+                    continue;
+                }
 
+
+                var roomInfo = new RoomViewModel
+                {
+                    Name = "light_meow"
+                };
+
+                //while (true)
+                //{
+                //    try
+                //    {
+                //        // If invoking roomLoaded fails don't get the roomInfo again
+                //        // roomInfo = roomInfo ?? await GetRoomInfoCore(room);
+                //        Clients.Caller.roomLoaded(roomInfo);
+                //        break;
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        // logger.Log(ex);
+                //    }
+                //}
+            }
         }
 
         public void UpdateActivity()
         {
-            var user = new UserData()
-                {
-                    Name = "light_meow",
-                    Admin = true,
-                    Afk = true,
-                };
-
-                UpdateActivity(user, Rooms);
+                UpdateActivity(User, ChatRooms);
         }
 
-        private void UpdateActivity(UserData user, List<string> rooms)
+        private void UpdateActivity(ChatUser user, List<string> rooms)
         {
             
         }
