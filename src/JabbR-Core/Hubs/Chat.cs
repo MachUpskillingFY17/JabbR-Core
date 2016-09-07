@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using JabbR_Core.Models;
 using JabbR_Core.ViewModels;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
 
@@ -49,7 +50,6 @@ namespace JabbR_Core.Hubs
                 Name = Room.Name,
                 Count = 1,
             };
-
             // Add RoomView to RoomList
             LobbyRoomList = new List<LobbyRoomViewModel> {LobbyRoomView};
         }
