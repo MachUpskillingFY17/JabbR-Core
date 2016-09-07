@@ -10,7 +10,7 @@ namespace JabbR_Core.Data.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Attachments>(entity =>
+            modelBuilder.Entity<Attachment>(entity =>
             {
                 entity.HasKey(e => e.Key)
                     .HasName("PK_dbo.Attachments");
@@ -34,7 +34,7 @@ namespace JabbR_Core.Data.Models
                     .HasConstraintName("FK_dbo.Attachments_dbo.ChatRooms_RoomKey");
             });
 
-            modelBuilder.Entity<ChatClients>(entity =>
+            modelBuilder.Entity<ChatClient>(entity =>
             {
                 entity.HasKey(e => e.Key)
                     .HasName("PK_ChatClients");
@@ -51,7 +51,7 @@ namespace JabbR_Core.Data.Models
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<ChatMessages>(entity =>
+            modelBuilder.Entity<ChatMessage>(entity =>
             {
                 entity.HasKey(e => e.Key)
                     .HasName("PK_ChatMessages");
@@ -113,7 +113,7 @@ namespace JabbR_Core.Data.Models
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<ChatRooms>(entity =>
+            modelBuilder.Entity<ChatRoom>(entity =>
             {
                 entity.HasKey(e => e.Key)
                     .HasName("PK_ChatRooms");
@@ -165,7 +165,7 @@ namespace JabbR_Core.Data.Models
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<ChatUserIdentities>(entity =>
+            modelBuilder.Entity<ChatUserIdentity>(entity =>
             {
                 entity.HasKey(e => e.Key)
                     .HasName("PK_dbo.ChatUserIdentities");
@@ -179,7 +179,7 @@ namespace JabbR_Core.Data.Models
                     .HasConstraintName("FK_dbo.ChatUserIdentities_dbo.ChatUsers_UserKey");
             });
 
-            modelBuilder.Entity<ChatUsers>(entity =>
+            modelBuilder.Entity<ChatUser>(entity =>
             {
                 entity.HasKey(e => e.Key)
                     .HasName("PK_ChatUsers");
@@ -229,7 +229,7 @@ namespace JabbR_Core.Data.Models
                     .HasMaxLength(32);
             });
 
-            modelBuilder.Entity<Notifications>(entity =>
+            modelBuilder.Entity<Notification>(entity =>
             {
                 entity.HasKey(e => e.Key)
                     .HasName("PK_dbo.Notifications");
@@ -266,17 +266,17 @@ namespace JabbR_Core.Data.Models
             });
         }
 
-        public DbSet<Attachments> Attachments { get; set; }
-        public DbSet<ChatClients> ChatClients { get; set; }
-        public DbSet<ChatMessages> ChatMessages { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<ChatClient> ChatClients { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ChatRoomChatUser1> ChatRoomChatUser1 { get; set; }
         public DbSet<ChatRoomChatUsers> ChatRoomChatUsers { get; set; }
-        public DbSet<ChatRooms> ChatRooms { get; set; }
+        public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatUserChatRooms> ChatUserChatRooms { get; set; }
-        public DbSet<ChatUserIdentities> ChatUserIdentities { get; set; }
-        public DbSet<ChatUsers> ChatUsers { get; set; }
+        public DbSet<ChatUserIdentity> ChatUserIdentities { get; set; }
+        public DbSet<ChatUser> ChatUsers { get; set; }
         public DbSet<MigrationHistory> MigrationHistory { get; set; }
-        public DbSet<Notifications> Notifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         public DbSet<Settings> Settings { get; set; }
     }
 }

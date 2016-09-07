@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatUsers
+    public partial class ChatUser
     {
-        public ChatUsers()
+        public ChatUser()
         {
-            Attachments = new HashSet<Attachments>();
-            ChatClients = new HashSet<ChatClients>();
-            ChatMessages = new HashSet<ChatMessages>();
+            Attachments = new HashSet<Attachment>();
+            ChatClients = new HashSet<ChatClient>();
+            ChatMessages = new HashSet<ChatMessage>();
             AllowedRooms = new HashSet<ChatRoomChatUser1>();
             OwnedRooms = new HashSet<ChatRoomChatUsers>();
-            ChatRooms = new HashSet<ChatRooms>();
+            ChatRooms = new HashSet<ChatRoom>();
             Rooms = new HashSet<ChatUserChatRooms>();
-            ChatUserIdentities = new HashSet<ChatUserIdentities>();
-            Notifications = new HashSet<Notifications>();
+            ChatUserIdentities = new HashSet<ChatUserIdentity>();
+            Notifications = new HashSet<Notification>();
         }
 
         public int Key { get; set; }
@@ -39,14 +39,14 @@ namespace JabbR_Core.Data.Models
         public DateTimeOffset? RequestPasswordResetValidThrough { get; set; }
         public string RawPreferences { get; set; }
 
-        public ICollection<Attachments> Attachments { get; set; }
-        public ICollection<ChatClients> ChatClients { get; set; }
-        public ICollection<ChatMessages> ChatMessages { get; set; }
+        public ICollection<Attachment> Attachments { get; set; }
+        public ICollection<ChatClient> ChatClients { get; set; }
+        public ICollection<ChatMessage> ChatMessages { get; set; }
         public ICollection<ChatRoomChatUser1> AllowedRooms { get; set; }
         public ICollection<ChatRoomChatUsers> OwnedRooms { get; set; }
-        public ICollection<ChatRooms> ChatRooms { get; set; }
+        public ICollection<ChatRoom> ChatRooms { get; set; }
         public ICollection<ChatUserChatRooms> Rooms { get; set; }
-        public ICollection<ChatUserIdentities> ChatUserIdentities { get; set; }
-        public ICollection<Notifications> Notifications { get; set; }
+        public ICollection<ChatUserIdentity> ChatUserIdentities { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
     }
 }

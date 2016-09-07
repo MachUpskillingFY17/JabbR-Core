@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatClients
+    public partial class ChatClient
     {
         public int Key { get; set; }
         public string Id { get; set; }
@@ -13,6 +13,6 @@ namespace JabbR_Core.Data.Models
         public string Name { get; set; }
         public DateTimeOffset LastClientActivity { get; set; }
 
-        public ChatUsers UserKeyNavigation { get; set; }
+        public ChatUser UserKeyNavigation { get; set; }
     }
 }

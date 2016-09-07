@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatUserIdentities
+    public partial class ChatUserIdentity
     {
         public int Key { get; set; }
         public int UserKey { get; set; }
@@ -11,6 +11,6 @@ namespace JabbR_Core.Data.Models
         public string Identity { get; set; }
         public string ProviderName { get; set; }
 
-        public ChatUsers UserKeyNavigation { get; set; }
+        public ChatUser UserKeyNavigation { get; set; }
     }
 }

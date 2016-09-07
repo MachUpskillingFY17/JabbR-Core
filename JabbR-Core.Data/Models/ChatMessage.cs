@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatMessages
+    public partial class ChatMessage
     {
-        public ChatMessages()
+        public ChatMessage()
         {
-            Notifications = new HashSet<Notifications>();
+            Notifications = new HashSet<Notification>();
         }
 
         public int Key { get; set; }
@@ -22,8 +22,8 @@ namespace JabbR_Core.Data.Models
         public string Source { get; set; }
         public int MessageType { get; set; }
 
-        public ICollection<Notifications> Notifications { get; set; }
-        public ChatRooms RoomKeyNavigation { get; set; }
-        public ChatUsers UserKeyNavigation { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
+        public ChatRoom RoomKeyNavigation { get; set; }
+        public ChatUser UserKeyNavigation { get; set; }
     }
 }

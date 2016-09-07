@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class Attachments
+    public partial class Attachment
     {
         public int Key { get; set; }
         public string Url { get; set; }
@@ -15,7 +15,7 @@ namespace JabbR_Core.Data.Models
         public string ContentType { get; set; }
         public long Size { get; set; }
 
-        public ChatUsers OwnerKeyNavigation { get; set; }
-        public ChatRooms RoomKeyNavigation { get; set; }
+        public ChatUser OwnerKeyNavigation { get; set; }
+        public ChatRoom RoomKeyNavigation { get; set; }
     }
 }

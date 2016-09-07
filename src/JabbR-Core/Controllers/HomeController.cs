@@ -38,13 +38,13 @@ namespace JabbR_Core.Controllers
                  ClientLanguageResources = _settings.ClientLanguageResources,
                  MaxMessageLength = _settings.MaxMessageLength
             };
-            /*This is a hardcoded test to see if something is added to the database
-            ChatUsers User = new ChatUsers();
-            User.Name = "Adina";
-            User.Id = "22";
-            User.LastActivity = DateTime.Now;
-            _context.Add(User);
-            _context.SaveChanges();*/
+            //This is a hardcoded test to see if something is added to the database
+            //ChatUser User = new ChatUser();
+            //User.Name = "Test_User1";
+            //User.Id = "99";
+            //User.LastActivity = DateTime.Now;
+            //_context.Add(User);
+            //_context.SaveChanges();
 
             return View(model);
         }
