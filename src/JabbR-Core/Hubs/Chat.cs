@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using JabbR_Core.Models;
 using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
