@@ -314,23 +314,33 @@
     </script>
     <!-- /Github Issus Comment Content Provider -->
     <!--Gravatar Profile Template for Who command-->
-    <script id="gravatar-profile-template" type="text/x-jquery-tmpl">
-        <div class="collapsible_content">
-            <h3 class="collapsible_title">
-                @Html.Raw(String.Format(HtmlEncoder.Encode(LanguageResources.GravatarContent_HeaderAndToggle), "${profileUrl}"))
-            </h3>
-            <div class="collapsible_box">
-                <div class="gravatar_${hash} gravatarProfile">
-                    <div class="user">
-                        <img src="${thumbnailUrl}">
-                        <span class="name">${preferredUsername}</span>{{if name.formatted}} (${name.formatted}){{/if}}
-                        <p><a href="${profileUrl}" target="_self">${profileUrl}</a></p>
-                    </div>
+<script id="gravatar-profile-template" type="text/x-jquery-tmpl">
+    <div class="collapsible_content">
+        <h3 class="collapsible_title">
+            @Html.Raw(String.Format(HtmlEncoder.Encode(LanguageResources.GravatarContent_HeaderAndToggle), "${profileUrl}"))
+        </h3>
+        <div class="collapsible_box">
+            <div class="gravatar_${hash} gravatarProfile">
+                <div class="user">
+                    <img src="${thumbnailUrl}">
+                    <span class="name">${preferredUsername}</span>{{if name.formatted}} (${name.formatted}){{/if}}
+                    <p><a href="${profileUrl}" target="_self">${profileUrl}</a>
+                    </p>
                 </div>
             </div>
         </div>
-    </script>
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    </div>
+</script>
+    <environment names="Development">
+            <script src="~/lib/jquery/jquery-2.2.4.min.js" async></script>
+        </environment>
+    <environment names="Staging,Production">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"
+                asp-fallback-src="~/lib/jquery/jquery-2.2.4.min.js"
+                asp-fallback-test="window.jQuery" async>
+        </script>
+    </environment>
+
     <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.0.3.js"></script>
     <script src="signalr/hubs"></script>
     <!--/Gravatar Profile Template-->
