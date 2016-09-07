@@ -1,0 +1,5 @@
+language: csharp
+solution: JabbR-Core.sln
+install:
+    - sudo apt-get install dotnet
+    - nuget restore JabbR-Core.sln
