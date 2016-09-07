@@ -1,15 +1,18 @@
 ﻿using System;
+using JabbR_Core.Localization;
 using JabbR_Core.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using JabbR_Core.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace JabbR_Core
 {
     public class Startup
-    {
+    {           
         private IConfigurationRoot _configuration;
 
         public Startup(IHostingEnvironment env)
@@ -40,8 +43,8 @@ namespace JabbR_Core
             // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
-            // var connectionString = Configuration["connectionString"];
-            // services.AddDbContext<MyContext>(options => options.UseSqlServer(connectionString));
+            string connection = _configuration["connectionString"]; 
+            services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             services.AddMvc();
             services.AddSignalR();
@@ -54,6 +57,7 @@ namespace JabbR_Core
             {
                 settings.Version = Version.Parse("0.1");
                 settings.Time = DateTimeOffset.UtcNow.ToString();
+                settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
         }
 
@@ -71,6 +75,5 @@ namespace JabbR_Core
             app.UseStaticFiles();
             app.UseSignalR();
         }
-        
     }
 }

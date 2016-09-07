@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace JabbR_Core.ViewModels
+﻿namespace JabbR_Core.ViewModels
 {
     public class LobbyRoomViewModel
     {
