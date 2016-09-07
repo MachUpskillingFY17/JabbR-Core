@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 
 namespace JabbRCore.Migrations
 {
     [DbContext(typeof(JabbrContext))]
-    partial class JabbrContextModelSnapshot : ModelSnapshot
+    [Migration("20160901180432_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.0-alpha1-22028")
