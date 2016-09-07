@@ -8,7 +8,7 @@ using JabbR_Core.Models;
 namespace JabbRCore.Migrations
 {
     [DbContext(typeof(JabbrContext))]
-    [Migration("20160901180432_Initial")]
+    [Migration("20160907163957_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -401,22 +401,22 @@ namespace JabbRCore.Migrations
             modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUser1", b =>
                 {
                     b.HasOne("JabbR_Core.Models.ChatRooms", "ChatRoomKeyNavigation")
-                        .WithMany("ChatRoomChatUser1")
+                        .WithMany("AllowedUsers")
                         .HasForeignKey("ChatRoomKey");
 
                     b.HasOne("JabbR_Core.Models.ChatUsers", "ChatUserKeyNavigation")
-                        .WithMany("ChatRoomChatUser1")
+                        .WithMany("AllowedRooms")
                         .HasForeignKey("ChatUserKey");
                 });
 
             modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUsers", b =>
                 {
                     b.HasOne("JabbR_Core.Models.ChatRooms", "ChatRoomKeyNavigation")
-                        .WithMany("ChatRoomChatUsers")
+                        .WithMany("Owners")
                         .HasForeignKey("ChatRoomKey");
 
                     b.HasOne("JabbR_Core.Models.ChatUsers", "ChatUserKeyNavigation")
-                        .WithMany("ChatRoomChatUsers")
+                        .WithMany("OwnedRooms")
                         .HasForeignKey("ChatUserKey");
                 });
 
@@ -430,11 +430,11 @@ namespace JabbRCore.Migrations
             modelBuilder.Entity("JabbR_Core.Models.ChatUserChatRooms", b =>
                 {
                     b.HasOne("JabbR_Core.Models.ChatRooms", "ChatRoomKeyNavigation")
-                        .WithMany("ChatUserChatRooms")
+                        .WithMany("Users")
                         .HasForeignKey("ChatRoomKey");
 
                     b.HasOne("JabbR_Core.Models.ChatUsers", "ChatUserKeyNavigation")
-                        .WithMany("ChatUserChatRooms")
+                        .WithMany("Rooms")
                         .HasForeignKey("ChatUserKey");
                 });
 
