@@ -1,14 +1,9 @@
 [
   {
-    "outputFileName": "wwwroot/all.js",
+    "outputFileName": "wwwroot/js/libraries.js",
     "inputFiles": [
-      "wwwroot/**/*.js" //This grabs everything including stuff in wwwroot not in folders
-    ]
-  },
-  {
-    "outputFileName": "wwwroot/all.css",
-    "inputFiles": [
-      "wwwroot/**/*.css" //this grabs all CSS
+      "wwwroot/Scripts/*.js" //This grabs everything including stuff in wwwroot not in folders
+
     ]
   }
 ]
