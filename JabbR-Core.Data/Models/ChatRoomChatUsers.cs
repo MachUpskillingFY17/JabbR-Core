@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace JabbR_Core.Models
+namespace JabbR_Core.Data.Models
 {
-    public partial class ChatUserChatRooms
+    public partial class ChatRoomChatUsers
     {
-        public int ChatUserKey { get; set; }
         public int ChatRoomKey { get; set; }
+        public int ChatUserKey { get; set; }
 
         public ChatRooms ChatRoomKeyNavigation { get; set; }
         public ChatUsers ChatUserKeyNavigation { get; set; }

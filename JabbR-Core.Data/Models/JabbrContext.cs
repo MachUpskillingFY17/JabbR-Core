@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace JabbR_Core.Models
+namespace JabbR_Core.Data.Models
 {
     public partial class JabbrContext : DbContext
     {

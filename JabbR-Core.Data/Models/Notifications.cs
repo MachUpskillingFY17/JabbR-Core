@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace JabbR_Core.Models
+namespace JabbR_Core.Data.Models
 {
     public partial class Notifications
     {
