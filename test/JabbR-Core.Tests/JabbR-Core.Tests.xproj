@@ -7,8 +7,8 @@
 
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>4cc6743c-72f3-4eaf-94d7-3f493a637d32</ProjectGuid>
-    <RootNamespace>Jabbr_Core.Tests</RootNamespace>
+    <ProjectGuid>fb038395-5aeb-437a-ab9b-26e051602abc</ProjectGuid>
+    <RootNamespace>JabbR_Core.Tests</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
