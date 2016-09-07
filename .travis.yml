@@ -1,5 +1,11 @@
 language: csharp
 solution: JabbR-Core.sln
-install:
-    - sudo apt-get install dotnet
-    - nuget restore JabbR-Core.sln
+
+before_install:
+    - curl https://raw.githubusercontent.com/dotnet/cli/c0c07ed959cc923cee91d0a2230dee7c701b7baa/scripts/obtain/dotnet-install.sh -o dotnet-install.sh
+script:
+    - ./dotnet-install.sh
+    - xbuild JabbR-Core.sln
+    - dotnet --version
+    - dotnet restore
+    - dotnet run -p src/JabbR-Core/
