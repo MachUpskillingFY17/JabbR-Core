@@ -22,6 +22,6 @@ script:
     # this will need to run before selenium can find the pages
     # testing with manual tests
     - ls -al
-    - ls /Views
-    - ls /Views/Home
-    - dotnet run -p src/JabbR-Core/
+    - ls Views/
+    - ls Views/Home/
+    - dotnet run
