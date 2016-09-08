@@ -13,16 +13,16 @@ matrix:
 addons:
     # username and access key stored in env variables on Travis server
     sauce_connect: true
-script:
+before_script:
     - cd src/JabbR-Core
     - dotnet --info
     - dotnet --version
     - dotnet restore
-
-    # this will need to run before selenium can find the pages
-    # testing with manual tests
-    - ls -al
-    - ls Views/
-    - ls Views/Home/
-    
     - dotnet run
+
+    # maybe we can do tests using python?
+    - sudo apt-get install python-pip
+    - pip install selenium
+    - pip install sauceclient
+script:
+    - python ci/run.py
