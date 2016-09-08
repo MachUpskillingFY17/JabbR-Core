@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using JabbR_Core.Data.Models;
+using JabbR_Core.Services;
 
 namespace JabbR_Core
 {
@@ -49,6 +49,7 @@ namespace JabbR_Core
 
             services.AddMvc();
             services.AddSignalR();
+            services.AddTransient<IJabbrRepository, InMemoryRepository>();
 
             // Establish default settings from appsettings.json
             services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));

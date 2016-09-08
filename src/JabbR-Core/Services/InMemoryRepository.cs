@@ -21,6 +21,8 @@ namespace JabbR_Core.Services
         // Mock List for GetRoom()
         public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
         public LobbyRoomViewModel LobbyRoomView { get; set; }
+
+
         private readonly ICollection<ChatUser> _users;
         private readonly ICollection<ChatUserIdentity> _identities;
         private readonly ICollection<ChatRoom> _rooms;
@@ -58,6 +60,7 @@ namespace JabbR_Core.Services
             {
                 Name = Room.Name,
                 Count = 1,
+                Topic = "jabbr"
             };
             // Add RoomView to RoomList
             LobbyRoomList = new List<LobbyRoomViewModel> { LobbyRoomView };
