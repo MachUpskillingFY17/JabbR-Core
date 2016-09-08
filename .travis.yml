@@ -24,4 +24,5 @@ script:
     - ls -al
     - ls Views/
     - ls Views/Home/
+    
     - dotnet run
