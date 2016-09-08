@@ -73,7 +73,7 @@ namespace JabbR_Core.Data.Models
                     .HasForeignKey(d => d.UserKey);
             });
 
-            modelBuilder.Entity<ChatRoomChatUser1>(entity =>
+            modelBuilder.Entity<ChatRoomChatUserAllowed>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
                     .HasName("PK_ChatRoomChatUser1");
@@ -93,7 +93,7 @@ namespace JabbR_Core.Data.Models
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<ChatRoomChatUsers>(entity =>
+            modelBuilder.Entity<ChatRoomChatUserOwner>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
                     .HasName("PK_ChatRoomChatUsers");
@@ -269,8 +269,8 @@ namespace JabbR_Core.Data.Models
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<ChatClient> ChatClients { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
-        public DbSet<ChatRoomChatUser1> ChatRoomChatUser1 { get; set; }
-        public DbSet<ChatRoomChatUsers> ChatRoomChatUsers { get; set; }
+        public DbSet<ChatRoomChatUserAllowed> ChatRoomChatUser1 { get; set; }
+        public DbSet<ChatRoomChatUserOwner> ChatRoomChatUsers { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatUserChatRooms> ChatUserChatRooms { get; set; }
         public DbSet<ChatUserIdentity> ChatUserIdentities { get; set; }
