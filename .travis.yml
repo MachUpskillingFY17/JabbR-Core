@@ -1,14 +1,28 @@
 language: csharp
 solution: JabbR-Core.sln
 
+matrix:
+    include:
+        - os: linux
+          dist: trusty
+          sudo: required
+          dotnet: 1.0.0-preview2-003121 
+        - os: osx
+          osx_image: xcode7.2
+          dotnet: 1.0.0-preview2-003121 
+
 before_install:
+    # This isn't necessary if the below dotnet references work.
     - curl https://raw.githubusercontent.com/dotnet/cli/c0c07ed959cc923cee91d0a2230dee7c701b7baa/scripts/obtain/dotnet-install.sh -o dotnet-install.sh
     - chmod a+rwx dotnet-install.sh
     - ls -al 
     - cat src/JabbR-Core/JabbR-Core.xproj    
 script:
-    - sudo ./dotnet-install.sh
-    - xbuild JabbR-Core.sln
+    # Not yet. 
+    # - sudo ./dotnet-install.sh
+    # trying what's in the core-docs repo sample yaml
+    - dotnet --info
     - dotnet --version
+    # - xbuild JabbR-Core.sln
     - dotnet restore
     - dotnet run -p src/JabbR-Core/
