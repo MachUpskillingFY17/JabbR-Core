@@ -13,12 +13,10 @@ namespace JabbR_Core.Controllers
     {
 
         private ApplicationSettings _settings;
-        private JabbrContext _context;
 
-        public HomeController(JabbrContext context,IOptions<ApplicationSettings> settings)
+        public HomeController(IOptions<ApplicationSettings> settings)
         {
             _settings = settings.Value;
-            _context = context;
         }
 
         [HttpGet("/")]
@@ -38,13 +36,6 @@ namespace JabbR_Core.Controllers
                  ClientLanguageResources = _settings.ClientLanguageResources,
                  MaxMessageLength = _settings.MaxMessageLength
             };
-            //This is a hardcoded test to see if something is added to the database
-            //ChatUser User = new ChatUser();
-            //User.Name = "Test_User1";
-            //User.Id = "99";
-            //User.LastActivity = DateTime.Now;
-            //_context.Add(User);
-            //_context.SaveChanges();
 
             return View(model);
         }
