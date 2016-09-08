@@ -50,12 +50,13 @@ namespace JabbR_Core
             services.AddMvc();
             services.AddSignalR();
             services.AddTransient<IJabbrRepository, InMemoryRepository>();
+            services.AddTransient<IChatService, ChatService>();
 
             // Establish default settings from appsettings.json
-            services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
+            services.Configure<Configuration.ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
 
             // Programmatically add other options that cannot be taken from static strings
-            services.Configure<ApplicationSettings>(settings => 
+            services.Configure<Configuration.ApplicationSettings>(settings => 
             {
                 settings.Version = Version.Parse("0.1");
                 settings.Time = DateTimeOffset.UtcNow.ToString();

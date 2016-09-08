@@ -6,6 +6,7 @@ using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,49 +15,6 @@ namespace JabbR_Core.Hubs
 
     public class Chat : Hub
     {
-        //// Mock model instances to pass into Hub methods
-        //public List<string> ChatRooms { get; set; }
-        //public ChatUser User { get; set; }
-        //public string RoomNames { get; set; }
-        //public UserViewModel UserModel { get; set; }
-
-        //// Mock List for LoadRooms()
-        //public ChatRoom Room { get; set; }
-        //public List<ChatRoom> RoomList { get; set; }
-
-        //// Mock List for GetRoom()
-        //public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
-        //public LobbyRoomViewModel LobbyRoomView { get; set; }
-
-        //// Constructor populates mock data
-        //public Chat()
-        //{ 
-        //    // populate ChatUser
-        //    User = new ChatUser
-        //    {
-        //        Name = "user1",
-        //        LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
-        //        IsAdmin = true,
-        //        IsAfk = true
-        //    };
-
-        //    // instantiate UserViewModel object from User
-        //    UserModel = new UserViewModel(User);
-
-        //    // populate ChatRoom and RoomList
-        //    Room = new ChatRoom {Name = "light_meow"};
-        //    RoomList = new List<ChatRoom> {Room};
-            
-
-        //    // populate RoomView
-        //    LobbyRoomView = new LobbyRoomViewModel
-        //    {
-        //        Name = Room.Name,
-        //        Count = 1,
-        //    };
-        //    // Add RoomView to RoomList
-        //    LobbyRoomList = new List<LobbyRoomViewModel> {LobbyRoomView};
-        //}
 
         private readonly InMemoryRepository _repository;
         private readonly List<LobbyRoomViewModel> _lobbyRoomList;
@@ -75,6 +33,9 @@ namespace JabbR_Core.Hubs
             )
         {
             _repository = new InMemoryRepository();
+            //_service = service;
+            _service = new ChatService();
+
             //_repository = repository;
             _roomList = _repository.RoomList;
             _lobbyRoom = _repository.LobbyRoomView;
@@ -111,7 +72,7 @@ namespace JabbR_Core.Hubs
 
             // Try to get the user from the client state
             ChatUser user = _user;
-            // ChatUser user = _repository.GetUserById(userId);
+            //ChatUser user = _repository.GetUserById(userId);
 
             //Simple test to see if server is hit from client
             Clients.Caller.logOn(new object[0], new object[0], new { TabOrder = new List<string>() });
@@ -133,7 +94,7 @@ namespace JabbR_Core.Hubs
                 //    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
                 Private = _lobbyRoom.Private,
                 Closed = _lobbyRoom.Closed,
-                Topic = _lobbyRoom.Topic
+                Topic = _lobbyRoom.Topic 
             };
 
             _lobbyRoomList.Add(_lobbyRoom);
