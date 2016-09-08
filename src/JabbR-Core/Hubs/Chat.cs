@@ -3,6 +3,7 @@ using JabbR_Core.Models;
 using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using JabbR_Core.Services;
 using Microsoft.AspNetCore.SignalR;
 
 namespace JabbR_Core.Hubs
@@ -10,64 +11,84 @@ namespace JabbR_Core.Hubs
 
     public class Chat : Hub
     {
-        // Mock model instances to pass into Hub methods
-        public List<string> ChatRooms { get; set; }
-        public ChatUser User { get; set; }
-        public string RoomNames { get; set; }
-        public UserViewModel UserModel { get; set; }
+        //// Mock model instances to pass into Hub methods
+        //public List<string> ChatRooms { get; set; }
+        //public ChatUser User { get; set; }
+        //public string RoomNames { get; set; }
+        //public UserViewModel UserModel { get; set; }
 
-        // Mock List for LoadRooms()
-        public ChatRoom Room { get; set; }
-        public List<ChatRoom> RoomList { get; set; }
+        //// Mock List for LoadRooms()
+        //public ChatRoom Room { get; set; }
+        //public List<ChatRoom> RoomList { get; set; }
 
-        // Mock List for GetRoom()
-        public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
-        public LobbyRoomViewModel LobbyRoomView { get; set; }
+        //// Mock List for GetRoom()
+        //public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
+        //public LobbyRoomViewModel LobbyRoomView { get; set; }
 
-        // Constructor populates mock data
-        public Chat()
-        { 
-            // populate ChatUser
-            User = new ChatUser
-            {
-                Name = "user1",
-                LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
-                IsAdmin = true,
-                IsAfk = true
-            };
+        //// Constructor populates mock data
+        //public Chat()
+        //{ 
+        //    // populate ChatUser
+        //    User = new ChatUser
+        //    {
+        //        Name = "user1",
+        //        LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
+        //        IsAdmin = true,
+        //        IsAfk = true
+        //    };
 
-            // instantiate UserViewModel object from User
-            UserModel = new UserViewModel(User);
+        //    // instantiate UserViewModel object from User
+        //    UserModel = new UserViewModel(User);
 
-            // populate ChatRoom and RoomList
-            Room = new ChatRoom {Name = "light_meow"};
-            RoomList = new List<ChatRoom> {Room};
+        //    // populate ChatRoom and RoomList
+        //    Room = new ChatRoom {Name = "light_meow"};
+        //    RoomList = new List<ChatRoom> {Room};
             
 
-            // populate RoomView
-            LobbyRoomView = new LobbyRoomViewModel
-            {
-                Name = Room.Name,
-                Count = 1,
-            };
-            // Add RoomView to RoomList
-            LobbyRoomList = new List<LobbyRoomViewModel> {LobbyRoomView};
+        //    // populate RoomView
+        //    LobbyRoomView = new LobbyRoomViewModel
+        //    {
+        //        Name = Room.Name,
+        //        Count = 1,
+        //    };
+        //    // Add RoomView to RoomList
+        //    LobbyRoomList = new List<LobbyRoomViewModel> {LobbyRoomView};
+        //}
+
+        private readonly InMemoryRepository _repository;
+        private readonly List<LobbyRoomViewModel> _lobbyRoomList;
+        private readonly List<ChatRoom> _roomList;
+        private readonly ChatUser _user;
+        private readonly List<string> _chatRooms;
+
+
+        public Chat(
+            InMemoryRepository repository
+            )
+        {
+            _repository = repository;
+            _lobbyRoomList = repository.LobbyRoomList;
+            _roomList = repository.RoomList;
+            _user = repository.User;
+            _chatRooms = repository.ChatRooms;
+            
         }
 
         public void Join()
         {
             //Simple test to see if server is hit from client
-            Clients.Caller.logOn(new object[0], new object[0], new { TabOrder = new List<string>() });
+           Clients.Caller.logOn(new object[0], new object[0], new { TabOrder = new List<string>() });
         }
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            return LobbyRoomList;
+
+            return _lobbyRoomList;
         }
 
         public void GetCommands()
         {
-           
+
         }
 
         public object GetShortcuts()
@@ -83,9 +104,9 @@ namespace JabbR_Core.Hubs
         {
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
-            foreach (var room in RoomList)
+            foreach (var room in _roomList)
             {
-                if (room == null || (room.Private && !User.AllowedRooms.Contains(room)))
+                if (room == null || (room.Private && !_user.AllowedRooms.Contains(room)))
                 {
                     continue;
                 }
@@ -115,12 +136,14 @@ namespace JabbR_Core.Hubs
 
         public void UpdateActivity()
         {
-                UpdateActivity(User, ChatRooms);
+            UpdateActivity(_user, _chatRooms);
         }
+
+
 
         private void UpdateActivity(ChatUser user, List<string> rooms)
         {
-            
+
         }
     }
 }
