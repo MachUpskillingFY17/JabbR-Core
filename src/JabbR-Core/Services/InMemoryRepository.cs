@@ -14,6 +14,7 @@ namespace JabbR_Core.Services
         public string RoomNames { get; set; }
         public UserViewModel UserModel { get; set; }
         public ChatClient ChatClient { get; set; }
+        public ClientState ClientState { get; set; }
 
         // Mock List for LoadRooms()
         public ChatRoom Room { get; set; }
@@ -22,6 +23,7 @@ namespace JabbR_Core.Services
         // Mock List for GetRoom()
         public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
         public LobbyRoomViewModel LobbyRoomView { get; set; }
+        public RoomViewModel RoomViewModel { get; set; }
 
 
         private readonly ICollection<ChatUser> _users;
@@ -55,14 +57,19 @@ namespace JabbR_Core.Services
                 Name = "testClient",
             };
 
+            ClientState = new ClientState
+            {
+                ActiveRoom = "Lobby"
+            };
 
-        // instantiate UserViewModel object from User
-        UserModel = new UserViewModel(User);
+            // instantiate UserViewModel object from User
+            UserModel = new UserViewModel(User);
 
             // populate ChatRoom and RoomList
             Room = new ChatRoom { Name = "light_meow" };
             RoomList = new List<ChatRoom> { Room };
 
+            RoomViewModel = new RoomViewModel();
 
             // populate RoomView
             LobbyRoomView = new LobbyRoomViewModel

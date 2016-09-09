@@ -20,6 +20,8 @@ namespace JabbR_Core.Hubs
         private readonly LobbyRoomViewModel _lobbyRoom;
         private readonly List<ChatRoom> _roomList;
         private readonly ChatUser _user;
+        private readonly UserViewModel _userViewModel;
+        private readonly RoomViewModel _roomViewModel;
         private readonly ChatRoom _room;
         private readonly List<string> _chatRooms;
         private readonly ILogger _logger;
@@ -43,6 +45,8 @@ namespace JabbR_Core.Hubs
             //_cache = new ICache();
 
             //_repository = repository;
+            _userViewModel = _repository.UserModel;
+            _roomViewModel = _repository.RoomViewModel;
             _roomList = _repository.RoomList;
             _lobbyRoom = _repository.LobbyRoomView;
             _lobbyRoomList = _repository.LobbyRoomList;
@@ -185,11 +189,11 @@ namespace JabbR_Core.Hubs
         {
             var message = new ClientMessage
             {
-                Content = content,
-                Room = roomName,
+                Content = content,  // '/join light_meow'
+                Room = roomName,    // 'Lobby'
             };
 
-
+        
             return Send(message);
         }
 
@@ -198,8 +202,9 @@ namespace JabbR_Core.Hubs
             ChatUser user = _user;
             ChatRoom room = _room;
 
+            
             Clients.Caller.joinRoom(user, room, new object());
-            //GetRoomInfo(room.Name);
+            GetRoomInfo(room.Name);
             CheckStatus();
 
             //reject it if it's too long
@@ -424,37 +429,38 @@ namespace JabbR_Core.Hubs
         {
             var recentMessages = _recentMessageCache.GetRecentMessages(room.Name);
 
-            // If we haven't cached enough messages just populate it now
-            if (recentMessages.Count == 0)
-            {
-                var messages = await (from m in _repository.GetMessagesByRoom(room)
-                                      orderby m.When descending
-                                      select m).Take(50).ToListAsync();
-                // Reverse them since we want to get them in chronological order
-                messages.Reverse();
+            //// If we haven't cached enough messages just populate it now
+            //if (recentMessages.Count == 0)
+            //{
+            //    var messages = await (from m in _repository.GetMessagesByRoom(room)
+            //                          orderby m.When descending
+            //                          select m).Take(50).ToListAsync();
+            //    // Reverse them since we want to get them in chronological order
+            //    messages.Reverse();
 
-                recentMessages = messages.Select(m => new MessageViewModel(m)).ToList();
+            //    recentMessages = messages.Select(m => new MessageViewModel(m)).ToList();
 
-                _recentMessageCache.Add(room.Name, recentMessages);
-            }
+            //    _recentMessageCache.Add(room.Name, recentMessages);
+            //}
 
             // Get online users through the repository
-            List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
+            //List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
 
-            return new RoomViewModel
-            {
-                Name = room.Name,
-                Users = from u in onlineUsers
-                        select new UserViewModel(u),
-                Owners = from u in room.Owners.Online()
-                         select u.Name,
-                RecentMessages = recentMessages,
-                Topic = room.Topic ?? String.Empty,
-                Welcome = room.Welcome ?? String.Empty,
-                Closed = room.Closed
-            };
+            return _roomViewModel;
+            //return new RoomViewModel
+            //{
+            //    Name = room.Name,
+            //    Users = from u in onlineUsers
+            //            select new UserViewModel(u),
+            //    Owners = from u in room.Owners.Online()
+            //             select u.Name,
+            //    RecentMessages = recentMessages,
+            //    Topic = room.Topic ?? String.Empty,
+            //    Welcome = room.Welcome ?? String.Empty,
+            //    Closed = room.Closed
+            //};
         }
-        
+
 
         void INotificationService.LogOn(ChatUser user, string clientId)
         {
