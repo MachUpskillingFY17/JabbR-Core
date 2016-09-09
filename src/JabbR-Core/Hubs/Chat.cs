@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.SignalR;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace JabbR_Core.Hubs
 {
@@ -23,6 +25,7 @@ namespace JabbR_Core.Hubs
         private readonly IChatService _service;
         private readonly ApplicationSettings _settings;
         private readonly ICache _cache;
+        private readonly IRecentMessageCache _recentMessageCache;
 
 
         public Chat(
@@ -35,6 +38,7 @@ namespace JabbR_Core.Hubs
             //_service = service;
             _service = new ChatService();
             _settings = new ApplicationSettings();
+            _recentMessageCache = new RecentMessageCache();
             //_cache = new ICache();
 
             //_repository = repository;
@@ -193,6 +197,7 @@ namespace JabbR_Core.Hubs
             ChatUser user = _user;
             ChatRoom room = _room;
             Clients.Caller.joinRoom(user, room, new object[0]);
+            GetRoomInfo(room.Name);
             CheckStatus();
 
             //reject it if it's too long
@@ -207,7 +212,8 @@ namespace JabbR_Core.Hubs
                 return true;
             }
 
-            var userId = Context.User.GetUserId();
+            //var userId = Context.User.GetUserId();
+            var userId = _user.Id;
 
             //ChatUser user = _repository.VerifyUserId(userId);
             //ChatRoom room = _repository.VerifyUserRoom(_cache, user, clientMessage.Room);
@@ -296,7 +302,8 @@ namespace JabbR_Core.Hubs
         private bool TryHandleCommand(string command, string room)
         {
             string clientId = Context.ConnectionId;
-            string userId = Context.User.GetUserId();
+            //string userId = Context.User.GetUserId();
+            string userId = _user.Id;
 
             //var commandManager = new CommandManager(clientId, UserAgent, userId, room, _service, _repository, _cache, this);
             //return commandManager.TryHandleCommand(command
@@ -356,7 +363,64 @@ namespace JabbR_Core.Hubs
             // Clear the cache
             _cache.RemoveUserInRoom(user, room);
         }
-        
+        public Task<RoomViewModel> GetRoomInfo(string roomName)
+        {
+            if (String.IsNullOrEmpty(roomName))
+            {
+                return null;
+            }
+
+            //string userId = Context.User.GetUserId();
+            string userId = _user.Id;
+            //ChatUser user = _repository.VerifyUserId(userId);
+            ChatUser user = _user;
+            
+            //ChatRoom room = _repository.GetRoomByName(roomName);
+            ChatRoom room = _room;
+
+            if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
+            {
+                return null;
+            }
+
+            return GetRoomInfoCore(room);
+        }
+
+        private async Task<RoomViewModel> GetRoomInfoCore(ChatRoom room)
+        {
+            var recentMessages = _recentMessageCache.GetRecentMessages(room.Name);
+
+            // If we haven't cached enough messages just populate it now
+            if (recentMessages.Count == 0)
+            {
+                var messages = await (from m in _repository.GetMessagesByRoom(room)
+                                      orderby m.When descending
+                                      select m).Take(50).ToListAsync();
+                // Reverse them since we want to get them in chronological order
+                messages.Reverse();
+
+                recentMessages = messages.Select(m => new MessageViewModel(m)).ToList();
+
+                _recentMessageCache.Add(room.Name, recentMessages);
+            }
+
+            // Get online users through the repository
+            List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
+
+            return new RoomViewModel
+            {
+                Name = room.Name,
+                Users = from u in onlineUsers
+                        select new UserViewModel(u),
+                Owners = from u in room.Owners.Online()
+                         select u.Name,
+                RecentMessages = recentMessages,
+                Topic = room.Topic ?? String.Empty,
+                Welcome = room.Welcome ?? String.Empty,
+                Closed = room.Closed
+            };
+        }
+
     }
 
 }
