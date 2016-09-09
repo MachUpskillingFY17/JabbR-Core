@@ -20,4 +20,6 @@ script:
 
     # this will need to run before selenium can find the pages
     # testing with manual tests
-    - dotnet run -p src/JabbR-Core/
+    # - dotnet run -p src/JabbR-Core/
+    - cd src/JabbR-Core/
+    - dotnet run
