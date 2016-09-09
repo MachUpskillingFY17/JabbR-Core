@@ -6,6 +6,7 @@ using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.SignalR;
+using System.Linq;
 
 namespace JabbR_Core.Hubs
 {
@@ -183,11 +184,15 @@ namespace JabbR_Core.Hubs
                 Room = roomName,
             };
 
+
             return Send(message);
         }
 
         public bool Send(ClientMessage clientMessage)
         {
+            ChatUser user = _user;
+            ChatRoom room = _room;
+            Clients.Caller.joinRoom(user, room, new object[0]);
             CheckStatus();
 
             //reject it if it's too long
@@ -206,9 +211,9 @@ namespace JabbR_Core.Hubs
 
             //ChatUser user = _repository.VerifyUserId(userId);
             //ChatRoom room = _repository.VerifyUserRoom(_cache, user, clientMessage.Room);
-            ChatUser user = _user;
-            ChatRoom room = _room;
-
+            //ChatUser user = _user;
+            //ChatRoom room = _room;
+            
 
             if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
             {
@@ -248,6 +253,9 @@ namespace JabbR_Core.Hubs
                 // Now tell the caller to replace the message
                 Clients.Caller.replaceMessage(clientMessage.Id, messageViewModel, room.Name);
             }
+
+            
+
 
             // Add mentions
             //AddMentions(chatMessage);
@@ -294,5 +302,61 @@ namespace JabbR_Core.Hubs
             //return commandManager.TryHandleCommand(command
             return true;
         }
+        //void INotificationService.JoinRoom(ChatUser user, ChatRoom room)
+        //{
+        //    var userViewModel = new UserViewModel(user);
+        //    var roomViewModel = new RoomViewModel
+        //    {
+        //        Name = room.Name,
+        //        Private = room.Private,
+        //        Welcome = room.Welcome ?? String.Empty,
+        //        Closed = room.Closed
+        //    };
+
+        //    var isOwner = user.OwnedRooms.Contains(room);
+
+        //    // Tell all clients to join this room
+        //    Clients.User(user.Id).joinRoom(roomViewModel);
+
+        //    // Tell the people in this room that you've joined
+        //    Clients.Group(room.Name).addUser(userViewModel, room.Name, isOwner);
+
+        //    // Notify users of the room count change
+        //    OnRoomChanged(room);
+
+        //    foreach (var client in user.ConnectedClients)
+        //    {
+        //        Groups.Add(client.Id, room.Name);
+        //    }
+        //}
+        public void JoinRoom(ChatUser user, ChatRoom room, string inviteCode)
+        {
+            // Throw if the room is private but the user isn't allowed
+            if (room.Private)
+            {
+                // First, check if the invite code is correct
+                if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
+                {
+                    // It is, add the user to the allowed users so that future joins will work
+                    room.AllowedUsers.Add(user);
+                }
+                if (!room.IsUserAllowed(user))
+                {
+                    throw new HubException(String.Format(LanguageResources.Join_LockedAccessPermission, room.Name));
+                }
+            }
+
+            // Add this user to the room
+            _repository.AddUserRoom(user, room);
+
+            ChatUserPreferences userPreferences = user.Preferences;
+            userPreferences.TabOrder.Add(room.Name);
+            user.Preferences = userPreferences;
+
+            // Clear the cache
+            _cache.RemoveUserInRoom(user, room);
+        }
+        
     }
+
 }
