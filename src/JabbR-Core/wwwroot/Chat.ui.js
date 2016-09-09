@@ -253,6 +253,7 @@
             $room = null,
             roomName = roomViewModel.Name.toString().toUpperCase(),
             count = roomViewModel.Count,
+            //count = 1,
             closed = roomViewModel.Closed,
             nonPublic = roomViewModel.Private,
             $targetList = roomViewModel.Private ? lobby.owners : lobby.users,

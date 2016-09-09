@@ -73,6 +73,8 @@ namespace JabbR_Core.Services
             };
             // Add RoomView to RoomList
             LobbyRoomList = new List<LobbyRoomViewModel> {  };
+
+
         }
 
         public IQueryable<ChatRoom> Rooms { get { return _rooms.AsQueryable(); } }
@@ -198,46 +200,46 @@ namespace JabbR_Core.Services
             return GetRoomByName(roomName);
         }
 
-        //public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
-        //{
-        //    return _rooms
-        //        .Where(r =>
-        //            (!r.Private) ||
-        //            (r.Private && r.AllowedUsers.Contains(user)))
-        //        .AsQueryable();
-        //}
+        public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
+        {
+            return _rooms
+                .Where(r =>
+                    (!r.Private) ||
+                    (r.Private && r.AllowedUsers.Contains(user)))
+                .AsQueryable();
+        }
 
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
         {
             return _notifications.Where(n => n.UserKey == user.Key).AsQueryable();
         }
 
-        //public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
-        //{
-        //    return room.Messages.AsQueryable();
-        //}
+        public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
+        {
+            return room.Messages.AsQueryable();
+        }
 
-        //public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
-        //{
-        //    return room.Users.Online().AsQueryable();
-        //}
+        public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
+        {
+            return room.Users.Online().AsQueryable();
+        }
 
-        //public IQueryable<ChatUser> GetOnlineUsers()
-        //{
-        //    return _users.Online().AsQueryable();
-        //}
+        public IQueryable<ChatUser> GetOnlineUsers()
+        {
+            return _users.Online().AsQueryable();
+        }
 
-        //public IQueryable<ChatUser> SearchUsers(string name)
-        //{
-        //    return _users.Online()
-        //                 .Where(u => u.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) != -1)
-        //                 .AsQueryable();
-        //}
+        public IQueryable<ChatUser> SearchUsers(string name)
+        {
+            return _users.Online()
+                         .Where(u => u.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) != -1)
+                         .AsQueryable();
+        }
 
-        //public ChatUser GetUserByClientId(string clientId)
-        //{
-        //    return _users.FirstOrDefault(u => u.ConnectedClients.Any(c => c.Id == clientId));
-        //}
+        public ChatUser GetUserByClientId(string clientId)
+        {
+            return _users.FirstOrDefault(u => u.ConnectedClients.Any(c => c.Id == clientId));
+        }
 
         public ChatUser GetUserByLegacyIdentity(string userIdentity)
         {
@@ -266,22 +268,22 @@ namespace JabbR_Core.Services
             return _notifications.SingleOrDefault(n => n.Key == notificationId);
         }
 
-        //public ChatClient GetClientById(string clientId, bool includeUser = false)
-        //{
-        //    return _users.SelectMany(u => u.ConnectedClients).FirstOrDefault(c => c.Id == clientId);
-        //}
+        public ChatClient GetClientById(string clientId, bool includeUser = false)
+        {
+            return _users.SelectMany(u => u.ConnectedClients).FirstOrDefault(c => c.Id == clientId);
+        }
 
-        //public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
-        //{
-        //    // Ineffcient since we don't have a messages collection
+        public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
+        {
+            // Ineffcient since we don't have a messages collection
 
-        //    return (from r in _rooms
-        //            let message = r.Messages.FirstOrDefault(m => m.Id == messageId)
-        //            where message != null
-        //            from m in r.Messages
-        //            where m.When < message.When
-        //            select m).AsQueryable();
-        //}
+            return (from r in _rooms
+                    let message = r.Messages.FirstOrDefault(m => m.Id == messageId)
+                    where message != null
+                    from m in r.Messages
+                    where m.When < message.When
+                    select m).AsQueryable();
+        }
 
         public ChatMessage GetMessageById(string id)
         {
@@ -314,45 +316,6 @@ namespace JabbR_Core.Services
         public void Reload(object entity)
         {
         }
-
-        public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IQueryable<ChatUser> GetOnlineUsers()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IQueryable<ChatUser> SearchUsers(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ChatUser GetUserByClientId(string clientId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ChatClient GetClientById(string clientId, bool includeUser = false)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }
