@@ -13,6 +13,7 @@ namespace JabbR_Core.Services
         public ChatUser User { get; set; }
         public string RoomNames { get; set; }
         public UserViewModel UserModel { get; set; }
+        public ChatClient ChatClient { get; set; }
 
         // Mock List for LoadRooms()
         public ChatRoom Room { get; set; }
@@ -47,8 +48,16 @@ namespace JabbR_Core.Services
                 IsAfk = true
             };
 
-            // instantiate UserViewModel object from User
-            UserModel = new UserViewModel(User);
+            ChatClient = new ChatClient
+            {
+                Key = 1,
+                Id = "meow",
+                Name = "testClient",
+            };
+
+
+        // instantiate UserViewModel object from User
+        UserModel = new UserViewModel(User);
 
             // populate ChatRoom and RoomList
             Room = new ChatRoom { Name = "light_meow" };

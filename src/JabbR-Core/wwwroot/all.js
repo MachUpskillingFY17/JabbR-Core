@@ -1314,15 +1314,15 @@ var Emoji = {};
     $ui.bind(ui.events.openRoom, function (ev, room) {
         try {
             chat.server.send('/join ' + room, chat.state.activeRoom)
-                .fail(function (e) {
-                    ui.setActiveRoom('Lobby');
-                    if (e.source === 'HubException') {
-                        ui.addErrorToActiveRoom(e.message);
-                    }
-                });
+                    .fail(function (e) {
+                        ui.setActiveRoom('Lobby');
+                        if (e.source === 'HubException') {
+                            ui.addErrorToActiveRoom(e.message);
+                        }
+                    });
         }
         catch (e) {
-            connection.hub.log('openRoom failed');
+                connection.hub.log('openRoom failed');
         }
     });
 

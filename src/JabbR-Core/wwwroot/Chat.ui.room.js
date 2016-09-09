@@ -1,6 +1,6 @@
 ﻿(function ($, window, chat) {
     "use strict";
-    
+
     var trimRoomHistoryMaxMessages = 200;
 
     function getUserClassName(userName) {
@@ -203,8 +203,8 @@
 
     Room.prototype.setListState = function (list) {
         var emptyStatus = list.children('li.empty'),
-            visibleItems = list.children('li:not(.empty)').filter(function() { return $(this).css('display') !== 'none'; });
-        
+            visibleItems = list.children('li:not(.empty)').filter(function () { return $(this).css('display') !== 'none'; });
+
         if (visibleItems.length > 0) {
             emptyStatus.remove();
         } else if (emptyStatus.length === 0) {

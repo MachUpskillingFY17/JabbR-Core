@@ -176,7 +176,7 @@
         }
         return room;
     }
-    
+
     function getActiveRoomName() {
         //TODO: make this less DOM-read-ey
         return $tabs.find('li.current').data('name');
@@ -206,12 +206,12 @@
             $topic = $room.find('.topic'),
             roomName = room.Name.toString().toUpperCase(),
             processedTopic = ui.processContent(room.Topic);
-        
+
         // if we don't find the room, we need to create it
         if ($room.length === 0) {
             addRoomToLobby(room);
             return;
-        }           
+        }
 
         if (room.Count === 0) {
             $count.text(utility.getLanguageResource('Client_OccupantsZero'));
@@ -271,7 +271,7 @@
 
         filterIndividualRoom($room);
         lobby.setListState($targetList);
-        
+
         roomCache[roomName] = true;
 
         // don't try to populate the sortedRoomList while we're initially filling up the lobby
@@ -285,7 +285,7 @@
             }
             sortedRoomList.splice(sortedRoomInsertIndex, 0, roomViewModel);
         }
-        
+
         // handle updates on rooms not currently displayed to clients by removing from the public room list
         if (publicRoomList) {
             for (i = 0; i < publicRoomList.length; i++) {
@@ -295,14 +295,14 @@
                 }
             }
         }
-        
+
         // if it's a private room, make sure that we're displaying the private room section
         if (nonPublic) {
             $lobbyPrivateRooms.show();
             $lobbyOtherRooms.find('.nav-header').html(utility.getLanguageResource('Client_OtherRooms'));
         }
     }
-    
+
     function getNextRoomListElement($targetList, roomName, count, closed) {
         var nextListElement = null;
 
@@ -346,11 +346,11 @@
 
         return nextListElement;
     }
-    
+
     function filterIndividualRoom($room) {
         var filter = $roomFilterInput.val().toUpperCase(),
             showClosedRooms = $closedRoomFilter.is(':checked');
-        
+
         if ($room.data('room').toString().toUpperCase().score(filter) > 0.0 && (showClosedRooms || !$room.is('.closed'))) {
             $room.show();
         } else {
@@ -388,7 +388,7 @@
         if (!roomCache[roomName.toString().toUpperCase()]) {
             addRoomToLobby(roomViewModel);
         }
-        
+
         templates.tab.tmpl(viewModel).data('name', roomName).appendTo($tabsDropdown);
         ui.updateTabOverflow();
 
@@ -459,7 +459,7 @@
             room.users.remove();
             room.roomTopic.remove();
             setAccessKeys();
-            
+
             ui.updateTabOverflow();
         }
     }
@@ -750,7 +750,7 @@
 
         populateLobbyRoomList(moreRooms, templates.lobbyroom, lobby.users);
         lastLoadedRoomIndex = lastLoadedRoomIndex + maxRoomsToLoad;
-        
+
         // re-filter lists
         $lobbyRoomFilterForm.submit();
     }
@@ -852,7 +852,7 @@
             $unreadNotificationCount = $('#notification-unread-count');
 
             $createRoomButton = $('#create-room');
-            
+
             if (toast.canToast()) {
                 $toast.show();
             }
@@ -875,7 +875,7 @@
                 });
             });
 
-            var activateOrOpenRoom = function(roomName) {
+            var activateOrOpenRoom = function (roomName) {
                 var room = getRoomElements(roomName);
 
                 if (room.exists()) {
@@ -890,16 +890,16 @@
                     $ui.trigger(ui.events.openRoom, [roomName]);
                 }
             };
-            
+
             $document.on('click', 'li.room .room-row', function () {
                 var roomName = $(this).parent().data('name');
                 activateOrOpenRoom(roomName);
             });
-            
+
             $roomFilterInput.keypress(function (ev) {
                 var key = ev.keyCode || ev.which,
                     roomName = $(this).val();
-                
+
                 switch (key) {
                     case Keys.Enter:
                         // only if it's an exact match
@@ -909,7 +909,7 @@
                         }
                 }
             });
-            
+
             $document.on('click', '#tabs li, #tabs-dropdown li', function () {
                 var roomName = $(this).data('name');
                 activateOrOpenRoom(roomName);
@@ -966,13 +966,13 @@
                 dragEnd: function () {
                     var roomTabOrder = [],
                         $roomTabs = $('#tabs li, #tabs-dropdown li');
-                    
+
                     for (var i = 0; i < $roomTabs.length; i++) {
                         roomTabOrder[i] = $($roomTabs[i]).data('name');
                     }
-                    
+
                     $ui.trigger(ui.events.tabOrderChanged, [roomTabOrder]);
-                    
+
                     // check for tab overflow for one edge case - sort order hasn't changed but user 
                     // dragged the last item in the main list to be the first item in the dropdown.
                     ui.updateTabOverflow();
@@ -1196,7 +1196,7 @@
                 $downloadDialog.modal('hide');
             });
 
-            $createRoomButton.click(function () {              
+            $createRoomButton.click(function () {
                 var roomName = prompt(utility.getLanguageResource('Create_CommandInfo'), ''),
                     msg = '/create ' + roomName;
                 if (roomName === null) {
@@ -1220,11 +1220,11 @@
             $help.click(function () {
                 ui.showHelp();
             });
-            
+
             $roomFilterInput.bind('input', function () { $lobbyRoomFilterForm.submit(); })
                 .keyup(function () { $lobbyRoomFilterForm.submit(); });
 
-            $closedRoomFilter.click(function() { $lobbyRoomFilterForm.submit(); });
+            $closedRoomFilter.click(function () { $lobbyRoomFilterForm.submit(); });
 
             $lobbyRoomFilterForm.submit(function () {
                 var room = getCurrentRoomElements(),
@@ -1234,7 +1234,7 @@
                 $lobbyRoomsLists
                     .find('li:not(.empty)')
                     .each(function () { filterIndividualRoom($(this)); });
-                
+
                 $lobbyRoomsLists.find('ul').each(function () {
                     room.setListState($(this));
                 });
@@ -1318,7 +1318,7 @@
 
                                              return '';
                                          })
-                                         .sort(function(a, b) {
+                                         .sort(function (a, b) {
                                              return a.toString().toUpperCase().localeCompare(b.toString().toUpperCase());
                                          });
                         case '#':
@@ -1371,7 +1371,7 @@
                 ui.trimRoomMessageHistory();
             }, trimRoomHistoryFrequency);
         },
-        
+
         run: function () {
             $.history.init(function (hash) {
                 var roomName = getRoomNameFromHash(hash);
@@ -1433,7 +1433,7 @@
                 }
 
                 room.makeActive();
-                
+
                 ui.updateTabOverflow();
 
                 if (room.isLobby()) {
@@ -1536,12 +1536,12 @@
             var lobby = getLobby(),
                 i;
             if (!lobby.isInitialized()) {
-                
+
                 // Process the topics
                 for (i = 0; i < rooms.length; ++i) {
                     rooms[i].processedTopic = ui.processContent(rooms[i].Topic);
                 }
-                
+
                 for (i = 0; i < privateRooms.length; ++i) {
                     privateRooms[i].processedTopic = ui.processContent(privateRooms[i].Topic);
                 }
@@ -1557,7 +1557,7 @@
 
                 // sort private lobby rooms
                 var privateSorted = sortRoomList(privateRooms);
-                
+
                 // sort other lobby rooms but filter out private rooms
                 publicRoomList = sortRoomList(rooms).filter(function (room) {
                     return !privateSorted.some(function (allowed) {
@@ -1565,7 +1565,7 @@
                     });
                 });
 
-                sortedRoomList = rooms.sort(function(a, b) {
+                sortedRoomList = rooms.sort(function (a, b) {
                     return a.Name.toString().toUpperCase().localeCompare(b.Name.toString().toUpperCase());
                 });
 
@@ -1604,11 +1604,11 @@
         removeLobbyRoom: function (roomName) {
             var roomNameUppercase = roomName.toString().toUpperCase(),
                 i = null;
-            
+
             if (roomCache[roomNameUppercase]) {
                 delete roomCache[roomNameUppercase];
             }
-            
+
             // find the element in the sorted room list and remove it
             for (i = 0; i < sortedRoomList.length; i++) {
                 if (sortedRoomList[i].Name.toString().toUpperCase().localeCompare(roomNameUppercase) === 0) {
@@ -1616,7 +1616,7 @@
                     break;
                 }
             }
-            
+
             // find the element in the lobby public room list and remove it
             for (i = 0; i < publicRoomList.length; i++) {
                 if (publicRoomList[i].Name.toString().toUpperCase().localeCompare(roomNameUppercase) === 0) {
@@ -1624,12 +1624,12 @@
                     break;
                 }
             }
-            
+
             // remove the items from the lobby screen
             var lobby = getLobby(),
                 $room = lobby.users.add(lobby.owners).find('[data-room="' + roomName + '"]');
             $room.remove();
-            
+
             // if we have no private rooms, hide the private rooms section and change the text on the rooms header
             if (lobby.owners.find('li:not(.empty)').length === 0) {
                 $lobbyPrivateRooms.hide();
@@ -1680,7 +1680,7 @@
             } else {
                 if (!$user.hasClass('inactive')) {
                     $user.addClass('inactive');
-                    
+
                     $('.message-user' + getUserClassName(userViewModel.name))
                         .removeClass('offline active')
                         .addClass('inactive');
@@ -1696,7 +1696,7 @@
         setUserActive: function ($user) {
             var $inactiveSince = $user.find('.inactive-since'),
                 $userMessages = $('.message-user' + getUserClassName($user.data('name')));
-            
+
             if ($user.data('active') === true) {
                 return false;
             }
@@ -1706,7 +1706,7 @@
             if ($inactiveSince.livestamp('isLiveStamp')) {
                 $inactiveSince.livestamp('destroy');
             }
-            
+
             $userMessages.removeClass('offline active inactive').addClass('active');
 
             return true;
@@ -1714,20 +1714,20 @@
         setUserInActive: function ($user) {
             var $userMessages = $('.message-user' + getUserClassName($user.data('name'))),
                 $inactiveSince = $user.find('.inactive-since');
-            
+
             if ($user.data('active') === false) {
                 return false;
             }
             $user.attr('data-active', false);
             $user.data('active', false);
             $user.addClass('inactive');
-            
+
             if (!$inactiveSince.html()) {
                 $inactiveSince.livestamp(new Date());
             }
-            
+
             $userMessages.removeClass('offline active inactive').addClass('inactive');
-            
+
             return true;
         },
         changeUserName: function (oldName, user, roomName) {
@@ -1781,7 +1781,7 @@
                         room.setListState(room.activeUsers);
                     }
                 });
-            
+
             $userMessages.find('.user').removeClass('absent present').addClass('absent');
         },
         setUserTyping: function (userViewModel, roomName) {
@@ -2103,24 +2103,24 @@
         addWelcome: function (message, roomName) {
             this.addMessage(message, 'welcome', roomName);
         },
-        addWelcomeToActiveRoom: function(message) {
+        addWelcomeToActiveRoom: function (message) {
             this.addWelcome(message, getActiveRoomName());
         },
-        addList: function(header, messages, roomName) {
+        addList: function (header, messages, roomName) {
             this.addMessage(header, 'list-header', roomName);
-            
+
             var _this = this;
             $.each(messages, function () {
                 _this.addMessage(this, 'list-item', roomName);
             });
         },
-        addListToActiveRoom: function(header, messages) {
+        addListToActiveRoom: function (header, messages) {
             this.addList(header, messages, getActiveRoomName());
         },
-        addBroadcast: function(message, roomName) {
+        addBroadcast: function (message, roomName) {
             this.addMessage(message, 'broadcast', roomName);
         },
-        addAction: function(message, roomName) {
+        addAction: function (message, roomName) {
             this.addMessage(message, 'action', roomName);
         },
         addPrivateMessage: function (content) {
@@ -2160,7 +2160,7 @@
             return !ui.commandsLookup ? null : ui.commandsLookup[name];
         },
         setCommands: function (commands) {
-            ui.commands = commands.sort(function(a, b) {
+            ui.commands = commands.sort(function (a, b) {
                 return a.Name.toString().toUpperCase().localeCompare(b.Name.toString().toUpperCase());
             });
 
@@ -2173,7 +2173,7 @@
             $globalCmdHelp.empty();
             $roomCmdHelp.empty();
             $userCmdHelp.empty();
-            
+
             $.each(ui.getCommands(), function () {
                 switch (this.Group) {
                     case ui.help.shortcut:
@@ -2284,7 +2284,7 @@
             if (anyRoomPreference('hasSound', true) === true) {
                 ui.notify(true);
             }
-            
+
             if (focus === false && anyRoomPreference('canToast', true) === true) {
                 // Only toast if there's no focus
                 ui.toast(message, true);
@@ -2485,7 +2485,7 @@
                 $('.message.failed .resend').removeClass('disabled');
             }
         },
-        toggleDownloadButton: function(disabled) {
+        toggleDownloadButton: function (disabled) {
             if (disabled) {
                 $downloadIcon.addClass("off");
                 $downloadIcon.attr("title", "download messages disabled for private rooms");
@@ -2519,7 +2519,7 @@
             }
         },
         updateTabOrder: function (tabOrder) {
-            $.each(tabOrder.reverse(), function(el, name) {
+            $.each(tabOrder.reverse(), function (el, name) {
                 $tabs.find('li[data-name="' + name + '"]').prependTo($tabs.first());
             });
 
@@ -2534,18 +2534,18 @@
                 $tabsDropdown = $tabs.last(),
                 overflowedRoomTabs = null,
                 $tabsDropdownButton = $('#tabs-dropdown-rooms');
-            
+
             // move all (non-dragsort) tabs to the first list
             $tabs.last().find('li:not(.placeholder)').each(function () { $(this).css('visibility', 'hidden').detach().appendTo($tabsList); });
-            
+
             $roomTabs = $tabsList.find('li:not(.placeholder)');
-            
+
             // if width of first tab is greater than the tab area, move them all to the list
             if ($roomTabs.length > 0 && $roomTabs.width() > $tabsList.width()) {
                 sliceIndex = 0;
             } else {
                 // find overflow and move it all to the dropdown list ul
-                $roomTabs.each(function(idx) {
+                $roomTabs.each(function (idx) {
                     if (sliceIndex !== -1) {
                         return;
                     }

@@ -999,7 +999,7 @@
     };
 
     chat.client.showUsersOwnedRoomList = function (user, rooms) {
-        if (rooms.length === 0) {
+        if (rooms.length === 0) {op
             ui.addListToActiveRoom(utility.getLanguageResource('Chat_UserOwnsNoRooms', user), []);
         }
         else {
@@ -1156,16 +1156,16 @@
     $ui.bind(ui.events.openRoom, function (ev, room) {
         try {
             chat.server.send('/join ' + room, chat.state.activeRoom)
-                .fail(function (e) {
-                    ui.setActiveRoom('Lobby');
-                    if (e.source === 'HubException') {
-                        ui.addErrorToActiveRoom(e.message);
-                    }
-                });
-        }
-        catch (e) {
-            connection.hub.log('openRoom failed');
-        }
+                    .fail(function (e) {
+                        ui.setActiveRoom('Lobby');
+                        if (e.source === 'HubException') {
+                            ui.addErrorToActiveRoom(e.message);
+                        }
+                    });
+            }
+            catch (e) {
+                connection.hub.log('openRoom failed');
+            }
     });
 
     $ui.bind(ui.events.closeRoom, function (ev, room) {
