@@ -14,12 +14,9 @@ addons:
     # username and access key stored in env variables on Travis server
     sauce_connect: true
 script:
+    - cd src/JabbR-Core
+    - dotnet restore
     - dotnet --info
     - dotnet --version
-    - dotnet restore
-
-    # this will need to run before selenium can find the pages
-    # testing with manual tests
-    # - dotnet run -p src/JabbR-Core/
-    - cd src/JabbR-Core/
-    - dotnet run
+    # Start web server and listen on localhost:5000/
+    - dotnet run 
