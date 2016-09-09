@@ -1,15 +1,13 @@
 ﻿using System;
 using Xunit;
 
-// Test homepage functionality 
 namespace Tests
 {
-    public class HomeFacts
+    public class Tests
     {
         [Fact]
-        public void HomePageLoads() 
+        public void Test1() 
         {
-            // TODO
             Assert.True(true);
         }
     }

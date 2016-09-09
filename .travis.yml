@@ -14,9 +14,12 @@ addons:
     # username and access key stored in env variables on Travis server
     sauce_connect: true
 script:
-    - cd src/JabbR-Core
-    - dotnet restore
     - dotnet --info
     - dotnet --version
-    # Start web server and listen on localhost:5000/
-    - dotnet run 
+
+    - cd test/JabbR-Core.Tests/
+    # This builds JabbR-Core and JabbR-Core.Tests
+    - dotnet build
+
+    # Run test suite
+    - dotnet test
