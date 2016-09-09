@@ -253,4 +253,3 @@ paket-files/
 
 # Ignore swap files
 *.swp
-/src/JabbR-Core/Properties/PublishProfiles
