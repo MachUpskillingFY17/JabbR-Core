@@ -27,4 +27,5 @@ script:
     # - dotnet test
 
     # Open the server and let Sauce Labs connect
+    - cd ../../src/JabbR-Core/
     - dotnet run
