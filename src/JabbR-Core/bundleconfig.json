@@ -1,8 +1,9 @@
 [
   {
-    "outputFileName": "wwwroot/font/font-awesome.min.css",
+    "outputFileName": "wwwroot/js/libraries.js",
     "inputFiles": [
-      "wwwroot/font/font-awesome.css"
+      "wwwroot/Scripts/*.js" //This grabs everything including stuff in wwwroot not in folders
+
     ]
   }
 ]
