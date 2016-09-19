@@ -206,7 +206,7 @@ namespace JabbRCore.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatRoomChatUser1",
+                name: "ChatRoomChatUserAllowed",
                 columns: table => new
                 {
                     ChatRoom_Key = table.Column<int>(nullable: false),
@@ -214,15 +214,15 @@ namespace JabbRCore.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatRoomChatUser1", x => new { x.ChatRoom_Key, x.ChatUser_Key });
+                    table.PrimaryKey("PK_ChatRoomChatUserAllowed", x => new { x.ChatRoom_Key, x.ChatUser_Key });
                     table.ForeignKey(
-                        name: "FK_ChatRoomChatUser1_ChatRooms_ChatRoom_Key",
+                        name: "FK_ChatRoomChatUserAllowed_ChatRooms_ChatRoom_Key",
                         column: x => x.ChatRoom_Key,
                         principalTable: "ChatRooms",
                         principalColumn: "Key",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ChatRoomChatUser1_ChatUsers_ChatUser_Key",
+                        name: "FK_ChatRoomChatUserAllowed_ChatUsers_ChatUser_Key",
                         column: x => x.ChatUser_Key,
                         principalTable: "ChatUsers",
                         principalColumn: "Key",
@@ -230,7 +230,7 @@ namespace JabbRCore.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatRoomChatUsers",
+                name: "ChatRoomChatUserOwner",
                 columns: table => new
                 {
                     ChatRoom_Key = table.Column<int>(nullable: false),
@@ -238,15 +238,15 @@ namespace JabbRCore.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatRoomChatUsers", x => new { x.ChatRoom_Key, x.ChatUser_Key });
+                    table.PrimaryKey("PK_ChatRoomChatUserOwner", x => new { x.ChatRoom_Key, x.ChatUser_Key });
                     table.ForeignKey(
-                        name: "FK_ChatRoomChatUsers_ChatRooms_ChatRoom_Key",
+                        name: "FK_ChatRoomChatUserOwner_ChatRooms_ChatRoom_Key",
                         column: x => x.ChatRoom_Key,
                         principalTable: "ChatRooms",
                         principalColumn: "Key",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ChatRoomChatUsers_ChatUsers_ChatUser_Key",
+                        name: "FK_ChatRoomChatUserOwner_ChatUsers_ChatUser_Key",
                         column: x => x.ChatUser_Key,
                         principalTable: "ChatUsers",
                         principalColumn: "Key",
@@ -337,13 +337,13 @@ namespace JabbRCore.Migrations
                 column: "User_Key");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatRoomChatUser1_ChatUser_Key",
-                table: "ChatRoomChatUser1",
+                name: "IX_ChatRoomChatUserAllowed_ChatUser_Key",
+                table: "ChatRoomChatUserAllowed",
                 column: "ChatUser_Key");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatRoomChatUsers_ChatUser_Key",
-                table: "ChatRoomChatUsers",
+                name: "IX_ChatRoomChatUserOwner_ChatUser_Key",
+                table: "ChatRoomChatUserOwner",
                 column: "ChatUser_Key");
 
             migrationBuilder.CreateIndex(
@@ -398,10 +398,10 @@ namespace JabbRCore.Migrations
                 name: "ChatClients");
 
             migrationBuilder.DropTable(
-                name: "ChatRoomChatUser1");
+                name: "ChatRoomChatUserAllowed");
 
             migrationBuilder.DropTable(
-                name: "ChatRoomChatUsers");
+                name: "ChatRoomChatUserOwner");
 
             migrationBuilder.DropTable(
                 name: "ChatUserChatRooms");

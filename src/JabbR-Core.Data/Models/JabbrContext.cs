@@ -46,7 +46,7 @@ namespace JabbR_Core.Data.Models
                 entity.Property(e => e.UserKey).HasColumnName("User_Key");
 
                 entity.HasOne(d => d.UserKeyNavigation)
-                    .WithMany(p => p.ChatClients)
+                    .WithMany(p => p.ConnectedClients)
                     .HasForeignKey(d => d.UserKey)
                     .OnDelete(DeleteBehavior.Restrict);
             });
@@ -76,7 +76,7 @@ namespace JabbR_Core.Data.Models
             modelBuilder.Entity<ChatRoomChatUserAllowed>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
-                    .HasName("PK_ChatRoomChatUser1");
+                    .HasName("PK_ChatRoomChatUserAllowed");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -96,7 +96,7 @@ namespace JabbR_Core.Data.Models
             modelBuilder.Entity<ChatRoomChatUserOwner>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
-                    .HasName("PK_ChatRoomChatUsers");
+                    .HasName("PK_ChatRoomChatUserOwner");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -267,14 +267,14 @@ namespace JabbR_Core.Data.Models
         }
 
         public DbSet<Attachment> Attachments { get; set; }
-        public DbSet<ChatClient> ChatClients { get; set; }
-        public DbSet<ChatMessage> ChatMessages { get; set; }
-        public DbSet<ChatRoomChatUserAllowed> ChatRoomChatUser1 { get; set; }
-        public DbSet<ChatRoomChatUserOwner> ChatRoomChatUsers { get; set; }
-        public DbSet<ChatRoom> ChatRooms { get; set; }
+        public DbSet<ChatClient> Clients { get; set; }
+        public DbSet<ChatMessage> Messages { get; set; }
+        public DbSet<ChatRoomChatUserAllowed> ChatRoomsChatUsersAllowed { get; set; }
+        public DbSet<ChatRoomChatUserOwner> ChatRoomsChatUsersOwned { get; set; }
+        public DbSet<ChatRoom> Rooms { get; set; }
         public DbSet<ChatUserChatRooms> ChatUserChatRooms { get; set; }
-        public DbSet<ChatUserIdentity> ChatUserIdentities { get; set; }
-        public DbSet<ChatUser> ChatUsers { get; set; }
+        public DbSet<ChatUserIdentity> Identities { get; set; }
+        public DbSet<ChatUser> Users { get; set; }
         public DbSet<MigrationHistory> MigrationHistory { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Settings> Settings { get; set; }

@@ -8,7 +8,7 @@ namespace JabbR_Core.Data.Models
         public ChatUser()
         {
             Attachments = new HashSet<Attachment>();
-            ChatClients = new HashSet<ChatClient>();
+            ConnectedClients = new HashSet<ChatClient>();
             ChatMessages = new HashSet<ChatMessage>();
             AllowedRooms = new HashSet<ChatRoomChatUserAllowed>();
             OwnedRooms = new HashSet<ChatRoomChatUserOwner>();
@@ -40,7 +40,7 @@ namespace JabbR_Core.Data.Models
         public string RawPreferences { get; set; }
 
         public ICollection<Attachment> Attachments { get; set; }
-        public ICollection<ChatClient> ChatClients { get; set; }
+        public ICollection<ChatClient> ConnectedClients { get; set; }
         public ICollection<ChatMessage> ChatMessages { get; set; }
         public ICollection<ChatRoomChatUserAllowed> AllowedRooms { get; set; }
         public ICollection<ChatRoomChatUserOwner> OwnedRooms { get; set; }
