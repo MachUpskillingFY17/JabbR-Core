@@ -1,8 +1,15 @@
 [
   {
-    "outputFileName": "wwwroot/js/libraries.js",
+    "outputFileName": "wwwroot/js/vendor.min.js",
     "inputFiles": [
-      "wwwroot/Scripts/*.js" //This grabs everything including stuff in wwwroot not in folders
+      "wwwroot/lib/**/*.js" //This grabs all js files in lib
+
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/site.min.js",
+    "inputFiles": [
+      "wwwroot/custom/*.js" //This grabs own code
 
     ]
   }
