@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Linq;
+using Newtonsoft.Json;
 using JabbR_Core.Models;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
+using System.Threading.Tasks;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.SignalR;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace JabbR_Core.Hubs
 {

@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using JabbR_Core.Data.Models;
 using JabbR_Core.Services;
+using JabbR_Core.Models;
 
 namespace JabbR_Core
 {
@@ -45,7 +45,7 @@ namespace JabbR_Core
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
-            services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
+            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             services.AddMvc();
             services.AddSignalR();

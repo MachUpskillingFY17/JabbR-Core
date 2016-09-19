@@ -1,8 +1,8 @@
 ﻿using System;
+using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using JabbR_Core.Infrastructure;
 
 namespace JabbR_Core.Models
 {
