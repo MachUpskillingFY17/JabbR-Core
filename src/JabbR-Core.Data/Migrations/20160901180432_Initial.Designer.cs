@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 
 namespace JabbRCore.Migrations
 {
@@ -123,7 +123,7 @@ namespace JabbRCore.Migrations
                     b.ToTable("ChatMessages");
                 });
 
-            modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUser1", b =>
+            modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUserAllowed", b =>
                 {
                     b.Property<int>("ChatRoomKey")
                         .HasColumnName("ChatRoom_Key");
@@ -132,14 +132,14 @@ namespace JabbRCore.Migrations
                         .HasColumnName("ChatUser_Key");
 
                     b.HasKey("ChatRoomKey", "ChatUserKey")
-                        .HasName("PK_ChatRoomChatUser1");
+                        .HasName("PK_ChatRoomChatUserAllowed");
 
                     b.HasIndex("ChatUserKey");
 
-                    b.ToTable("ChatRoomChatUser1");
+                    b.ToTable("ChatRoomChatUserAllowed");
                 });
 
-            modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUsers", b =>
+            modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUserOwner", b =>
                 {
                     b.Property<int>("ChatRoomKey")
                         .HasColumnName("ChatRoom_Key");
@@ -148,11 +148,11 @@ namespace JabbRCore.Migrations
                         .HasColumnName("ChatUser_Key");
 
                     b.HasKey("ChatRoomKey", "ChatUserKey")
-                        .HasName("PK_ChatRoomChatUsers");
+                        .HasName("PK_ChatRoomChatUserOwner");
 
                     b.HasIndex("ChatUserKey");
 
-                    b.ToTable("ChatRoomChatUsers");
+                    b.ToTable("ChatRoomChatUserOwner");
                 });
 
             modelBuilder.Entity("JabbR_Core.Models.ChatRooms", b =>
@@ -398,25 +398,25 @@ namespace JabbRCore.Migrations
                         .HasForeignKey("UserKey");
                 });
 
-            modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUser1", b =>
+            modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUserAllowed", b =>
                 {
                     b.HasOne("JabbR_Core.Models.ChatRooms", "ChatRoomKeyNavigation")
-                        .WithMany("ChatRoomChatUser1")
+                        .WithMany("ChatRoomChatUserALlowed")
                         .HasForeignKey("ChatRoomKey");
 
                     b.HasOne("JabbR_Core.Models.ChatUsers", "ChatUserKeyNavigation")
-                        .WithMany("ChatRoomChatUser1")
+                        .WithMany("ChatRoomChatUserAllowed")
                         .HasForeignKey("ChatUserKey");
                 });
 
-            modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUsers", b =>
+            modelBuilder.Entity("JabbR_Core.Models.ChatRoomChatUserOwner", b =>
                 {
                     b.HasOne("JabbR_Core.Models.ChatRooms", "ChatRoomKeyNavigation")
-                        .WithMany("ChatRoomChatUsers")
+                        .WithMany("ChatRoomChatUserOwner")
                         .HasForeignKey("ChatRoomKey");
 
                     b.HasOne("JabbR_Core.Models.ChatUsers", "ChatUserKeyNavigation")
-                        .WithMany("ChatRoomChatUsers")
+                        .WithMany("ChatRoomChatUserOwner")
                         .HasForeignKey("ChatUserKey");
                 });
 

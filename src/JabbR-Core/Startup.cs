@@ -6,8 +6,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using JabbR_Core.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using JabbR_Core.Data.Models;
 
 namespace JabbR_Core
 {
@@ -43,7 +44,7 @@ namespace JabbR_Core
             // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
-            string connection = _configuration["connectionString"]; 
+            string connection = _configuration["connectionString"];
             services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             services.AddMvc();
@@ -60,7 +61,7 @@ namespace JabbR_Core
                 settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
         }
-
+       
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
