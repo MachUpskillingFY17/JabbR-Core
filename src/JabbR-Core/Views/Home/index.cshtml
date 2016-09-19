@@ -55,18 +55,20 @@
         </script>
     }
     
-<environment names="Development">
-    <script src="~/lib/jquery/jquery-2.2.4.min.js" async></script>
-</environment>
-<environment names="Staging,Production">
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js"  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"
-            asp-fallback-src="~/lib/jquery/jquery-2.2.4.min.js"
-            asp-fallback-test="window.jQuery" async>
-    </script>
-</environment>
+    <environment names="Development">
+            <script src="~/lib/jquery/jquery-2.2.4.min.js" async></script>
+        </environment>
+    <environment names="Staging,Production">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"
+                asp-fallback-src="~/lib/jquery/jquery-2.2.4.min.js"
+                asp-fallback-test="window.jQuery" async>
+        </script>
+    </environment>
 
     <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.0.3.js"></script>
     <script src="signalr/hubs"></script>
+
+
     @* Load jQuery templates *@
     @Html.Partial("Partials/Templates/CommandConfirm");
     @Html.Partial("Partials/Templates/CommandHelp");
