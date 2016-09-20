@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using JabbR_Core.Infrastructure;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 using JabbR_Core.ViewModels;
 
-namespace JabbR_Core.Services
+namespace JabbR_Core.Data.Repositories
 {
     public class InMemoryRepository : IJabbrRepository
     {
