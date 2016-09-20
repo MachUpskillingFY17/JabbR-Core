@@ -1,22 +1,18 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
-namespace JabbR_Core.Models
+namespace JabbR_Core.Data.Models
 {
-    public class ChatClient
+    public partial class ChatClient
     {
-        [Key]
         public int Key { get; set; }
-
         public string Id { get; set; }
-        public ChatUser User { get; set; }
-
+        public int UserKey { get; set; }
         public string UserAgent { get; set; }
-        public string Name { get; set; }
-
         public DateTimeOffset LastActivity { get; set; }
+        public string Name { get; set; }
         public DateTimeOffset LastClientActivity { get; set; }
 
-        public int UserKey { get; set; }
+        public ChatUser UserKeyNavigation { get; set; }
     }
 }
