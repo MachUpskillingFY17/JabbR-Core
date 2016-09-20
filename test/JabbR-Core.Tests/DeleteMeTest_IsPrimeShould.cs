@@ -25,6 +25,8 @@ namespace JabbR_Core.Tests
             var result = _deleteMeTest.IsPrime(value);
 
             Assert.False(result, $"{value} must be greater than 1");
+
+            Console.WriteLine("DeleteMeTest_IsPrimeShould.ReturnFalseLessThanTwo: Complete");
         }
 
     }

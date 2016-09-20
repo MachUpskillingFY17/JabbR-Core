@@ -33,11 +33,13 @@ namespace JabbR_Core.Tests
                 MaxMessageLength = 0
             };
 
+            // Setup the options for DI into controller
             var setups = new List<IConfigureOptions<ApplicationSettings>>();
             var action = new Action<ApplicationSettings>(s => s = _settings);
             setups.Add(new ConfigureOptions<ApplicationSettings>(action));
             var options = new OptionsManager<ApplicationSettings>(setups);
 
+            // Options passed to controller as parameter
             _homeController = new HomeController(options);
         }        
 
@@ -48,6 +50,8 @@ namespace JabbR_Core.Tests
 
             Assert.True(_homeController.ModelState.IsValid);
             Assert.NotEqual(null, indexView);
+
+            Console.WriteLine("HomeControllerTest.IndexNotNull: Complete");
         }
     }
 }
