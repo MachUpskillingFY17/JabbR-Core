@@ -12,6 +12,6 @@ namespace JabbR_Core.ViewModels
         public string Welcome { get; set; }
         public IEnumerable<UserViewModel> Users { get; set; }
         public IEnumerable<string> Owners { get; set; }
-        //public IEnumerable<MessageViewModel> RecentMessages { get; set; }
+        public IEnumerable<MessageViewModel> RecentMessages { get; set; }
     }
 }
