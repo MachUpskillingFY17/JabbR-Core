@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-//using System.ComponentModel.Composition.Hosting;
 using System.Linq;
-using System.Text.RegularExpressions;
-using JabbR_Core.Models;
+using System.Reflection;
 using JabbR_Core.Services;
+using JabbR_Core.Commands;
+using JabbR_Core.Models;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
-
+using System.Text.RegularExpressions;
 
 namespace JabbR_Core.Commands
 {
@@ -128,60 +128,60 @@ namespace JabbR_Core.Commands
             return true;
         }
 
-        private void MatchCommand(string commandName, out ICommand command)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        //public void MatchCommand(string commandName, out ICommand command)
+        //private void MatchCommand(string commandName, out ICommand command)
         //{
-        //    if (_commandCache == null)
-        //    {
-        //        var commands = from c in _commands.Value
-        //                       let commandAttribute = c.GetType()
-        //                                               .GetCustomAttributes(true)
-        //                                               .OfType<CommandAttribute>()
-        //                                               .FirstOrDefault()
-        //                       where commandAttribute != null
-        //                       select new
-        //                       {
-        //                           Name = commandAttribute.CommandName,
-        //                           Command = c
-        //                       };
-
-        //        _commandCache = commands.ToDictionary(c => c.Name,
-        //                                              c => c.Command,
-        //                                              StringComparer.OrdinalIgnoreCase);
-        //    }
-
-        //    IList<string> candidates = null;
-
-        //    var exactMatches = _commandCache.Keys.Where(comm => comm.Equals(commandName, StringComparison.OrdinalIgnoreCase))
-        //                                         .ToList();
-
-        //    if (exactMatches.Count == 1)
-        //    {
-        //        candidates = exactMatches;
-        //    }
-        //    else
-        //    {
-        //        candidates = _commandCache.Keys.Where(comm => comm.StartsWith(commandName, StringComparison.OrdinalIgnoreCase))
-        //                                       .ToList();
-        //    }
-
-        //    switch (candidates.Count)
-        //    {
-        //        case 1:
-        //            _commandCache.TryGetValue(candidates[0], out command);
-        //            commandName = candidates[0];
-        //            break;
-        //        case 0:
-        //            throw new CommandNotFoundException();
-        //        default:
-        //            throw new CommandAmbiguityException(candidates);
-        //    }
+        //    throw new NotImplementedException();
         //}
+
+
+        public void MatchCommand(string commandName, out ICommand command)
+        {
+            //if (_commandCache == null)
+            //{
+            //    var commands = from c in _commands.Value
+            //                   let commandAttribute = c.GetTypeInfo()
+            //                                           .GetCustomAttributes()
+            //                                           .OfType<CommandAttribute>()
+            //                                           .FirstOrDefault()
+            //                   where commandAttribute != null
+            //                   select new
+            //                   {
+            //                       Name = commandAttribute.CommandName,
+            //                       Command = c
+            //                   };
+
+            //    _commandCache = commands.ToDictionary(c => c.Name,
+            //                                          c => c.Command,
+            //                                          StringComparer.OrdinalIgnoreCase);
+            //}
+
+            IList<string> candidates = null;
+
+            var exactMatches = _commandCache.Keys.Where(comm => comm.Equals(commandName, StringComparison.OrdinalIgnoreCase))
+                                                 .ToList();
+
+            if (exactMatches.Count == 1)
+            {
+                candidates = exactMatches;
+            }
+            else
+            {
+                candidates = _commandCache.Keys.Where(comm => comm.StartsWith(commandName, StringComparison.OrdinalIgnoreCase))
+                                               .ToList();
+            }
+
+            switch (candidates.Count)
+            {
+                case 1:
+                    _commandCache.TryGetValue(candidates[0], out command);
+                    commandName = candidates[0];
+                    break;
+                case 0:
+                    throw new CommandNotFoundException();
+                default:
+                    throw new CommandAmbiguityException(candidates);
+            }
+        }
 
         private static IList<ICommand> GetCommands()
         {

@@ -224,7 +224,6 @@ namespace JabbR_Core.Hubs
             //ChatRoom room = _repository.VerifyUserRoom(_cache, user, clientMessage.Room);
             //ChatUser user = _user;
             //ChatRoom room = _room;
-            
 
             if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
             {
@@ -383,6 +382,7 @@ namespace JabbR_Core.Hubs
                     // It is, add the user to the allowed users so that future joins will work
                     room.AllowedUsers.Add(user);
                 }
+
                 if (!room.IsUserAllowed(user))
                 {
                     throw new HubException(String.Format(LanguageResources.Join_LockedAccessPermission, room.Name));

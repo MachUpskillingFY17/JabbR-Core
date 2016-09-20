@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using JabbR_Core.Models;
-//using Attachment = JabbR_Core.Models.Attachment;
-//using ChatClient = JabbR_Core.Models.ChatClient;
-//using ChatMessage = JabbR_Core.Models.ChatMessage;
-//using ChatRoom = JabbR_Core.Models.ChatRoom;
-//using ChatUser = JabbR_Core.Models.ChatUser;
-//using Notification = JabbR_Core.Models.Notification;
-//using Settings = JabbR_Core.Models.Settings;
+//using Attachment = JabbR_Core.Data.Models.Attachment;
+//using ChatClient = JabbR_Core.Data.Models.ChatClient;
+//using ChatMessage = JabbR_Core.Data.Models.ChatMessage;
+//using ChatRoom = JabbR_Core.Data.Models.ChatRoom;
+//using ChatUser = JabbR_Core.Data.Models.ChatUser;
+//using Notification = JabbR_Core.Data.Models.Notification;
+//using Settings = JabbR_Core.Data.Models.Settings;
 
 namespace JabbR_Core.Services
 {

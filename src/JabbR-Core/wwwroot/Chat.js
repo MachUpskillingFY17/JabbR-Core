@@ -999,7 +999,7 @@
     };
 
     chat.client.showUsersOwnedRoomList = function (user, rooms) {
-        if (rooms.length === 0) {op
+        if (rooms.length === 0) {
             ui.addListToActiveRoom(utility.getLanguageResource('Chat_UserOwnsNoRooms', user), []);
         }
         else {
