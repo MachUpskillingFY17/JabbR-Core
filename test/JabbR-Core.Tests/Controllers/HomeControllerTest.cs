@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using JabbR_Core.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace JabbR_Core.Tests
+namespace JabbR_Core.Tests.Controllers
 {
     public class HomeControllerTest
     {
@@ -51,7 +51,7 @@ namespace JabbR_Core.Tests
             Assert.True(_homeController.ModelState.IsValid);
             Assert.NotEqual(null, indexView);
 
-            Console.WriteLine("HomeControllerTest.IndexNotNull: Complete");
+            Console.WriteLine("\tHomeControllerTest.IndexNotNull: Complete");
         }
     }
 }
