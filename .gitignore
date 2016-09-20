@@ -253,3 +253,6 @@ paket-files/
 
 # Ignore swap files
 *.swp
+
+# VS Code project files
+*.vscode
