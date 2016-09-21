@@ -2,7 +2,6 @@
 using System.Linq;
 using JabbR_Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace JabbR_Core.Data.Repositories
 {
@@ -183,10 +182,12 @@ namespace JabbR_Core.Data.Repositories
         //FIX THIS TO WORK WITH CHATUSER NOT CHATROOMCHATUSERS
         public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
         {
-            return _db.Entry(room)
+            var temp = _db.Entry(room)
                       .Collection(r => r.Users)
                       .Query()
                       .Online();
+
+            return temp;
         }
 
         public IQueryable<ChatUser> GetOnlineUsers()
@@ -210,55 +211,26 @@ namespace JabbR_Core.Data.Repositories
             userroom.ChatRoomKeyNavigation = room;
             userroom.ChatUserKeyNavigation = user;
 
-            // Assuming we use lazy loading, don't use it here
-            //RunNonLazy(() => room.Users.Add(user));
-
             // Don't need to call RunNonLazy because everything is NonLazy
             room.Users.Add(userroom);
         }
 
         public void RemoveUserRoom(ChatUser user, ChatRoom room)
         {
-            // Assuming we use lazy loading, don't use it here
-            /*RunNonLazy(() =>
-            {
-                // The hack from hell to attach the user to room.Users so delete is tracked
-                ObjectContext context = ((IObjectContextAdapter)_db).ObjectContext;
-                RelationshipManager manger = context.ObjectStateManager.GetRelationshipManager(room);
-                IRelatedEnd end = manger.GetRelatedEnd("JabbR.Models.ChatRoom_Users", "ChatRoom_Users_Target");
-                end.Attach(user);
-
-                room.Users.Remove(user);
-            });*/
-
             // First, find the ChatUserChatRooms object that represents this relationship
-            IEnumerable<ChatUserChatRooms> userroom = _db.ChatUserChatRooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)).AsEnumerable();
+            var chatUserChatRoom = from r in _db.ChatUserChatRooms
+                                   where (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)
+                                   select r;
 
-            // Then, remove the user from the room's Users list
-            if (userroom.Count() == 1)
+            // We found the correct relationship
+            if (chatUserChatRoom.Count() == 1)
             {
-                // We found the correct ChatUserChatRooms, remove the user from the room's Users list
-                userroom.First().ChatRoomKeyNavigation.Users.Remove(room);
-            }
-            else
-            {
-                // TODO: not sure what this case means
-            }
-        }
+                // Remove this object from both the user's Rooms list and the room's Users list
+                user.Rooms.Remove(chatUserChatRoom.First());
+                room.Users.Remove(chatUserChatRoom.First());
 
-        // DO WE NEED THIS? WE AREN'T RUNNING LAZY
-        private void RunNonLazy(Action action)
-        {
-            // WHY IS THERE NO CONFIGURATION IN EF CORE? REPLACEMENT?
-            bool old = _db.Configuration.LazyLoadingEnabled;
-            try
-            {
-                _db.Configuration.LazyLoadingEnabled = false;
-                action();
-            }
-            finally
-            {
-                _db.Configuration.LazyLoadingEnabled = old;
+                // Now delete the relationship object
+                _db.Remove(chatUserChatRoom);
             }
         }
 
@@ -333,5 +305,6 @@ namespace JabbR_Core.Data.Repositories
         {
             _db.Entry(entity).Reload();
         }
+
     }
 }
