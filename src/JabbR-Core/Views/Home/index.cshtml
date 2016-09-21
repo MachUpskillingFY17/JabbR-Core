@@ -56,12 +56,12 @@
     }
 
     <environment names="Development">
-            <script src="~/lib/jquery/jquery-2.2.4.min.js" ></script>
+            <script src="~/lib/jquery/jquery-2.2.4.min.js"></script>
         </environment>
     <environment names="Staging,Production">
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"
                 asp-fallback-src="~/lib/jquery/jquery-2.2.4.min.js"
-                asp-fallback-test="window.jQuery" async>
+                asp-fallback-test="window.jQuery">
         </script>
     </environment>
 
@@ -300,10 +300,24 @@
         </section>
     </section>
     <div id="paste" contenteditable="true" style="height: 1px; width: 1px;"></div>
+
+
+    <!--CURRENT BUNDLED REFERENCES- see bundleconfig.json -->
     <script type="text/javascript" src="~/js/vendor.min.js"></script>
-    <script type="text/javascript" src="~/js/site.min.js"></script>
+    @*<script type="text/javascript" src="~/js/site.min.js"></script>*@
 
+    <!--CURRENT REFERENCES, the commented out ones are bundled -->
+    @*<script type="text/javascript" src="~/lib/jquery/jquery-2.0.3.js"></script>
+    <script src="~/lib/jquery/jquery-migrate-1.2.1.js"></script>*@
+    @*<script src="~/lib/JSON/json2.js"></script>*@
+    @*<script src="~/lib/bootstrap/js/bootstrap.js"></script>*@
+    @*<script src="~/lib/jquery/jquery.color-2.1.2.js"></script>*@
+    @*<script src="~/lib/jquery/jquery.dragsort-0.5.1.js"></script>*@
+    <script src="~/lib/jquery/jquery.pulse.js"></script>
+    <script src="~/lib/jquery/jquery.KeyTips.js"></script>
+    <script src="~/lib/jquery/jquery.signalR-2.2.0-pre-140709-b104.js"></script>
 
+    <!--OLD REFERENCES -->
     <!--<script type="text/javascript" src="~/Scripts/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="~/Scripts/jquery-migrate-1.2.1.min.js"></script>
     <script type="text/javascript" src="~/Scripts/json2.min.js"></script>
@@ -320,7 +334,36 @@
             @Html.Raw(Model.ClientLanguageResources)
         };
     </script>
+    
+    <!--CURRENT REFERENCES, the commented out ones are bundled -->
+    <script src="~/lib/jquery/jQuery.tmpl.min.js"></script>
+    <script src="~/lib/jquery/jquery.cookie.js"></script>
+    @*<script src="~/lib/jquery/jquery.autotabcomplete.js"></script>*@
+    @*<script src="~/lib/jquery/jquery.timeago.0.10.js"></script>*@
+    @*<script src="~/lib/jquery/jquery.captureDocumentWrite.min.js"></script>*@
+    @*<script src="~/lib/jquery/jquery.sortElements.js"></script>*@
+    @*<script src="~/lib/linkify/ba-linkify.min.js"></script>*@
+    @*<script src="~/lib/quicksilver/quicksilver.js"></script>*@
+    @*<script src="~/lib/marked/marked.js"></script>*@
+    @*<script src="~/lib/jquery/jquery.history.js"></script>*@
+    @*<script src="~/lib/moment/moment.min.js"></script>*@
+    @*<script src="~/lib/highlight/js/highlight.pack.js"></script>*@
+    @*<script src="~/lib/livestamp/livestamp.js"></script>*@
 
+    <script src="~/custom/Chat.emoji.js"></script>
+    <script src="~/custom/Chat.utility.js"></script>
+    <script src="~/custom/Chat.toast.js"></script>
+    <script src="~/custom/Chat.ui.room.js"></script>
+    <script src="~/custom/Chat.ui.js"></script>
+    <script src="~/custom/Chat.ui.fileUpload.js"></script>
+    <script src="~/custom/Chat.documentOnWrite.js"></script>
+    <script src="~/custom/Chat.twitter.js"></script>
+    <script src="~/custom/Chat.githubissues.js"></script>
+    <script src="~/custom/Chat.js"></script>
+    <script src="~/custom/loader.js"></script>
+
+
+    <!--OLD REFERENCES-SCRIPTS FOLDER NO LONGER EXISTS -->
     @*<script type="text/javascript" src="~/Scripts/jQuery.tmpl.min.js"></script>
         <script type="text/javascript" src="~/Scripts/jquery.cookie.js"></script>
         <script type="text/javascript" src="~/Scripts/jquery.autotabcomplete.js"></script>
@@ -335,7 +378,6 @@
         <script type="text/javascript" src="~/Scripts/highlight.pack.js"></script>
         <script type="text/javascript" src="~/Scripts/livestamp.min.js"></script>
 
-
         <script type="text/javascript" src="~/Chat.emoji.js"></script>
         <script type="text/javascript" src="~/Chat.utility.js"></script>
         <script type="text/javascript" src="~/Chat.toast.js"></script>
@@ -349,7 +391,7 @@
         <script type="text/javascript" src="~/loader.js"></script>*@
     @if (Model.DebugMode)
     {
-        @*<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.network.mock.js")"></script>*@
+        @*<script type="text/javascript" src="@Url.Content("~/lib/jquery/jquery.network.mock.js")"></script>*@
     }
 </body>
 </html>
