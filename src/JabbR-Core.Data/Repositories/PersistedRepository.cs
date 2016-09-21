@@ -2,6 +2,7 @@
 using System.Linq;
 using JabbR_Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace JabbR_Core.Data.Repositories
 {
@@ -11,10 +12,10 @@ namespace JabbR_Core.Data.Repositories
 
         private static readonly Func<JabbrContext, string, ChatUser> getUserByName = (db, userName) => db.Users.FirstOrDefault(u => u.Name == userName);
         private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.Users.FirstOrDefault(u => u.Id == userId);
-        private static readonly Func<JabbrContext, string, string, ChatUserIdentity> getIdentityByIdentity = (db, providerName, userIdentity) => db.Identities.Include(i => i.User).FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
+        private static readonly Func<JabbrContext, string, string, ChatUserIdentity> getIdentityByIdentity = (db, providerName, userIdentity) => db.Identities.Include(i => i.UserKeyNavigation).FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
         private static readonly Func<JabbrContext, string, ChatRoom> getRoomByName = (db, roomName) => db.Rooms.FirstOrDefault(r => r.Name == roomName);
         private static readonly Func<JabbrContext, string, ChatClient> getClientById = (db, clientId) => db.Clients.FirstOrDefault(c => c.Id == clientId);
-        private static readonly Func<JabbrContext, string, ChatClient> getClientByIdWithUser = (db, clientId) => db.Clients.Include(c => c.User).FirstOrDefault(u => u.Id == clientId);
+        private static readonly Func<JabbrContext, string, ChatClient> getClientByIdWithUser = (db, clientId) => db.Clients.Include(c => c.UserKeyNavigation).FirstOrDefault(u => u.Id == clientId);
         private static readonly Func<JabbrContext, string, string, DateTimeOffset, ChatUser> getUserByRequestResetPasswordId = (db, userName, requestId, now) => db.Users.FirstOrDefault(u => u.Name == userName && u.RequestPasswordResetId != null && u.RequestPasswordResetId.Equals(requestId, StringComparison.OrdinalIgnoreCase) && u.RequestPasswordResetValidThrough > now);
 
         public PersistedRepository(JabbrContext db)
@@ -141,37 +142,37 @@ namespace JabbR_Core.Data.Repositories
             return _db.Rooms
                 .Where(r =>
                        (!r.Private) ||
-                       (r.Private && r.AllowedUsers.Any(u => u.Key == user.Key)));
+                       (r.Private && r.AllowedUsers.Any(u => u.ChatUserKey == user.Key)));
         }
 
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
         {
-            return _db.Notifications.Include(n => n.Room)
-                                    .Include(n => n.Message)
-                                    .Include(n => n.Message.User)
+            return _db.Notifications.Include(n => n.RoomKeyNavigation)
+                                    .Include(n => n.MessageKeyNavigation)
+                                    .Include(n => n.MessageKeyNavigation.UserKeyNavigation)
                                     .Where(n => n.UserKey == user.Key);
         }
 
         private IQueryable<ChatMessage> GetMessagesByRoom(string roomName)
         {
-            return _db.Messages.Include(r => r.Room).Where(r => r.Room.Name == roomName);
+            return _db.Messages.Include(r => r.RoomKeyNavigation).Where(r => r.RoomKeyNavigation.Name == roomName);
         }
 
         public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
         {
-            return _db.Messages.Include(m => m.User)
-                               .Include(m => m.Room)
+            return _db.Messages.Include(m => m.UserKeyNavigation)
+                               .Include(m => m.RoomKeyNavigation)
                                .Where(m => m.RoomKey == room.Key);
         }
 
         public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
         {
-            var info = (from m in _db.Messages.Include(m => m.Room)
+            var info = (from m in _db.Messages.Include(m => m.RoomKeyNavigation)
                         where m.Id == messageId
                         select new
                         {
                             m.When,
-                            RoomName = m.Room.Name
+                            RoomName = m.RoomKeyNavigation.Name
                         }).FirstOrDefault();
 
             return from m in GetMessagesByRoom(info.RoomName)
@@ -179,6 +180,7 @@ namespace JabbR_Core.Data.Repositories
                    select m;
         }
 
+        //FIX THIS TO WORK WITH CHATUSER NOT CHATROOMCHATUSERS
         public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
         {
             return _db.Entry(room)
@@ -199,12 +201,26 @@ namespace JabbR_Core.Data.Repositories
 
         public void AddUserRoom(ChatUser user, ChatRoom room)
         {
-            RunNonLazy(() => room.Users.Add(user));
+            // First, create a ChatUserChatRooms object
+            ChatUserChatRooms userroom = new ChatUserChatRooms();
+
+            // Populate userroom
+            userroom.ChatRoomKey = room.Key;
+            userroom.ChatUserKey = user.Key;
+            userroom.ChatRoomKeyNavigation = room;
+            userroom.ChatUserKeyNavigation = user;
+
+            // Assuming we use lazy loading, don't use it here
+            //RunNonLazy(() => room.Users.Add(user));
+
+            // Don't need to call RunNonLazy because everything is NonLazy
+            room.Users.Add(userroom);
         }
 
         public void RemoveUserRoom(ChatUser user, ChatRoom room)
         {
-            RunNonLazy(() =>
+            // Assuming we use lazy loading, don't use it here
+            /*RunNonLazy(() =>
             {
                 // The hack from hell to attach the user to room.Users so delete is tracked
                 ObjectContext context = ((IObjectContextAdapter)_db).ObjectContext;
@@ -213,11 +229,27 @@ namespace JabbR_Core.Data.Repositories
                 end.Attach(user);
 
                 room.Users.Remove(user);
-            });
+            });*/
+
+            // First, find the ChatUserChatRooms object that represents this relationship
+            IEnumerable<ChatUserChatRooms> userroom = _db.ChatUserChatRooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)).AsEnumerable();
+
+            // Then, remove the user from the room's Users list
+            if (userroom.Count() == 1)
+            {
+                // We found the correct ChatUserChatRooms, remove the user from the room's Users list
+                userroom.First().ChatRoomKeyNavigation.Users.Remove(room);
+            }
+            else
+            {
+                // TODO: not sure what this case means
+            }
         }
 
+        // DO WE NEED THIS? WE AREN'T RUNNING LAZY
         private void RunNonLazy(Action action)
         {
+            // WHY IS THERE NO CONFIGURATION IN EF CORE? REPLACEMENT?
             bool old = _db.Configuration.LazyLoadingEnabled;
             try
             {
@@ -247,7 +279,7 @@ namespace JabbR_Core.Data.Repositories
             var client = GetClientById(clientId, includeUser: true);
             if (client != null)
             {
-                return client.User;
+                return client.UserKeyNavigation;
             }
             return null;
         }
@@ -257,7 +289,7 @@ namespace JabbR_Core.Data.Repositories
             ChatUserIdentity identity = getIdentityByIdentity(_db, providerName, userIdentity);
             if (identity != null)
             {
-                return identity.User;
+                return identity.UserKeyNavigation;
             }
             return null;
         }
@@ -292,8 +324,8 @@ namespace JabbR_Core.Data.Repositories
             return _db.Entry(user)
                       .Collection(r => r.Rooms)
                       .Query()
-                      .Where(r => r.Key == room.Key)
-                      .Select(r => r.Name)
+                      .Where(r => r.ChatRoomKey == room.Key)
+                      .Select(r => r.ChatRoomKeyNavigation.Name)
                       .FirstOrDefault() != null;
         }
 
