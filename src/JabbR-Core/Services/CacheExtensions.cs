@@ -1,5 +1,5 @@
 ﻿using System;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 
 namespace JabbR_Core.Services
 {
