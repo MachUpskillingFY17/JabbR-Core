@@ -15,11 +15,14 @@ script:
     - dotnet --info
     - dotnet --version
 
-    - cd src/JabbR-Core
+    - cd src/JabbR-Core/
     - dotnet restore
 
-    - cd ../../test/JabbR-Core.Tests/
+    - cd ../JabbR-Core.Data/
+    - dotnet restore
+
     # This builds JabbR-Core and JabbR-Core.Tests
+    - cd ../../test/JabbR-Core.Tests/
     - dotnet restore
     - dotnet build
 
