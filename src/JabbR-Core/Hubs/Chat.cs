@@ -7,6 +7,9 @@ using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Principal;
+using JabbR_Core.Commands;
 using Microsoft.AspNetCore.SignalR;
 
 namespace JabbR_Core.Hubs
@@ -76,8 +79,11 @@ namespace JabbR_Core.Hubs
         public void Join(bool reconnecting)
         {
             // Get the client state
-            var userId = _user.Id;
-            //var userId = Context.User.GetUserId();
+            // var userId = _user.Id;
+
+
+
+            var userId = Context.User.GetUserId();
 
             // Try to get the user from the client state
             ChatUser user = _user;
@@ -89,11 +95,11 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            // string userId = Context.User.GetUserId();
-            // ChatUser user = _repository.VerifyUserId(userId);
+            string userId = Context.User.GetUserId();
+            ChatUser user = _repository.VerifyUserId(userId);
 
-            var userId = _user.Id;
-            ChatUser user = _user;
+            //            var userId = _user.Id;
+            //          ChatUser user = _user;
 
 
             var room = new LobbyRoomViewModel
@@ -103,7 +109,7 @@ namespace JabbR_Core.Hubs
                 //    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
                 Private = _lobbyRoom.Private,
                 Closed = _lobbyRoom.Closed,
-                Topic = _lobbyRoom.Topic 
+                Topic = _lobbyRoom.Topic
             };
 
             _lobbyRoomList.Add(_lobbyRoom);
@@ -191,7 +197,7 @@ namespace JabbR_Core.Hubs
                 Room = roomName,    // 'Lobby'
             };
 
-        
+
             return Send(message);
         }
 
@@ -200,7 +206,7 @@ namespace JabbR_Core.Hubs
             ChatUser user = _user;
             ChatRoom room = _room;
 
-            
+
             Clients.Caller.joinRoom(user, room, new object());
             GetRoomInfo(room.Name);
             CheckStatus();
@@ -264,7 +270,7 @@ namespace JabbR_Core.Hubs
                 Clients.Caller.replaceMessage(clientMessage.Id, messageViewModel, room.Name);
             }
 
-            
+
 
 
             // Add mentions
@@ -309,8 +315,8 @@ namespace JabbR_Core.Hubs
             //string userId = Context.User.GetUserId();
             string userId = _user.Id;
 
-            //var commandManager = new CommandManager(clientId, UserAgent, userId, room, _service, _repository, _cache, this);
-            //return commandManager.TryHandleCommand(command
+            var commandManager = new CommandManager(clientId, UserAgent, userId, room, _service, _repository, _cache, this);
+            return commandManager.TryHandleCommand(command);
             return true;
         }
         void INotificationService.JoinRoom(ChatUser user, ChatRoom room)
@@ -372,7 +378,7 @@ namespace JabbR_Core.Hubs
 
         public void JoinRoom(ChatUser user, ChatRoom room, string inviteCode)
         {
-           
+
             // Throw if the room is private but the user isn't allowed
             if (room.Private)
             {
@@ -398,7 +404,7 @@ namespace JabbR_Core.Hubs
 
             // Clear the cache
             _cache.RemoveUserInRoom(user, room);
-           
+
         }
         public Task<RoomViewModel> GetRoomInfo(string roomName)
         {
@@ -411,7 +417,7 @@ namespace JabbR_Core.Hubs
             string userId = _user.Id;
             //ChatUser user = _repository.VerifyUserId(userId);
             ChatUser user = _user;
-            
+
             //ChatRoom room = _repository.GetRoomByName(roomName);
             ChatRoom room = _room;
 
@@ -419,7 +425,7 @@ namespace JabbR_Core.Hubs
             {
                 return null;
             }
-          
+
             return GetRoomInfoCore(room);
         }
 
@@ -495,7 +501,7 @@ namespace JabbR_Core.Hubs
             // Tell the client a user was created
             Clients.Caller.userCreated();
         }
-        
+
         void INotificationService.AllowUser(ChatUser targetUser, ChatRoom targetRoom)
         {
             // Build a viewmodel for the room

@@ -5,8 +5,10 @@ using JabbR_Core.Services;
 using JabbR_Core.Commands;
 using JabbR_Core.Models;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;
+using Microsoft.Composition;
 
 namespace JabbR_Core.Commands
 {
@@ -136,24 +138,32 @@ namespace JabbR_Core.Commands
 
         public void MatchCommand(string commandName, out ICommand command)
         {
-            //if (_commandCache == null)
-            //{
-            //    var commands = from c in _commands.Value
-            //                   let commandAttribute = c.GetTypeInfo()
-            //                                           .GetCustomAttributes()
-            //                                           .OfType<CommandAttribute>()
-            //                                           .FirstOrDefault()
-            //                   where commandAttribute != null
-            //                   select new
-            //                   {
-            //                       Name = commandAttribute.CommandName,
-            //                       Command = c
-            //                   };
+            if (_commandCache == null)
+            {
+                //foreach (var c in _commands.Value.ToList())
+                //{
 
-            //    _commandCache = commands.ToDictionary(c => c.Name,
-            //                                          c => c.Command,
-            //                                          StringComparer.OrdinalIgnoreCase);
-            //}
+                //    var typeStuff = c.GetType().GetTypeInfo().GetCustomAttributes<CommandAttribute>();
+                //    Debug.WriteLine(typeStuff);
+
+                //}
+
+                var commands = from c in _commands.Value
+                               let commandAttribute = c.GetType().GetTypeInfo().GetCustomAttributes<CommandAttribute>()
+                                                       //.GetCustomAttributes()
+                                                       //.OfType<CommandAttribute>()
+                                                       .FirstOrDefault()
+                               where commandAttribute != null
+                               select new
+                               {
+                                   Name = commandAttribute.CommandName,
+                                   Command = c
+                               };
+
+                _commandCache = commands.ToDictionary(c => c.Name,
+                                                      c => c.Command,
+                                                      StringComparer.OrdinalIgnoreCase);
+            }
 
             IList<string> candidates = null;
 
