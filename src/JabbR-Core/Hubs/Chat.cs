@@ -203,9 +203,8 @@ namespace JabbR_Core.Hubs
             ChatUser user = _user;
             ChatRoom room = _room;
 
-
-            Clients.Caller.joinRoom(user, room, new object());
-            GetRoomInfo(room.Name);
+            //Clients.Caller.joinRoom(user, room, new object());
+            //GetRoomInfo(room.Name);
             CheckStatus();
 
             //reject it if it's too long
@@ -267,7 +266,7 @@ namespace JabbR_Core.Hubs
                 Clients.Caller.replaceMessage(clientMessage.Id, messageViewModel, room.Name);
             }
 
-            
+
 
 
             // Add mentions
@@ -312,9 +311,9 @@ namespace JabbR_Core.Hubs
             //string userId = Context.User.GetUserId();
             string userId = _user.Id;
 
-            //var commandManager = new CommandManager(clientId, UserAgent, userId, room, _service, _repository, _cache, this);
-            //return commandManager.TryHandleCommand(command
-            return true;
+            var commandManager = new CommandManager(clientId, UserAgent, userId, room, _service, _repository, _cache, this);
+            return commandManager.TryHandleCommand(command);
+            //return true;
         }
         void INotificationService.JoinRoom(ChatUser user, ChatRoom room)
         {
@@ -448,7 +447,8 @@ namespace JabbR_Core.Hubs
 
             ////Get online users through the repository
             //List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
-
+            
+            _roomViewModel.RecentMessages = recentMessages;
             return _roomViewModel;
             //return new RoomViewModel
             //{
