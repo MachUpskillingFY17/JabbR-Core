@@ -49,5 +49,24 @@ namespace JabbR_Core.Data.Models
         public ICollection<ChatUserChatRooms> Rooms { get; set; }
         public ICollection<ChatUserIdentity> ChatUserIdentities { get; set; }
         public ICollection<Notification> Notifications { get; set; }
+
+        public bool HasUserNameAndPasswordCredentials()
+        {
+            return !String.IsNullOrEmpty(HashedPassword) && !String.IsNullOrEmpty(Name);
+        }
+
+        [NotMapped]
+        public ChatUserPreferences Preferences
+        {
+            get
+            {
+                return ChatUserPreferences.GetPreferences(this);
+            }
+
+            set
+            {
+                value.Serialize(this);
+            }
+        }
     }
 }
