@@ -7,10 +7,10 @@ matrix:
           dist: trusty
           sudo: required
           dotnet: 1.0.0-preview2-003121 
-addons:
+# addons:
     # for just unit tests this isn't necessary
     # username and access key stored in env variables on Travis server
-    sauce_connect: true
+    # sauce_connect: true
 script:
     - dotnet --info
     - dotnet --version
@@ -25,7 +25,3 @@ script:
 
     # Run test suite
     - dotnet test
-
-    # Open the server and let Sauce Labs connect
-    # - cd ../../src/JabbR-Core/
-    # - dotnet run
