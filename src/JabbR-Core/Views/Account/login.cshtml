@@ -1,0 +1,23 @@
+﻿@using JabbR.ViewModels;
+@using System.Linq;
+@model LoginViewModel
+@{
+    Layout = "_layout.cshtml"; 
+    var hasSocialProviders = Model.SocialDetails.ConfiguredProviders.Any();
+}
+
+<div class="row-fluid">
+    <div class="span6 @if (!hasSocialProviders) {<text>offset3</text>}">
+        <div class="usernamepassword-auth @if(hasSocialProviders) {<text>auth-divider</text>}">
+          @Html.Partial("_username", Model)
+        </div>
+    </div>
+    @if (hasSocialProviders)
+    {
+      <div class="span6">
+          <div class="social-auth">
+              @Html.Partial("_social", Model.SocialDetails)
+          </div>
+      </div>
+    }
+</div>
