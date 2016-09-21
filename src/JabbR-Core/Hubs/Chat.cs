@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
+using JabbR_Core.Commands;
+using Microsoft.EntityFrameworkCore;
 
 namespace JabbR_Core.Hubs
 {
@@ -110,9 +112,9 @@ namespace JabbR_Core.Hubs
             return _lobbyRoomList;
         }
 
-        public void GetCommands()
+        public object GetCommands()
         {
-
+            return CommandManager.GetCommands();
         }
 
         public object GetShortcuts()
@@ -124,7 +126,7 @@ namespace JabbR_Core.Hubs
             };
         }
 
-        public void LoadRooms(string[] roomNames)
+        public async void LoadRooms(string[] roomNames)
         {
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
@@ -138,23 +140,24 @@ namespace JabbR_Core.Hubs
 
                 var roomInfo = new RoomViewModel
                 {
-                    Name = "light_meow"
+                    Name = "light_meow",
+                    Count = 1
                 };
 
-                //while (true)
-                //{
-                //    try
-                //    {
-                //        // If invoking roomLoaded fails don't get the roomInfo again
-                //        // roomInfo = roomInfo ?? await GetRoomInfoCore(room);
-                //        Clients.Caller.roomLoaded(roomInfo);
-                //        break;
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        // logger.Log(ex);
-                //    }
-                //}
+                while (true)
+                {
+                    try
+                    {
+                        // If invoking roomLoaded fails don't get the roomInfo again
+                        roomInfo = roomInfo ?? await GetRoomInfoCore(room);
+                        Clients.Caller.roomLoaded(roomInfo);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(ex);
+                    }
+                }
             }
         }
 
@@ -200,7 +203,7 @@ namespace JabbR_Core.Hubs
             ChatUser user = _user;
             ChatRoom room = _room;
 
-            
+
             Clients.Caller.joinRoom(user, room, new object());
             GetRoomInfo(room.Name);
             CheckStatus();
@@ -370,39 +373,39 @@ namespace JabbR_Core.Hubs
         //}
 
 
-        public void JoinRoom(ChatUser user, ChatRoom room, string inviteCode)
-        {
+        //public void JoinRoom(ChatUser user, ChatRoom room, string inviteCode)
+        //{
            
-            // Throw if the room is private but the user isn't allowed
-            if (room.Private)
-            {
-                // First, check if the invite code is correct
-                if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
-                {
-                    // It is, add the user to the allowed users so that future joins will work
-                    room.AllowedUsers.Add(user);
-                }
+        //    // Throw if the room is private but the user isn't allowed
+        //    if (room.Private)
+        //    {
+        //        // First, check if the invite code is correct
+        //        if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            // It is, add the user to the allowed users so that future joins will work
+        //            room.AllowedUsers.Add(user);
+        //        }
 
-                if (!room.IsUserAllowed(user))
-                {
-                    throw new HubException(String.Format(LanguageResources.Join_LockedAccessPermission, room.Name));
-                }
-            }
+        //        if (!room.IsUserAllowed(user))
+        //        {
+        //            throw new HubException(String.Format(LanguageResources.Join_LockedAccessPermission, room.Name));
+        //        }
+        //    }
 
-            // Add this user to the room
-            _repository.AddUserRoom(user, room);
+        //    // Add this user to the room
+        //    _repository.AddUserRoom(user, room);
 
-            ChatUserPreferences userPreferences = user.Preferences;
-            userPreferences.TabOrder.Add(room.Name);
-            user.Preferences = userPreferences;
+        //    ChatUserPreferences userPreferences = user.Preferences;
+        //    userPreferences.TabOrder.Add(room.Name);
+        //    user.Preferences = userPreferences;
 
-            // Clear the cache
-            _cache.RemoveUserInRoom(user, room);
+        //    // Clear the cache
+        //    _cache.RemoveUserInRoom(user, room);
            
-        }
+        //}
         public Task<RoomViewModel> GetRoomInfo(string roomName)
         {
-            if (String.IsNullOrEmpty(roomName))
+            if (string.IsNullOrEmpty(roomName))
             {
                 return null;
             }
@@ -428,20 +431,22 @@ namespace JabbR_Core.Hubs
             var recentMessages = _recentMessageCache.GetRecentMessages(room.Name);
 
             //// If we haven't cached enough messages just populate it now
-            //if (recentMessages.Count == 0)
-            //{
-            //    var messages = await (from m in _repository.GetMessagesByRoom(room)
-            //                          orderby m.When descending
-            //                          select m).Take(50).ToListAsync();
-            //    // Reverse them since we want to get them in chronological order
-            //    messages.Reverse();
+            if (recentMessages.Count == 0)
+            {
+                //var messages = await (from m in _repository.GetMessagesByRoom(room)
+                //                      orderby m.When descending
+                //                      select m).Take(50).ToListAsync();
+                var messages = new List<ChatMessage>();
 
-            //    recentMessages = messages.Select(m => new MessageViewModel(m)).ToList();
+                // Reverse them since we want to get them in chronological order
+                messages.Reverse();
 
-            //    _recentMessageCache.Add(room.Name, recentMessages);
-            //}
+                recentMessages = messages.Select(m => new MessageViewModel(m)).ToList();
 
-            // Get online users through the repository
+                _recentMessageCache.Add(room.Name, recentMessages);
+            }
+
+            ////Get online users through the repository
             //List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
 
             return _roomViewModel;

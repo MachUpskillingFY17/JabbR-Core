@@ -183,7 +183,7 @@ namespace JabbR_Core.Commands
             }
         }
 
-        private static IList<ICommand> GetCommands()
+        public static IList<ICommand> GetCommands()
         {
             // Use MEF to locate the content providers in this assembly
             //var catalog = new AssemblyCatalog(typeof(CommandManager).Assembly);
