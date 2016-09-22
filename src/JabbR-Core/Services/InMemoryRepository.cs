@@ -341,13 +341,13 @@ namespace JabbR_Core.Services
         public void AddUserRoom(ChatUser user, ChatRoom room)
         {
             // Create new user room relationship
-            var userRoom = new ChatUserChatRooms();
-
-            // Populate userroom
-            userRoom.ChatRoomKey = room.Key;
-            userRoom.ChatUserKey = user.Key;
-            userRoom.ChatRoomKeyNavigation = room;
-            userRoom.ChatUserKeyNavigation = user;
+            var userRoom = new ChatUserChatRooms()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
 
             // Add relationship to both user and room
             user.Rooms.Add(userRoom);

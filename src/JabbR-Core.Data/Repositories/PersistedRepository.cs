@@ -254,7 +254,7 @@ namespace JabbR_Core.Data.Repositories
 
         public void RemoveUserRoom(ChatUser user, ChatRoom room)
         {
-            // First, find the ChatUserChatRooms object that represents this relationship
+            // JC: First, find the ChatUserChatRooms object that represents this relationship
             var chatUserChatRoom = from r in _db.ChatUserChatRooms
                                    where (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)
                                    select r;
@@ -263,6 +263,7 @@ namespace JabbR_Core.Data.Repositories
             if (chatUserChatRoom.Count() == 1)
             {
                 // Remove this object from the room's Users list
+                // We can use .First() becasue the ChatRoomKey and ChatUserKey are primary keys and combined they will only return one unique value
                 room.Users.Remove(chatUserChatRoom.First());
 
                 // Now delete the relationship object

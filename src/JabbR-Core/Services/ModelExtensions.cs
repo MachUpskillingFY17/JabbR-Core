@@ -27,7 +27,13 @@ namespace JabbR_Core.Data.Models
 
         public static bool IsUserAllowed(this ChatRoom room, ChatUser user)
         {
-            return room.AllowedUsers.Contains(user) || room.Owners.Contains(user) || user.IsAdmin;
+            // JC: Find the relationship between room and user
+            var allowedUser = room.AllowedUsers.Where(r => (room.Key == r.ChatRoomKey) && (user.Key == r.ChatUserKey));
+            var ownerUser = room.Owners.Where(r => (room.Key == r.ChatRoomKey) && (user.Key == r.ChatUserKey));
+
+            // Ensure relationship is in list of allowedUsers
+            // We can use .First() becasue the ChatRoomKey and ChatUserKey are primary keys and combined they will only return one unique value
+            return room.AllowedUsers.Contains(allowedUser.First()) || room.Owners.Contains(ownerUser.First()) || user.IsAdmin;
         }
 
         public static void EnsureOpen(this ChatRoom room)
