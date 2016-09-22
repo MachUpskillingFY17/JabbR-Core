@@ -79,9 +79,9 @@ namespace JabbR_Core.Hubs
         public void Join(bool reconnecting)
         {
             // Get the client state
-            // var userId = _user.Id;
+           // var userId = _user.Id;
 
-
+           
 
             var userId = Context.User.GetUserId();
 
@@ -96,10 +96,10 @@ namespace JabbR_Core.Hubs
         public List<LobbyRoomViewModel> GetRooms()
         {
             string userId = Context.User.GetUserId();
-            ChatUser user = _repository.VerifyUserId(userId);
+             ChatUser user = _repository.VerifyUserId(userId);
 
-            //            var userId = _user.Id;
-            //          ChatUser user = _user;
+//            var userId = _user.Id;
+  //          ChatUser user = _user;
 
 
             var room = new LobbyRoomViewModel

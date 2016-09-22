@@ -81,7 +81,7 @@ namespace JabbR_Core
 
             if (env.IsDevelopment())
             {
-                //app.UseFakeLogin();
+                
                 app.UseCookieAuthentication(new CookieAuthenticationOptions()
                 {
                     AuthenticationScheme =  Constants.JabbRAuthType,
@@ -91,6 +91,7 @@ namespace JabbR_Core
                     AutomaticChallenge = true,
                     CookieName = "jabbr.id"
                 });
+                app.UseFakeLogin();
             }
 
             loggerFactory.AddConsole();
