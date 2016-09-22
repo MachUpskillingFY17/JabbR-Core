@@ -74,24 +74,29 @@ namespace JabbR_Core.Data.Repositories
         public void Add(ChatMessage message)
         {
             _db.Messages.Add(message);
+            _db.SaveChanges();
         }
 
         public void Add(Notification notification)
         {
             _db.Notifications.Add(notification);
+            _db.SaveChanges();
         }
 
         public void Add(ChatRoomChatUserOwner owner)
         {
             _db.ChatRoomsChatUsersOwned.Add(owner);
+            _db.SaveChanges();
         }
         public void Add(ChatRoomChatUserAllowed allowed)
         {
             _db.ChatRoomsChatUsersAllowed.Add(allowed);
+            _db.SaveChanges();
         }
         public void Add(ChatUserChatRooms userRoom)
         {
             _db.ChatUserChatRooms.Add(userRoom);
+            _db.SaveChanges();
         }
 
         public void Remove(ChatRoom room)
@@ -208,7 +213,6 @@ namespace JabbR_Core.Data.Repositories
                    select m;
         }
 
-        //FIX THIS TO WORK WITH CHATUSER NOT CHATROOMCHATUSERS
         public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
         {
             var temp = _db.Entry(room)
@@ -229,10 +233,9 @@ namespace JabbR_Core.Data.Repositories
             return _db.Users.Online().Where(u => u.Name.Contains(name));
         }
 
-        // TODO: Why doesn't this add a relationship to the db?
         public void AddUserRoom(ChatUser user, ChatRoom room)
         {
-            // First, create a ChatUserChatRooms object
+            // First, create a ChatUserChatRooms object to represent this relationship
             ChatUserChatRooms userroom = new ChatUserChatRooms()
             {
                 ChatRoomKey = room.Key,
@@ -241,7 +244,12 @@ namespace JabbR_Core.Data.Repositories
                 ChatUserKeyNavigation = user
             };
 
+            // Add the relationship to the room's user list
             room.Users.Add(userroom);
+
+            // Update the DB
+            _db.Add(userroom);
+            _db.SaveChanges();
         }
 
         public void RemoveUserRoom(ChatUser user, ChatRoom room)
@@ -254,12 +262,12 @@ namespace JabbR_Core.Data.Repositories
             // We found the correct relationship
             if (chatUserChatRoom.Count() == 1)
             {
-                // Remove this object from both the user's Rooms list and the room's Users list
-                user.Rooms.Remove(chatUserChatRoom.First());
+                // Remove this object from the room's Users list
                 room.Users.Remove(chatUserChatRoom.First());
 
                 // Now delete the relationship object
                 _db.Remove(chatUserChatRoom);
+                _db.SaveChanges();
             }
         }
 

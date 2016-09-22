@@ -34,6 +34,15 @@ namespace JabbR_Core.Services
             return source.Where(u => u.Status != (int)UserStatus.Offline);
         }
 
+        public static IEnumerable<ChatUser> Online(this IEnumerable<ChatUserChatRooms> source)
+        {
+            var users = from s in source
+                        where s.ChatUserKeyNavigation.Status != (int)UserStatus.Offline
+                        select s.ChatUserKeyNavigation;
+
+            return users;
+        }
+
         public static IEnumerable<ChatRoom> Allowed(this IEnumerable<ChatRoom> rooms, string userId)
         {
             return from r in rooms
@@ -118,7 +127,7 @@ namespace JabbR_Core.Services
 
         public static ChatUser VerifyUser(this IJabbrRepository repository, string userName)
         {
-            //userName = MembershipService.NormalizeUserName(userName);
+            userName = MembershipService.NormalizeUserName(userName);
 
             ChatUser user = repository.GetUserByName(userName);
 
