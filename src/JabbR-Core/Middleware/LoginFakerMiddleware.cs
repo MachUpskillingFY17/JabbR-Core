@@ -22,18 +22,21 @@ namespace JabbR_Core.Controllers
 
         public async Task Invoke(HttpContext context)
         {
-            var identities = new List<ClaimsIdentity>() { new ClaimsIdentity() { } };
-            var principal = new ClaimsPrincipal(identities);
+            if (context.User.Identity.Name == null)
+            {
+                var identities = new List<ClaimsIdentity>() { new ClaimsIdentity() { } };
+                var principal = new ClaimsPrincipal(identities);
 
-            var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Name, "Jane"));
-            claims.Add(new Claim(ClaimTypes.AuthenticationMethod, "provider"));
-            claims.Add(new Claim(ClaimTypes.NameIdentifier, "identity"));
-            claims.Add(new Claim(ClaimTypes.Email, "jane@no.com"));
-            claims.Add(new Claim(JabbRClaimTypes.Identifier, "1"));
-            var claimsIdentity = new ClaimsIdentity(claims, Constants.JabbRAuthType);
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-            await context.Authentication.SignInAsync(Constants.JabbRAuthType, claimsPrincipal);
+                var claims = new List<Claim>();
+                claims.Add(new Claim(ClaimTypes.Name, "Jane"));
+                claims.Add(new Claim(ClaimTypes.AuthenticationMethod, "provider"));
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, "identity"));
+                claims.Add(new Claim(ClaimTypes.Email, "jane@no.com"));
+                claims.Add(new Claim(JabbRClaimTypes.Identifier, "1"));
+                var claimsIdentity = new ClaimsIdentity(claims, Constants.JabbRAuthType);
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                await context.Authentication.SignInAsync(Constants.JabbRAuthType, claimsPrincipal);
+            }
             await _next.Invoke(context);
         }
     }
