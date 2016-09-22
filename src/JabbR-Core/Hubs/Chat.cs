@@ -199,7 +199,6 @@ namespace JabbR_Core.Hubs
         {
             ChatUser user = _user;
             ChatRoom room = _room;
-
             
             Clients.Caller.joinRoom(user, room, new object());
             GetRoomInfo(room.Name);
@@ -225,7 +224,7 @@ namespace JabbR_Core.Hubs
             //ChatUser user = _user;
             //ChatRoom room = _room;
 
-            if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
+            if (room == null || (room.Private && user.AllowedRooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)).First() == null))
             {
                 return false;
             }
@@ -324,7 +323,8 @@ namespace JabbR_Core.Hubs
                 Closed = room.Closed
             };
 
-            var isOwner = user.OwnedRooms.Contains(room);
+            // We can use .First() becasue the ChatRoomKey and ChatUserKey are primary keys and combined they will only return one unique value
+            var isOwner = user.OwnedRooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)).First();
 
             // Tell all clients to join this room
             Clients.User(user.Id).joinRoom(roomViewModel);
@@ -379,8 +379,21 @@ namespace JabbR_Core.Hubs
                 // First, check if the invite code is correct
                 if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
                 {
+                    // Create the ChatRoomChatUserAllowed object to represnt this relationship
+                    var isAllowed = new ChatRoomChatUserAllowed()
+                    {
+                        ChatRoomKey = room.Key,
+                        ChatUserKey = user.Key,
+                        ChatRoomKeyNavigation = room,
+                        ChatUserKeyNavigation = user
+                    };
+                    
                     // It is, add the user to the allowed users so that future joins will work
-                    room.AllowedUsers.Add(user);
+                    room.AllowedUsers.Add(isAllowed);
+                    user.AllowedRooms.Add(isAllowed);
+
+                    // Update db
+                    _repository.Add(isAllowed);
                 }
 
                 if (!room.IsUserAllowed(user))
@@ -415,7 +428,7 @@ namespace JabbR_Core.Hubs
             //ChatRoom room = _repository.GetRoomByName(roomName);
             ChatRoom room = _room;
 
-            if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
+            if (room == null || (room.Private && user.AllowedRooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)).First() == null))
             {
                 return null;
             }
@@ -604,7 +617,7 @@ namespace JabbR_Core.Hubs
 
             var userModel = new UserViewModel(user);
 
-            Clients.Caller.showUsersRoomList(userModel, user.Rooms.Allowed(userId).Select(r => r.Name));
+            Clients.Caller.showUsersRoomList(userModel, user.Rooms.Select(r => r.ChatRoomKeyNavigation).Allowed(userId).Select(r => r.Name));
         }
 
         void INotificationService.ListUsers()
@@ -694,6 +707,7 @@ namespace JabbR_Core.Hubs
             {
                 Name = user.Name,
                 OwnedRooms = user.OwnedRooms
+                    .Select(r => r.ChatRoomKeyNavigation)
                     .Allowed(userId)
                     .Where(r => !r.Closed)
                     .Select(r => r.Name),
@@ -703,7 +717,7 @@ namespace JabbR_Core.Hubs
                 AfkNote = user.AfkNote,
                 Note = user.Note,
                 Hash = user.Hash,
-                Rooms = user.Rooms.Allowed(userId).Select(r => r.Name)
+                Rooms = user.Rooms.Select(r => r.ChatRoomKeyNavigation).Allowed(userId).Select(r => r.Name)
             });
         }
 
@@ -1032,15 +1046,15 @@ namespace JabbR_Core.Hubs
 
             if (!reconnecting)
             {
-                foreach (var r in user.AllowedRooms)
+                foreach (var r in user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).ToList())
                 {
                     privateRooms.Add(new LobbyRoomViewModel
                     {
-                        Name = r.ChatRoomKeyNavigation.Name,
+                        Name = r.Name,
                         Count = _repository.GetOnlineUsers(r).Count(),
-                        Private = r.ChatRoomKeyNavigation.Private,
-                        Closed = r.ChatRoomKeyNavigation.Closed,
-                        Topic = r.ChatRoomKeyNavigation.Topic
+                        Private = r.Private,
+                        Closed = r.Closed,
+                        Topic = r.Topic
                     });
                 }
 
