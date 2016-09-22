@@ -16,8 +16,8 @@ namespace JabbR_Core.Infrastructure
             }
 
             return String.Join("", MD5.Create()
-                         .ComputeHash(Encoding.Default.GetBytes(value))
-                         .Select(b => b.ToString("x2")));
+                            .ComputeHash(Encoding.UTF8.GetBytes(value))
+                            .Select(b => b.ToString("x2")));
         }
 
         public static string ToSha256(this string value, string salt)
@@ -25,7 +25,7 @@ namespace JabbR_Core.Infrastructure
             string saltedValue = ((salt ?? "") + value);
 
             return String.Join("", SHA256.Create()
-                         .ComputeHash(Encoding.Default.GetBytes(saltedValue))
+                         .ComputeHash(Encoding.UTF8.GetBytes(saltedValue))
                          .Select(b => b.ToString("x2")));
         }
 

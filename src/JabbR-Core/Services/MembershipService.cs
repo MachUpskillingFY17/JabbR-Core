@@ -187,7 +187,7 @@ namespace JabbR_Core.Services
             user.RequestPasswordResetId = HttpServerUtility.UrlTokenEncode(_crypto.CreateToken(user.Name));
             user.RequestPasswordResetValidThrough = DateTimeOffset.UtcNow.AddHours(requestValidThroughInHours);
         }
-
+         
         public void ResetUserPassword(ChatUser user, string newPassword)
         {
             user.RequestPasswordResetId = null;
