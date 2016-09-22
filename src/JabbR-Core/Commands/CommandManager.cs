@@ -208,23 +208,23 @@ namespace JabbR_Core.Commands
             return new List<ICommand>() { new JoinCommand(), new OpenCommand(), new CreateCommand() };
         }
 
-        //public static IEnumerable<CommandMetaData> GetCommandsMetaData()
-        //{
-        //    var commands = from c in _commands.Value
-        //                   let commandAttribute = c.GetType()
-        //                                           .GetCustomAttributes(true)
-        //                                           .OfType<CommandAttribute>()
-        //                                           .FirstOrDefault()
-        //                   where commandAttribute != null
-        //                   select new CommandMetaData
-        //                   {
-        //                       Name = commandAttribute.CommandName,
-        //                       Description = commandAttribute.Description,
-        //                       Arguments = commandAttribute.Arguments,
-        //                       Group = commandAttribute.Group,
-        //                       ConfirmMessage = commandAttribute.ConfirmMessage
-        //                   };
-        //    return commands;
-        //}
+        public static IEnumerable<CommandMetaData> GetCommandsMetaData()
+        {
+            var commands = from c in _commands.Value
+                           let commandAttribute = c.GetType().GetTypeInfo()
+                                                   .GetCustomAttributes(true)
+                                                   .OfType<CommandAttribute>()
+                                                   .FirstOrDefault()
+                           where commandAttribute != null
+                           select new CommandMetaData
+                           {
+                               Name = commandAttribute.CommandName,
+                               Description = commandAttribute.Description,
+                               Arguments = commandAttribute.Arguments,
+                               Group = commandAttribute.Group,
+                               ConfirmMessage = commandAttribute.ConfirmMessage
+                           };
+            return commands;
+        }
     }
 }

@@ -52,8 +52,8 @@ namespace JabbR_Core.Hubs
             _roomList = _repository.RoomList;
             _lobbyRoom = _repository.LobbyRoomView;
             _lobbyRoomList = _repository.LobbyRoomList;
-            _user = _repository.User;
-            _room = _repository.Room;
+            //_user = _repository.user;
+            //_room = _repository.Room;
             //_chatRooms = repository.ChatRooms;
             //_logger = logger;
             //_service = service;
@@ -116,6 +116,7 @@ namespace JabbR_Core.Hubs
 
         public object GetCommands()
         {
+            //return CommandManager.GetCommandsMetaData();
             return CommandManager.GetCommands();
         }
 
@@ -134,11 +135,11 @@ namespace JabbR_Core.Hubs
             // EF context with multiple concurrent queries.
             foreach (var room in _roomList)
             {
-                //if (room == null || (room.Private && !_user.AllowedRooms.Contains(room)))
-                //{
-                //    continue;
-                //}
-
+                if (room == null || (room.Private && !_user.AllowedRooms.Contains(room)))
+                {
+                    continue;
+                }
+                //RoomViewModel roomInfo = null;
                 var roomInfo = new RoomViewModel
                 {
                     Name = "light_meow",
@@ -162,9 +163,22 @@ namespace JabbR_Core.Hubs
             }
         }
 
+        //public void UpdateActivity()
+        //{
+        //    UpdateActivity(_user, _room);
+        //}
         public void UpdateActivity()
         {
-            UpdateActivity(_user, _room);
+            string userId = Context.User.GetUserId();
+
+            ChatUser user = _repository.GetUserById(userId);
+
+            foreach (var room in user.Rooms)
+            {
+                UpdateActivity(user, room);
+            }
+
+            CheckStatus();
         }
 
         private void UpdateActivity(ChatUser user, ChatRoom room)
@@ -201,8 +215,8 @@ namespace JabbR_Core.Hubs
 
         public bool Send(ClientMessage clientMessage)
         {
-            ChatUser user = _user;
-            ChatRoom room = _room;
+            //ChatUser user = _repository.;
+            //ChatRoom room = _room;
             
             //REMOVE -- added manually to explicitly call joinRoom
             //Clients.Caller.joinRoom(user, room, new object());
@@ -222,11 +236,11 @@ namespace JabbR_Core.Hubs
                 return true;
             }
 
-            //var userId = Context.User.GetUserId();
-            var userId = _user.Id;
+            var userId = Context.User.GetUserId();
+            //var userId = _user.Id;
 
-            //ChatUser user = _repository.VerifyUserId(userId);
-            //ChatRoom room = _repository.VerifyUserRoom(_cache, user, clientMessage.Room);
+            ChatUser user = _repository.VerifyUserId(userId);
+            ChatRoom room = _repository.VerifyUserRoom(_cache, user, clientMessage.Room);
             //ChatUser user = _user;
             //ChatRoom room = _room;
 
@@ -311,8 +325,8 @@ namespace JabbR_Core.Hubs
         private bool TryHandleCommand(string command, string room)
         {
             string clientId = Context.ConnectionId;
-            //string userId = Context.User.GetUserId();
-            string userId = _user.Id;
+            string userId = Context.User.GetUserId();
+            //string userId = _user.Id;
 
             var commandManager = new CommandManager(clientId, UserAgent, userId, room, _service, _repository, _cache, this);
             return commandManager.TryHandleCommand(command);
@@ -412,13 +426,13 @@ namespace JabbR_Core.Hubs
                 return null;
             }
 
-            //string userId = Context.User.GetUserId();
-            string userId = _user.Id;
-            //ChatUser user = _repository.VerifyUserId(userId);
-            ChatUser user = _user;
+            string userId = Context.User.GetUserId();
+            //string userId = _user.Id;
+            ChatUser user = _repository.VerifyUserId(userId);
+            //ChatUser user = _user;
 
-            //ChatRoom room = _repository.GetRoomByName(roomName);
-            ChatRoom room = _room;
+            ChatRoom room = _repository.GetRoomByName(roomName);
+            //ChatRoom room = _room;
 
             if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
             {
