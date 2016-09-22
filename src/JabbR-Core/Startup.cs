@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using JabbR_Core.Localization;
 using JabbR_Core.Configuration;
+using JabbR_Core.Infrastructure;
+using JabbR_Core.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using JabbR_Core.Services;
 using JabbR_Core.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Authentication;
 
 namespace JabbR_Core
 {
@@ -52,6 +60,9 @@ namespace JabbR_Core
             services.AddTransient<IJabbrRepository, InMemoryRepository>();
             services.AddTransient<IChatService, ChatService>();
 
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             // Establish default settings from appsettings.json
             services.Configure<Configuration.ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
 
@@ -65,8 +76,24 @@ namespace JabbR_Core
         }
        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
+
+            if (env.IsDevelopment())
+            {
+                
+                app.UseCookieAuthentication(new CookieAuthenticationOptions()
+                {
+                    AuthenticationScheme =  Constants.JabbRAuthType,
+                    LoginPath = new PathString("/Account/Unauthorized/"),
+                    AccessDeniedPath = new PathString("/Account/Forbidden/"),
+                    AutomaticAuthenticate = true,
+                    AutomaticChallenge = true,
+                    CookieName = "jabbr.id"
+                });
+                app.UseFakeLogin();
+            }
+
             loggerFactory.AddConsole();
 
             if (env.IsDevelopment())
@@ -74,9 +101,13 @@ namespace JabbR_Core
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
+            app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
             app.UseSignalR();
+
+           
         }
     }
+
+
 }
