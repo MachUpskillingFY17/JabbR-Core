@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
+using JabbR_Core.Models;
 using System.Reflection;
+using System.Diagnostics;
 using JabbR_Core.Services;
 using JabbR_Core.Commands;
-using JabbR_Core.Models;
+using Microsoft.Composition;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;
-using Microsoft.Composition;
+
 
 namespace JabbR_Core.Commands
 {
@@ -148,6 +149,7 @@ namespace JabbR_Core.Commands
 
                 //}
 
+                //Regex regex = new Regex("Commands.(.*?)Command");
                 var commands = from c in _commands.Value
                                let commandAttribute = c.GetType().GetTypeInfo().GetCustomAttributes<CommandAttribute>()
                                                        //.GetCustomAttributes()
@@ -157,6 +159,9 @@ namespace JabbR_Core.Commands
                                select new
                                {
                                    Name = commandAttribute.CommandName,
+                                   //Name = regex.Match(c.ToString()).ToString().Replace("Commands.","").Replace("Command",""),
+                                   //Name = "join",
+
                                    Command = c
                                };
 
@@ -166,6 +171,7 @@ namespace JabbR_Core.Commands
             }
 
             IList<string> candidates = null;
+            
 
             var exactMatches = _commandCache.Keys.Where(comm => comm.Equals(commandName, StringComparison.OrdinalIgnoreCase))
                                                  .ToList();
@@ -193,13 +199,13 @@ namespace JabbR_Core.Commands
             }
         }
 
-        private static IList<ICommand> GetCommands()
+        public static IList<ICommand> GetCommands()
         {
             // Use MEF to locate the content providers in this assembly
             //var catalog = new AssemblyCatalog(typeof(CommandManager).Assembly);
             //var compositionContainer = new CompositionContainer(catalog);
             //return compositionContainer.GetExportedValues<ICommand>().ToList();
-            return new List<ICommand>() { new JoinCommand() };
+            return new List<ICommand>() { new JoinCommand(), new OpenCommand(), new CreateCommand() };
         }
 
         //public static IEnumerable<CommandMetaData> GetCommandsMetaData()

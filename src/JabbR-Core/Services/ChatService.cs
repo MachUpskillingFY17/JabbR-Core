@@ -367,7 +367,11 @@ namespace JabbR_Core.Services
                 }
             }
 
+            
             // Add this user to the room
+
+            //REMOVE _openroom
+            var _repository = new InMemoryRepository();
             _repository.AddUserRoom(user, room);
 
             ChatUserPreferences userPreferences = user.Preferences;
@@ -375,7 +379,9 @@ namespace JabbR_Core.Services
             user.Preferences = userPreferences;
 
             // Clear the cache
-            _cache.RemoveUserInRoom(user, room);
+            
+            //REMOVE _openroom
+            //_cache.RemoveUserInRoom(user, room);
         }
 
         public void SetInviteCode(ChatUser user, ChatRoom room, string inviteCode)

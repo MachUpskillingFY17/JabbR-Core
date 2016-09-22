@@ -35,7 +35,7 @@ namespace JabbR_Core.Services
 
         public InMemoryRepository()
         {
-            //_users = new SafeCollection<ChatUser>();
+            _users = new SafeCollection<ChatUser>();
             //_rooms = new SafeCollection<ChatRoom>();
             //_identities = new SafeCollection<ChatUserIdentity>();
             //_attachments = new SafeCollection<Attachment>();
@@ -49,6 +49,7 @@ namespace JabbR_Core.Services
                 IsAdmin = true,
                 IsAfk = true
             };
+            
 
             ChatClient = new ChatClient
             {
