@@ -81,6 +81,19 @@ namespace JabbR_Core.Data.Repositories
             _db.Notifications.Add(notification);
         }
 
+        public void Add(ChatRoomChatUserOwner owner)
+        {
+            _db.ChatRoomsChatUsersOwned.Add(owner);
+        }
+        public void Add(ChatRoomChatUserAllowed allowed)
+        {
+            _db.ChatRoomsChatUsersAllowed.Add(allowed);
+        }
+        public void Add(ChatUserChatRooms userRoom)
+        {
+            _db.ChatUserChatRooms.Add(userRoom);
+        }
+
         public void Remove(ChatRoom room)
         {
             _db.Rooms.Remove(room);
@@ -102,6 +115,22 @@ namespace JabbR_Core.Data.Repositories
         public void Remove(Notification notification)
         {
             _db.Notifications.Remove(notification);
+            _db.SaveChanges();
+        }
+
+        public void Remove(ChatRoomChatUserOwner owner)
+        {
+            _db.ChatRoomsChatUsersOwned.Remove(owner);
+            _db.SaveChanges();
+        }
+        public void Remove(ChatRoomChatUserAllowed allowed)
+        {
+            _db.ChatRoomsChatUsersAllowed.Remove(allowed);
+            _db.SaveChanges();
+        }
+        public void Remove(ChatUserChatRooms userRoom)
+        {
+            _db.ChatUserChatRooms.Remove(userRoom);
             _db.SaveChanges();
         }
 
@@ -200,18 +229,18 @@ namespace JabbR_Core.Data.Repositories
             return _db.Users.Online().Where(u => u.Name.Contains(name));
         }
 
+        // TODO: Why doesn't this add a relationship to the db?
         public void AddUserRoom(ChatUser user, ChatRoom room)
         {
             // First, create a ChatUserChatRooms object
-            ChatUserChatRooms userroom = new ChatUserChatRooms();
+            ChatUserChatRooms userroom = new ChatUserChatRooms()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
 
-            // Populate userroom
-            userroom.ChatRoomKey = room.Key;
-            userroom.ChatUserKey = user.Key;
-            userroom.ChatRoomKeyNavigation = room;
-            userroom.ChatUserKeyNavigation = user;
-
-            // Don't need to call RunNonLazy because everything is NonLazy
             room.Users.Add(userroom);
         }
 

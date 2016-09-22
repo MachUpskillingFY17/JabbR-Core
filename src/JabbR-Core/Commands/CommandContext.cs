@@ -1,5 +1,5 @@
-﻿using JabbR_Core.Models;
-using JabbR_Core.Services;
+﻿using JabbR_Core.Services;
+using JabbR_Core.Data.Repositories;
 
 namespace JabbR_Core.Commands
 {

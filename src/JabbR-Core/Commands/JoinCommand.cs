@@ -1,6 +1,6 @@
 ﻿using System;
 using JabbR_Core.Hubs;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.DotNet.Cli.Utils;
 

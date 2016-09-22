@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using JabbR_Core.Data.Models;
 using System.Security.Claims;
+using JabbR_Core.Data.Models;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
-using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
+using JabbR_Core.Data.Repositories;
 
 namespace JabbR_Core.Services
 {
@@ -118,7 +118,7 @@ namespace JabbR_Core.Services
 
         public static ChatUser VerifyUser(this IJabbrRepository repository, string userName)
         {
-            userName = MembershipService.NormalizeUserName(userName);
+            //userName = MembershipService.NormalizeUserName(userName);
 
             ChatUser user = repository.GetUserByName(userName);
 
@@ -147,7 +147,7 @@ namespace JabbR_Core.Services
 
         public static IList<string> GetAllowedClientIds(this IJabbrRepository repository, ChatRoom room)
         {
-            int[] allowedUserKeys = room.AllowedUsers.Select(u => u.ChatUserKeyNavigation.Key).ToArray();
+            int[] allowedUserKeys = room.AllowedUsers.Select(u => u.ChatUserKey).ToArray();
             return repository.Clients.Where(c => allowedUserKeys.Contains(c.UserKey)).Select(c => c.Id).ToList();
         }
     }

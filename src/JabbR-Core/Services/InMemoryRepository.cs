@@ -151,6 +151,19 @@ namespace JabbR_Core.Services
             _notifications.Add(notification);
         }
 
+        public void Add(ChatRoomChatUserOwner owner)
+        {
+            _owner.Add(owner);
+        }
+        public void Add(ChatRoomChatUserAllowed allowed)
+        {
+            _allowed.Add(allowed);
+        }
+        public void Add(ChatUserChatRooms userRoom)
+        {
+            _userRooms.Add(userRoom); 
+        }
+
         public void Remove(ChatClient client)
         {
             var user = _users.FirstOrDefault(u => client.UserKeyNavigation == u);
@@ -175,6 +188,19 @@ namespace JabbR_Core.Services
         public void Remove(Notification notification)
         {
             _notifications.Remove(notification);
+        }
+
+        public void Remove(ChatRoomChatUserOwner owner)
+        {
+            _owner.Remove(owner);
+        }
+        public void Remove(ChatRoomChatUserAllowed allowed)
+        {
+            _allowed.Remove(allowed);
+        }
+        public void Remove(ChatUserChatRooms userRoom)
+        {
+            _userRooms.Remove(userRoom);
         }
 
         public void CommitChanges()

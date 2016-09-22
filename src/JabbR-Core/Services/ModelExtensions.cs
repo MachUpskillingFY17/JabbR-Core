@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
 
-namespace JabbR_Core.Models
+namespace JabbR_Core.Data.Models
 {
     public static class ModelExtensions
     {

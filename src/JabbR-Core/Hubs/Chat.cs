@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using Newtonsoft.Json;
-using JabbR_Core.Models;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
+using JabbR_Core.Data.Models;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
@@ -625,12 +625,12 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.ListAllowedUsers(ChatRoom room)
         {
-            Clients.Caller.listAllowedUsers(room.Name, room.Private, room.AllowedUsers.Select(s => s.Name));
+            Clients.Caller.listAllowedUsers(room.Name, room.Private, room.AllowedUsers.Select(s => s.ChatUserKeyNavigation.Name));
         }
 
         void INotificationService.ListOwners(ChatRoom room)
         {
-            Clients.Caller.listOwners(room.Name, room.Owners.Select(s => s.Name), room.Creator != null ? room.Creator.Name : null);
+            Clients.Caller.listOwners(room.Name, room.Owners.Select(s => s.ChatUserKeyNavigation.Name), room.CreatorKeyNavigation != null ? room.CreatorKeyNavigation.Name : null);
         }
 
         void INotificationService.LockRoom(ChatUser targetUser, ChatRoom room)
@@ -789,7 +789,7 @@ namespace JabbR_Core.Hubs
             // Tell all users in rooms to change the note
             foreach (var room in user.Rooms)
             {
-                Clients.Group(room.Name).changeNote(userViewModel, room.Name);
+                Clients.Group(room.ChatRoomKeyNavigation.Name).changeNote(userViewModel, room.Name);
             }
         }
 
@@ -1005,11 +1005,11 @@ namespace JabbR_Core.Hubs
             var rooms = new List<RoomViewModel>();
             var privateRooms = new List<LobbyRoomViewModel>();
             var userViewModel = new UserViewModel(user);
-            var ownedRooms = user.OwnedRooms.Select(r => r.Key);
+            var ownedRooms = user.OwnedRooms.Select(r => r.ChatRoomKey);
 
             foreach (var room in user.Rooms)
             {
-                var isOwner = ownedRooms.Contains(room.Key);
+                var isOwner = ownedRooms.Contains(room.ChatRoomKey);
 
                 // Tell the people in this room that you've joined
                 Clients.Group(room.Name).addUser(userViewModel, room.Name, isOwner);
@@ -1023,8 +1023,8 @@ namespace JabbR_Core.Hubs
                     rooms.Add(new RoomViewModel
                     {
                         Name = room.Name,
-                        Private = room.Private,
-                        Closed = room.Closed
+                        Private = room.ChatRoomKeyNavigation.Private,
+                        Closed = room.ChatRoomKeyNavigation.Closed
                     });
                 }
             }
@@ -1036,11 +1036,11 @@ namespace JabbR_Core.Hubs
                 {
                     privateRooms.Add(new LobbyRoomViewModel
                     {
-                        Name = r.Name,
+                        Name = r.ChatRoomKeyNavigation.Name,
                         Count = _repository.GetOnlineUsers(r).Count(),
-                        Private = r.Private,
-                        Closed = r.Closed,
-                        Topic = r.Topic
+                        Private = r.ChatRoomKeyNavigation.Private,
+                        Closed = r.ChatRoomKeyNavigation.Closed,
+                        Topic = r.ChatRoomKeyNavigation.Topic
                     });
                 }
 

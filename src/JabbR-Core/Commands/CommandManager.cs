@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using JabbR_Core.Services;
 using JabbR_Core.Commands;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Repositories;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;

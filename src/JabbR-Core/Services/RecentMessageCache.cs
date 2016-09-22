@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 using JabbR_Core.ViewModels;
 
 namespace JabbR_Core.Services

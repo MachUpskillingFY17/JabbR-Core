@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using JabbR_Core.Services;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Repositories;
 
 namespace JabbR_Core
 {

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using JabbR_Core.Configuration;
 using Microsoft.Extensions.Options;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 using System;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860

@@ -43,11 +43,17 @@ namespace JabbR_Core.Data.Repositories
         void Add(ChatUserIdentity identity);
         void Add(Attachment attachment);
         void Add(Settings settings);
+        void Add(ChatRoomChatUserOwner owner);
+        void Add(ChatRoomChatUserAllowed allowed);
+        void Add(ChatUserChatRooms userRoom);
 
         void Remove(ChatClient client);
         void Remove(ChatRoom room);
         void Remove(ChatUser user);
         void Remove(ChatUserIdentity identity);
+        void Remove(ChatRoomChatUserOwner owner);
+        void Remove(ChatRoomChatUserAllowed allowed);
+        void Remove(ChatUserChatRooms userRoom);
         void CommitChanges();
 
         bool IsUserInRoom(ChatUser user, ChatRoom room);

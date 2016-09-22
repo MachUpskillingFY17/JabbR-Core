@@ -14,5 +14,6 @@ namespace JabbR_Core.Data.Models
 
         public ChatRoom ChatRoomKeyNavigation { get; set; }
         public ChatUser ChatUserKeyNavigation { get; set; }
+        public string Name { get; set; }
     }
 }

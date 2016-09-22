@@ -60,7 +60,7 @@ namespace JabbR_Core.Services
 
             var chatUserIdentity = new ChatUserIdentity
             {
-                User = user,
+                UserKeyNavigation = user,
                 Email = email,
                 Identity = identity,
                 ProviderName = providerName
@@ -85,7 +85,7 @@ namespace JabbR_Core.Services
             var providerName = claimsPrincipal.GetIdentityProvider();
 
             // Link this new identity
-            user.Identities.Add(new ChatUserIdentity
+            user.ChatUserIdentities.Add(new ChatUserIdentity
             {
                 Email = email,
                 Identity = identity,
@@ -183,6 +183,7 @@ namespace JabbR_Core.Services
 
         public void RequestResetPassword(ChatUser user, int requestValidThroughInHours)
         {
+            
             user.RequestPasswordResetId = HttpServerUtility.UrlTokenEncode(_crypto.CreateToken(user.Name));
             user.RequestPasswordResetValidThrough = DateTimeOffset.UtcNow.AddHours(requestValidThroughInHours);
         }
