@@ -2160,6 +2160,7 @@
             return !ui.commandsLookup ? null : ui.commandsLookup[name];
         },
         setCommands: function (commands) {
+           // commands = new List();
             ui.commands = commands.sort(function(a, b) {
                 return a.Name.toString().toUpperCase().localeCompare(b.Name.toString().toUpperCase());
             });

@@ -4,6 +4,7 @@ using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
+using JabbR_Core.Commands;
 
 namespace JabbR_Core.Hubs
 {
@@ -65,9 +66,10 @@ namespace JabbR_Core.Hubs
             return LobbyRoomList;
         }
 
-        public void GetCommands()
+        public object GetCommands()
         {
-           
+            return new List<ICommand>() { };
+
         }
 
         public object GetShortcuts()
