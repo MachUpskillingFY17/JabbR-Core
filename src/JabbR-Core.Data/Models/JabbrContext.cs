@@ -8,6 +8,12 @@ namespace JabbR_Core.Data.Models
     {
         public JabbrContext(DbContextOptions<JabbrContext> options) : base(options) { }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTestDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            optionsBuilder.UseSqlServer(connection);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Attachment>(entity =>

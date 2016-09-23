@@ -4,7 +4,9 @@ using System.Linq;
 using JabbR_Core.Data.Models;
 using System.Collections.Generic;
 using JabbR_Core.Data.Repositories;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace JabbR_Core.Tests.Repositories
 {
@@ -13,24 +15,16 @@ namespace JabbR_Core.Tests.Repositories
         JabbrContext _context;
         PersistedRepository _repository;
         DbContextOptions<JabbrContext> _options;
+        DbContextOptionsBuilder _builder;
 
         public PersistedRepositoryTest()
         {
-            // Set up connection string with local DB
-            _options = new DbContextOptions<JabbrContext>();
-            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTestDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            //_options.UseSqlServer(connection)
-
-
+            _options = new DbContextOptions<JabbrContext>();            
             _context = new JabbrContext(_options);
             _repository = new PersistedRepository(_context);
-
-            // DO WE NEED TO HOOK UP TO A REAL DB? 
-            // HOW WOULD THAT WORK RUNNING THE SAME TESTS ON THE SAME LOCAL DB? WOULDN'T BE ABLE TO ADD THE SAME STUFF TO THE TABLES
-            // MAYBE WE DELETE THE VALUES FROM ALL TABLES EVERYTIME AFTER THE TEST IS RUN?
         }
 
-        [Fact]
+      [Fact]
         public void GetRooms()
         {
             // Create two new chat rooms
@@ -95,7 +89,6 @@ namespace JabbR_Core.Tests.Repositories
 
             // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
             _context.Remove(user1);
-            _context.Remove(user2);
         }
 
         public IQueryable<ChatClient> Clients
@@ -114,7 +107,7 @@ namespace JabbR_Core.Tests.Repositories
             }
         }
 
-`       public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
+        public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
         {
             throw new NotImplementedException();
         }

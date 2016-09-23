@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 using JabbR_Core.Hubs;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
 using System.Collections.Generic;
