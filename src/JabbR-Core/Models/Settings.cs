@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace JabbR_Core.Models
 {
-    public partial class Settings
+    public class Settings
     {
+        [Key]
         public int Key { get; set; }
         public string RawSettings { get; set; }
     }
