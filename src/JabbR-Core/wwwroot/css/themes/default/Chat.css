@@ -63,20 +63,9 @@ form#send-message {
     padding: 5px;
     bottom: 0;
     background: #fff;
-    float:right;
-  /*  overflow: auto;*/
-    color: #00103f;
-    color: rgba(0, 16, 63, 0.5);
-}
-#settings{
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: #fff;
     overflow: auto;
     color: #00103f;
     color: rgba(0, 16, 63, 0.5);
-    display:none;
 }
 
 #room-filter-form {

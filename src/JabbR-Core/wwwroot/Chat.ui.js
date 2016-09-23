@@ -22,7 +22,6 @@
         $downloadRange = null,
         $logout = null,
         $help = null,
-        $accountSettings = null,
         $ui = null,
         $sound = null,
         templates = null,
@@ -35,7 +34,6 @@
         lastCycledMessage = null,
         $helpPopup = null,
         $helpBody = null,
-        $accountPopup = null,
         helpHeight = 0,
         $shortCutHelp = null,
         $globalCmdHelp = null,
@@ -804,11 +802,9 @@
             $downloadRange = $('#download-range');
             $logout = $('#preferences .logout');
             $help = $('#preferences .help');
-            $accountSettings = $('#preferences .accountSettings');
             $disconnectDialog = $('#disconnect-dialog');
             $helpPopup = $('#jabbr-help');
             $helpBody = $('#jabbr-help .help-body');
-            $accountPopup = $('#jabbr-account');
             $shortCutHelp = $('#jabbr-help #shortcut');
             $globalCmdHelp = $('#jabbr-help #global');
             $roomCmdHelp = $('#jabbr-help #room');
@@ -1045,36 +1041,6 @@
                 $helpBody.css('height', helpHeight);
             });
 
-            $accountPopup.on('hide', function () {
-                $accountBody.scrollTop(0);
-            });
-
-            // set the height of the help body when displaying the help dialog
-            // so that the scroll bar does not block the rounded corners
-            $accountPopup.on('show', function () {
-               /* if (helpHeight === 0) {
-                    helpHeight = $helpPopup.height() - $helpBody.position().top - 10;
-                }
-                $helpBody.css('height', helpHeight);
-
-                $('body').on('click', '.modal-link', function (e) {
-                    e.preventDefault();
-                    $(this).attr('data-target', '#modal-container');
-                    $(this).attr('data-toggle', 'modal');
-                });
-                // Attach listener to .modal-close-btn's so that when the button is pressed the modal dialog disappears
-                $('body').on('click', '.modal-close-btn', function () {
-                    $('#modal-container').modal('hide');
-                });
-                //clear modal cache, so that new content can be loaded
-                $('#modal-container').on('hidden.bs.modal', function () {
-                    $(this).removeData('bs.modal');
-                });
-                $('#CancelModal').on('click', function () {
-                    return false;
-                });*/
-            });
-
             // handle click on names in chat / room list
             var prepareMessage = function () {
                 if (readOnly) {
@@ -1256,10 +1222,6 @@
                 ui.showHelp();
             });
 
-           $accountSettings.click(function () {
-                ui.showAccount();
-            });
-            
             $roomFilterInput.bind('input', function () { $lobbyRoomFilterForm.submit(); })
                 .keyup(function () { $lobbyRoomFilterForm.submit(); });
 
@@ -2355,9 +2317,6 @@
         },
         showHelp: function () {
             $helpPopup.modal();
-        },
-        showAccount: function () {
-            $accountPopup.modal();
         },
         showUpdateUI: function () {
             $updatePopup.modal();

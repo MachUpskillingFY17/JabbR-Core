@@ -101,8 +101,7 @@ namespace JabbR_Core
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvcWithDefaultRoute(); //Needed for routing of additional controllers; without it, only the home controller will work.
-
+            app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
             app.UseSignalR();
 

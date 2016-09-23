@@ -26,7 +26,6 @@
     <link href="~/css/emoji20.css" rel="stylesheet" />
     <link href="~/font/font-awesome.min.css" rel="stylesheet" />
    
-   
 
     @if (!String.IsNullOrEmpty(Model.GoogleAnalytics))
     {
@@ -90,9 +89,6 @@
 <body class="home@(Model.IsAdmin ? " home-admin" : "")">
     <section id="page" role="application">
         <header id="heading" role="heading">
-                        <div id="settings">
-                <h2 class="userlist-header nav-header">Here are the settings</h2>
-            </div>
             <div class="banner" role="banner">
                 <h1><a href="/">JabbR</a></h1>
             </div>
@@ -123,19 +119,18 @@
                     <div class="navbar-inner">
                         <ul class="nav">
                             <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_self"><i class="icon-comments"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
-                            <li><a class="" aria-haspopup="true" href="@Url.Content("~/account")" target="_self" title="@LanguageResources.Client_AccountSettings" ><i class="icon-user"></i></a></li>
+                            <li><a class="" title="@LanguageResources.Client_AccountSettings" href="@Url.Content("~/account")" target="_self"><i class="icon-user"></i></a></li>
                             @if (Model.IsAdmin)
                             {
                                 <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_self"><i class="icon-cog"></i></a></li>
                             }
-                            <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"  ><i class="icon-question-sign"></i></a></li>
+                            <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
                             <li><a class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-signout"></i></a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </header>
-
         <div id="chat-area" role="tabpanel">
             <form id="room-filter-form" action="#" class="form-inline">
                 <input id="room-filter" class="filter input-xlarge" type="text" placeholder="@LanguageResources.Client_RoomFilterInstruction" />
@@ -188,9 +183,6 @@
             </div>
             <input type="submit" id="send" value="@LanguageResources.Client_Send" class="send btn" />
         </form>
-     <!--  <div id="settings">
-           Here are the settings<
-        </div>-->
         <form id="upload" action="@Url.Content("~/upload-file")" method="post" enctype="multipart/form-data" target="upload-frame">
             <input type="hidden" id="file-connection-id" name="connectionId" />
             <input type="hidden" id="file-message-id" name="messageId" />
@@ -268,18 +260,6 @@
                     </div>
                 </div>
             </div>
-            <div id="jabbr-account" class="modal hide fade">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">&times;</a>
-                    <h3>Profile Settings</h3> <!--should use  LanguageResources -->
-                </div>
-                <div class="modal-body">
-                    <div class="account-body">
-                        This is a test
-                    </div>
-                </div>
-            </div>
-
             <div id="jabbr-update" class="modal hide fade">
                 <div class="modal-header">
                     <a class="close" data-dismiss="modal">&times;</a>
@@ -338,7 +318,6 @@
         @Html.Raw(Model.ClientLanguageResources)
       };
     </script>
-
     <script type="text/javascript" src="~/Scripts/jQuery.tmpl.min.js" ></script>
     <script type="text/javascript" src="~/Scripts/jquery.cookie.js" ></script>
     <script type="text/javascript" src="~/Scripts/jquery.autotabcomplete.js" ></script>
