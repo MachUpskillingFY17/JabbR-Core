@@ -47,7 +47,8 @@ namespace JabbR_Core.Services
                 Name = "Jane",
                 LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
                 IsAdmin = true,
-                IsAfk = true
+                IsAfk = true,
+                Status = 1
             };
             _users.Add(user);
             

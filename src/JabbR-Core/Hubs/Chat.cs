@@ -116,8 +116,8 @@ namespace JabbR_Core.Hubs
 
         public object GetCommands()
         {
-            //return CommandManager.GetCommandsMetaData();
-            return CommandManager.GetCommands();
+            return CommandManager.GetCommandsMetaData();
+            //return CommandManager.GetCommands();
         }
 
         public object GetShortcuts()
@@ -139,12 +139,12 @@ namespace JabbR_Core.Hubs
                 {
                     continue;
                 }
-                //RoomViewModel roomInfo = null;
-                var roomInfo = new RoomViewModel
-                {
-                    Name = "light_meow",
-                    Count = 1
-                };
+                RoomViewModel roomInfo = null;
+                //var roomInfo = new RoomViewModel
+                //{
+                //    Name = "light_meow",
+                //    Count = 1
+                //};
 
                 while (true)
                 {
@@ -461,12 +461,25 @@ namespace JabbR_Core.Hubs
 
                 _recentMessageCache.Add(room.Name, recentMessages);
             }
-
+            //REMOVE AND CHANGEEEEE
             ////Get online users through the repository
             //List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
-            
-            _roomViewModel.RecentMessages = recentMessages;
-            return _roomViewModel;
+
+
+            return new RoomViewModel
+            {
+                Name = room.Name,
+                Users = from u in _repository.Users
+                        select new UserViewModel(u),
+                //Owners = from u in room.Owners.Online()
+                //         select u.Name,
+                RecentMessages = recentMessages,
+                Topic = room.Topic ?? String.Empty,
+                Welcome = room.Welcome ?? String.Empty,
+                Closed = room.Closed
+            };
+            //_roomViewModel.RecentMessages = recentMessages;
+            //return _roomViewModel;
             //return new RoomViewModel
             //{
             //    Name = room.Name,
