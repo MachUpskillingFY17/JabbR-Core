@@ -19,7 +19,7 @@ namespace JabbR_Core.Controllers
         private ApplicationSettings _settings;
         public AccountController(IOptions<ApplicationSettings> settings,
                              IMembershipService membershipService,
-                             //  IJabbrRepository repository,
+                             IJabbrRepository repository,
                              IAuthenticationService authService,
                              IChatNotificationService notificationService,
                              IUserAuthenticator authenticator,
