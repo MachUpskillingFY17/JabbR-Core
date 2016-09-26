@@ -83,7 +83,7 @@ namespace JabbR_Core.Services
                 Topic = "jabbr"
             };
             // Add RoomView to RoomList
-            LobbyRoomList = new List<LobbyRoomViewModel> {  };
+            LobbyRoomList = new List<LobbyRoomViewModel> { LobbyRoomView };
 
 
         }

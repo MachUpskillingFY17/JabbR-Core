@@ -40,9 +40,10 @@ namespace JabbR_Core.Hubs
             )
         {
             _repository = new InMemoryRepository();
-            //_service = service;
-            _service = new ChatService();
             _settings = new ApplicationSettings();
+            //_service = service;
+            _service = new ChatService(null,null,_repository,_settings);
+           
             _recentMessageCache = new RecentMessageCache();
             //_cache = new ICache();
 
@@ -334,6 +335,7 @@ namespace JabbR_Core.Hubs
         }
         void INotificationService.JoinRoom(ChatUser user, ChatRoom room)
         {
+            
             var userViewModel = new UserViewModel(user);
             var roomViewModel = new RoomViewModel
             {
@@ -344,10 +346,12 @@ namespace JabbR_Core.Hubs
             };
 
             var isOwner = user.OwnedRooms.Contains(room);
+            Clients.Caller.joinRoom(roomViewModel);
 
             // Tell all clients to join this room
             Clients.User(user.Id).joinRoom(roomViewModel);
 
+            //Clients.Caller.joinRoom()
             // Tell the people in this room that you've joined
             Clients.Group(room.Name).addUser(userViewModel, room.Name, isOwner);
 
@@ -473,10 +477,12 @@ namespace JabbR_Core.Hubs
                         select new UserViewModel(u),
                 //Owners = from u in room.Owners.Online()
                 //         select u.Name,
+                Owners = from u in room.Owners select u.Name,
                 RecentMessages = recentMessages,
-                Topic = room.Topic ?? String.Empty,
+                Topic = room.Topic ?? string.Empty,
                 Welcome = room.Welcome ?? String.Empty,
                 Closed = room.Closed
+                
             };
             //_roomViewModel.RecentMessages = recentMessages;
             //return _roomViewModel;

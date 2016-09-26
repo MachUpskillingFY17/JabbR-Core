@@ -372,7 +372,7 @@ namespace JabbR_Core.Services
             // Add this user to the room
 
             //REMOVE _openroom
-            var _repository = new InMemoryRepository();
+            //var _repository = new InMemoryRepository();
 
             _repository.AddUserRoom(user, room);
 

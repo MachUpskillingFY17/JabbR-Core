@@ -205,7 +205,7 @@ namespace JabbR_Core.Commands
             //var catalog = new AssemblyCatalog(typeof(CommandManager).Assembly);
             //var compositionContainer = new CompositionContainer(catalog);
             //return compositionContainer.GetExportedValues<ICommand>().ToList();
-            return new List<ICommand>() { new JoinCommand(), new OpenCommand(), new CreateCommand() };
+            return new List<ICommand>() { new JoinCommand(), new OpenCommand(), new CreateCommand(), new LeaveCommand() };
         }
 
         public static IEnumerable<CommandMetaData> GetCommandsMetaData()
