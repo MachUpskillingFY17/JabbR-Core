@@ -72,7 +72,9 @@ namespace JabbR_Core.Services
             var room = new ChatRoom { Name = "light_meow" };
             RoomList = new List<ChatRoom> { room };
 
+            // this viewmodel isn't used
             RoomViewModel = new RoomViewModel();
+
             _rooms.Add(room);
 
             // populate RoomView
@@ -84,8 +86,6 @@ namespace JabbR_Core.Services
             };
             // Add RoomView to RoomList
             LobbyRoomList = new List<LobbyRoomViewModel> { };
-
-
         }
 
         public IQueryable<ChatRoom> Rooms { get { return _rooms.AsQueryable(); } }
@@ -111,6 +111,7 @@ namespace JabbR_Core.Services
 
         public void Add(ChatRoom room)
         {
+            RoomList.Add(room);
             _rooms.Add(room);
         }
 

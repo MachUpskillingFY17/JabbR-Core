@@ -17,7 +17,8 @@ namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
     {
-        private readonly InMemoryRepository _repository;
+        private InMemoryRepository copycat;
+        private InMemoryRepository _repository;
         private readonly List<LobbyRoomViewModel> _lobbyRoomList;
         private readonly LobbyRoomViewModel _lobbyRoom;
         private readonly List<ChatRoom> _roomList;
@@ -235,6 +236,7 @@ namespace JabbR_Core.Hubs
             //See if this is a valid command (starts with /)
             if (TryHandleCommand(clientMessage.Content, clientMessage.Room))
             {
+                copycat = _repository;
                 return true;
             }
 
@@ -242,7 +244,11 @@ namespace JabbR_Core.Hubs
             //var userId = _user.Id;
 
             ChatUser user = _repository.VerifyUserId(userId);
+
+            // this line breaks when we message in a new room
             ChatRoom room = _repository.VerifyUserRoom(_cache, user, clientMessage.Room);
+
+
             //ChatUser user = _user;
             //ChatRoom room = _room;
 
