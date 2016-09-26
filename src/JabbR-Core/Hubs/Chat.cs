@@ -41,8 +41,9 @@ namespace JabbR_Core.Hubs
         {
             _repository = new InMemoryRepository();
             _settings = new ApplicationSettings();
+            _recentMessageCache = new RecentMessageCache();
             //_service = service;
-            _service = new ChatService(null,null,_repository,_settings);
+            _service = new ChatService(null, _recentMessageCache, _repository,_settings);
            
             _recentMessageCache = new RecentMessageCache();
             //_cache = new ICache();
