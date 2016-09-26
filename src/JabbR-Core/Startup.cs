@@ -57,9 +57,8 @@ namespace JabbR_Core
 
             services.AddMvc();
             services.AddSignalR();
-            services.AddTransient<IJabbrRepository, InMemoryRepository>();
+            services.AddSingleton<IJabbrRepository, InMemoryRepository>();
             services.AddTransient<IChatService, ChatService>();
-
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

@@ -17,8 +17,7 @@ namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
     {
-        private InMemoryRepository copycat;
-        private InMemoryRepository _repository;
+        private readonly InMemoryRepository _repository;
         private readonly List<LobbyRoomViewModel> _lobbyRoomList;
         private readonly LobbyRoomViewModel _lobbyRoom;
         private readonly List<ChatRoom> _roomList;
@@ -33,21 +32,18 @@ namespace JabbR_Core.Hubs
         private readonly ICache _cache;
         private readonly IRecentMessageCache _recentMessageCache;
 
-
-        public Chat(
-            //InMemoryRepository repository,
-            //ILogger logger,
-            //IChatService service
-            )
+        // Old Chat constructor parameters.
+        //InMemoryRepository repository,
+        //ILogger logger,
+        //IChatService service
+        public Chat(IJabbrRepository repo)
         {
-            _repository = new InMemoryRepository();
+            // Repository requires dependency injection via the constructor parameters (above)
+            _repository = (InMemoryRepository)repo;
             _settings = new ApplicationSettings();
             _recentMessageCache = new RecentMessageCache();
-            //_service = service;
             _service = new ChatService(null, _recentMessageCache, _repository,_settings);
-           
             _recentMessageCache = new RecentMessageCache();
-            //_cache = new ICache();
 
             //_repository = repository;
             _userViewModel = _repository.UserModel;
@@ -61,6 +57,12 @@ namespace JabbR_Core.Hubs
             //_logger = logger;
             //_service = service;
 
+
+            // Add the sample room only ONCE
+            if(!_lobbyRoomList.Contains(_lobbyRoom))
+            {
+                //_lobbyRoomList.Add(_lobbyRoom);
+            }
         }
 
         private string UserAgent
@@ -96,24 +98,23 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            string userId = Context.User.GetUserId();
-            ChatUser user = _repository.VerifyUserId(userId);
+            //string userId = Context.User.GetUserId();
+            //ChatUser user = _repository.VerifyUserId(userId);
 
             // var userId = _user.Id;
             // ChatUser user = _user;
 
 
-            var room = new LobbyRoomViewModel
-            {
-                Name = user.Name,
-                Count = '1',
-                //    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
-                Private = _lobbyRoom.Private,
-                Closed = _lobbyRoom.Closed,
-                Topic = _lobbyRoom.Topic
-            };
+            //var room = new LobbyRoomViewModel
+            //{
+            //    Name = user.Name,
+            //    Count = '1',
+            //    //    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
+            //    Private = _lobbyRoom.Private,
+            //    Closed = _lobbyRoom.Closed,
+            //    Topic = _lobbyRoom.Topic
+            //};
 
-            _lobbyRoomList.Add(_lobbyRoom);
             return _lobbyRoomList;
         }
 
@@ -236,7 +237,6 @@ namespace JabbR_Core.Hubs
             //See if this is a valid command (starts with /)
             if (TryHandleCommand(clientMessage.Content, clientMessage.Room))
             {
-                copycat = _repository;
                 return true;
             }
 
@@ -290,9 +290,6 @@ namespace JabbR_Core.Hubs
                 // Now tell the caller to replace the message
                 Clients.Caller.replaceMessage(clientMessage.Id, messageViewModel, room.Name);
             }
-
-
-
 
             // Add mentions
             //AddMentions(chatMessage);
