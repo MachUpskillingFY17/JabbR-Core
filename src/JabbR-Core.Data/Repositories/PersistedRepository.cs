@@ -9,13 +9,13 @@ namespace JabbR_Core.Data.Repositories
     {
         private readonly JabbrContext _db;
 
-        private static readonly Func<JabbrContext, string, ChatUser> getUserByName = (db, userName) => db.Users.FirstOrDefault(u => u.Name == userName);
-        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.Users.FirstOrDefault(u => u.Id == userId);
+        private static readonly Func<JabbrContext, string, ChatUser> getUserByName = (db, userName) => db.ChatUsers.FirstOrDefault(u => u.Name == userName);
+        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.ChatUsers.FirstOrDefault(u => u.Id == userId);
         private static readonly Func<JabbrContext, string, string, ChatUserIdentity> getIdentityByIdentity = (db, providerName, userIdentity) => db.Identities.Include(i => i.UserKeyNavigation).FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
-        private static readonly Func<JabbrContext, string, ChatRoom> getRoomByName = (db, roomName) => db.Rooms.FirstOrDefault(r => r.Name == roomName);
+        private static readonly Func<JabbrContext, string, ChatRoom> getRoomByName = (db, roomName) => db.ChatRooms.FirstOrDefault(r => r.Name == roomName);
         private static readonly Func<JabbrContext, string, ChatClient> getClientById = (db, clientId) => db.Clients.FirstOrDefault(c => c.Id == clientId);
         private static readonly Func<JabbrContext, string, ChatClient> getClientByIdWithUser = (db, clientId) => db.Clients.Include(c => c.UserKeyNavigation).FirstOrDefault(u => u.Id == clientId);
-        private static readonly Func<JabbrContext, string, string, DateTimeOffset, ChatUser> getUserByRequestResetPasswordId = (db, userName, requestId, now) => db.Users.FirstOrDefault(u => u.Name == userName && u.RequestPasswordResetId != null && u.RequestPasswordResetId.Equals(requestId, StringComparison.OrdinalIgnoreCase) && u.RequestPasswordResetValidThrough > now);
+        private static readonly Func<JabbrContext, string, string, DateTimeOffset, ChatUser> getUserByRequestResetPasswordId = (db, userName, requestId, now) => db.ChatUsers.FirstOrDefault(u => u.Name == userName && u.RequestPasswordResetId != null && u.RequestPasswordResetId.Equals(requestId, StringComparison.OrdinalIgnoreCase) && u.RequestPasswordResetValidThrough > now);
 
         public PersistedRepository(JabbrContext db)
         {
@@ -24,12 +24,12 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatRoom> Rooms
         {
-            get { return _db.Rooms; }
+            get { return _db.ChatRooms; }
         }
 
         public IQueryable<ChatUser> Users
         {
-            get { return _db.Users; }
+            get { return _db.ChatUsers; }
         }
 
         public IQueryable<ChatClient> Clients
@@ -49,13 +49,13 @@ namespace JabbR_Core.Data.Repositories
 
         public void Add(ChatRoom room)
         {
-            _db.Rooms.Add(room);
+            _db.ChatRooms.Add(room);
             _db.SaveChanges();
         }
 
         public void Add(ChatUser user)
         {
-            _db.Users.Add(user);
+            _db.ChatUsers.Add(user);
             _db.SaveChanges();
         }
 
@@ -101,13 +101,13 @@ namespace JabbR_Core.Data.Repositories
 
         public void Remove(ChatRoom room)
         {
-            _db.Rooms.Remove(room);
+            _db.ChatRooms.Remove(room);
             _db.SaveChanges();
         }
 
         public void Remove(ChatUser user)
         {
-            _db.Users.Remove(user);
+            _db.ChatUsers.Remove(user);
             _db.SaveChanges();
         }
 
@@ -172,7 +172,7 @@ namespace JabbR_Core.Data.Repositories
         public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
         {
             // All public and private rooms the user can see.
-            return _db.Rooms
+            return _db.ChatRooms
                 .Where(r =>
                        (!r.Private) ||
                        (r.Private && r.AllowedUsers.Any(u => u.ChatUserKey == user.Key)));
@@ -225,12 +225,12 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatUser> GetOnlineUsers()
         {
-            return _db.Users.Include(c => c.ConnectedClients).Online();
+            return _db.ChatUsers.Include(c => c.ConnectedClients).Online();
         }
 
         public IQueryable<ChatUser> SearchUsers(string name)
         {
-            return _db.Users.Online().Where(u => u.Name.Contains(name));
+            return _db.ChatUsers.Online().Where(u => u.Name.Contains(name));
         }
 
         public void AddUserRoom(ChatUser user, ChatRoom room)
@@ -316,7 +316,7 @@ namespace JabbR_Core.Data.Repositories
 
         public ChatUser GetUserByLegacyIdentity(string userIdentity)
         {
-            return _db.Users.FirstOrDefault(u => u.Identity == userIdentity);
+            return _db.ChatUsers.FirstOrDefault(u => u.Identity == userIdentity);
         }
 
         public ChatClient GetClientById(string clientId, bool includeUser = false)

@@ -13,6 +13,7 @@ namespace JabbR_Core.Data.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRCoreDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             optionsBuilder.UseSqlServer(connection);
         }
 
@@ -132,7 +133,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.Property(e => e.Closed).HasDefaultValueSql("0");
 
-                entity.Property(e => e.CreatorKey);
+                entity.Property(e => e.Creator_Key);
 
                 entity.Property(e => e.InviteCode).HasColumnType("nchar(6)");
 
@@ -150,7 +151,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.CreatorKeyNavigation)
                     .WithMany(p => p.ChatRooms)
-                    .HasForeignKey(d => d.CreatorKey);
+                    .HasForeignKey(d => d.Creator_Key);
             });
 
             modelBuilder.Entity<ChatUserChatRooms>(entity =>
@@ -279,10 +280,10 @@ namespace JabbR_Core.Data.Models
         public DbSet<ChatMessage> Messages { get; set; }
         public DbSet<ChatRoomChatUserAllowed> ChatRoomsChatUsersAllowed { get; set; }
         public DbSet<ChatRoomChatUserOwner> ChatRoomsChatUsersOwned { get; set; }
-        public DbSet<ChatRoom> Rooms { get; set; }
+        public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatUserChatRooms> ChatUserChatRooms { get; set; }
         public DbSet<ChatUserIdentity> Identities { get; set; }
-        public DbSet<ChatUser> Users { get; set; }
+        public DbSet<ChatUser> ChatUsers { get; set; }
         public DbSet<MigrationHistory> MigrationHistory { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Settings> Settings { get; set; }
