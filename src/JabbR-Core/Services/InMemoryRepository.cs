@@ -39,13 +39,18 @@ namespace JabbR_Core.Services
 
         public InMemoryRepository()
         {
-            //_users = new SafeCollection<ChatUser>();
-            //_rooms = new SafeCollection<ChatRoom>();
-            //_identities = new SafeCollection<ChatUserIdentity>();
-            //_attachments = new SafeCollection<Attachment>();
-            //_notifications = new SafeCollection<Notification>();
-            //_settings = new SafeCollection<Settings>();
-            User = new ChatUser
+            /*AJS: UNCOMMENTED THIS AND COMMENTED OUT HARD CODING TO GET TESTS TO WORK*/
+            _users = new SafeCollection<ChatUser>();
+            _rooms = new SafeCollection<ChatRoom>();
+            _identities = new SafeCollection<ChatUserIdentity>();
+            _attachments = new SafeCollection<Attachment>();
+            _notifications = new SafeCollection<Notification>();
+            _settings = new SafeCollection<Settings>();
+            _allowed = new SafeCollection<ChatRoomChatUserAllowed>();
+            _owner = new SafeCollection<ChatRoomChatUserOwner>();
+            _userRooms = new SafeCollection<ChatUserChatRooms>();
+
+            /*User = new ChatUser
             {
                 Id= "1",
                 Name = "user1",
@@ -83,7 +88,7 @@ namespace JabbR_Core.Services
                 Topic = "jabbr"
             };
             // Add RoomView to RoomList
-            LobbyRoomList = new List<LobbyRoomViewModel> {  };
+            LobbyRoomList = new List<LobbyRoomViewModel> {  };*/
 
 
         }
