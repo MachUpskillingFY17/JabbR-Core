@@ -37,10 +37,12 @@ namespace JabbR_Core.Services
         {
             _users = new SafeCollection<ChatUser>();
             _rooms = new SafeCollection<ChatRoom>();
+
             //_identities = new SafeCollection<ChatUserIdentity>();
             //_attachments = new SafeCollection<Attachment>();
             //_notifications = new SafeCollection<Notification>();
             //_settings = new SafeCollection<Settings>();
+
             var user = new ChatUser
             {
                 Id = "1",
@@ -51,7 +53,6 @@ namespace JabbR_Core.Services
                 Status = 1
             };
             _users.Add(user);
-            
 
             ChatClient = new ChatClient
             {
@@ -69,21 +70,21 @@ namespace JabbR_Core.Services
             UserModel = new UserViewModel(user);
 
             // populate ChatRoom and RoomList
-            var room = new ChatRoom { Name = "light_meow1" };
+            //var room = new ChatRoom { Name = "light_meow1" };
             RoomList = new List<ChatRoom> { /*room*/ };
 
             // this viewmodel isn't used
-            RoomViewModel = new RoomViewModel();
+            //RoomViewModel = new RoomViewModel();
 
             //_rooms.Add(room);
 
             // populate RoomView
-            LobbyRoomView = new LobbyRoomViewModel
-            {
-                Name = room.Name,
-                Count = 1,
-                Topic = "jabbr"
-            };
+            //LobbyRoomView = new LobbyRoomViewModel
+            //{
+            //    Name = room.Name,
+            //    Count = 1,
+            //    Topic = "jabbr"
+            //};
             // Add RoomView to RoomList
             LobbyRoomList = new List<LobbyRoomViewModel> { };
         }

@@ -45,24 +45,20 @@ namespace JabbR_Core.Hubs
             _service = new ChatService(null, _recentMessageCache, _repository,_settings);
             _recentMessageCache = new RecentMessageCache();
 
-            //_repository = repository;
-            _userViewModel = _repository.UserModel;
-            _roomViewModel = _repository.RoomViewModel;
+
             _roomList = _repository.RoomList;
-            _lobbyRoom = _repository.LobbyRoomView;
             _lobbyRoomList = _repository.LobbyRoomList;
+
+            // Commenting out unused variables for cleanliness
+            //_repository = repository;
+            //_userViewModel = _repository.UserModel;
+            //_roomViewModel = _repository.RoomViewModel;
+            //_lobbyRoom = _repository.LobbyRoomView;
             //_user = _repository.user;
             //_room = _repository.Room;
             //_chatRooms = repository.ChatRooms;
             //_logger = logger;
             //_service = service;
-
-
-            // Add the sample room only ONCE
-            if(!_lobbyRoomList.Contains(_lobbyRoom))
-            {
-                //_lobbyRoomList.Add(_lobbyRoom);
-            }
         }
 
         private string UserAgent
