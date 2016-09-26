@@ -4,9 +4,8 @@ using System.Linq;
 using JabbR_Core.Data.Models;
 using System.Collections.Generic;
 using JabbR_Core.Data.Repositories;
-using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JabbR_Core.Tests.Repositories
 {
@@ -14,53 +13,85 @@ namespace JabbR_Core.Tests.Repositories
     {
         JabbrContext _context;
         PersistedRepository _repository;
+        //DbContextOptionsBuilder _options;
         DbContextOptions<JabbrContext> _options;
-        DbContextOptionsBuilder _builder;
 
         public PersistedRepositoryTest()
         {
-            _options = new DbContextOptions<JabbrContext>();            
+            //IServiceCollection service = new ServiceCollection();
+
+            //_options = new DbContextOptionsBuilder();
+            _options = new DbContextOptions<JabbrContext>();
+
+            /*string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            service.AddDbContext<JabbrContext>(_options => _options.UseSqlServer(connection));
+
+            var contextOps = new DbContextOptions<JabbrContext>();*/
+
+            //_context = new JabbrContext(contextOps);
             _context = new JabbrContext(_options);
+
+
             _repository = new PersistedRepository(_context);
         }
 
-      [Fact]
+       /*[Fact]
         public void GetRooms()
         {
             // Create two new chat rooms
             var room1 = new ChatRoom()
             {
-                Key = 1,
+                CreatorKey = 1,
                 Name = "Room 1",
+                Closed = false,
                 Topic = "Horses"
             };
 
-            var room2 = new ChatRoom()
+            /*var room2 = new ChatRoom()
             {
-                Key = 2,
+                CreatorKey = 2,
                 Name = "Room 2",
+                Closed = false,
                 Topic = "Poetry"
             };
 
-            var testRooms = new List<ChatRoom>() { room1, room2};
+            //var testRooms = new List<ChatRoom>() { room1, room2};
+            var testRooms = new List<ChatRoom>() { room1 };
+
+            foreach (ChatRoom r in testRooms)
+            {
+                Console.WriteLine("Sample Room Names: " + r.Name);
+            }
+
+            Console.WriteLine("--------------------------------------");
 
             // Populate DB with new chat rooms
             _context.Add(room1);
-            _context.Add(room2);
+            //_context.Add(room2);
 
             // Make sure repository returns the correct information
             var rooms = _repository.Rooms.ToList();
 
+            foreach (ChatRoom r in rooms)
+            {
+                Console.WriteLine("Result Room Names: " + r.Name);
+            }
+
             Assert.Equal(testRooms, rooms);
 
+            Console.WriteLine("\tPersistedRepositoryTest.GetRooms: Complete");
+
             // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
-            _context.Remove(room1);
-            _context.Remove(room2);
-        }
+            //_context.Remove(room1);
+            //_context.Remove(room2);
+        }*/
 
         [Fact]
+        //public void GetUsers(JabbrContext context)
         public void GetUsers()
         {
+            //_repository = new PersistedRepository(context);
+
             // Create two new chat users
             var user1 = new ChatUser()
             {
@@ -69,26 +100,59 @@ namespace JabbR_Core.Tests.Repositories
                 LastActivity = DateTime.Now
             };
 
-            var user2 = new ChatUser()
+            /*var user2 = new ChatUser()
             {
                 Id = "2",
                 Name = "User 2",
                 LastActivity = DateTime.Now
-            };
+            };*/
 
-            var testUsers = new List<ChatUser>() { user1, user2 };
+            //var testUsers = new List<ChatUser>() { user1, user2 };
+            //var testUsers = new List<ChatUser>() { user1 };
+
+            /*foreach (ChatUser u in testUsers)
+            {
+                Console.WriteLine("Sample User Names: " + u.Name);
+            }*/
+            Console.WriteLine("Sample User Names: " + user1.Name);
+
+
+            Console.WriteLine("--------------------------------------");
 
             // Populate DB with new chat users
-            _context.Add(user1);
-            _context.Add(user2);
+            //_context.Add(user1);
+            _context.Users.Add(user1);
+            //context.Add(user2);
+
+            Console.WriteLine("--------------------------------------0000");
+
 
             // Make sure repository returns the correct information
-            var users = _repository.Users.ToList();
+            var users = _repository.Users;
 
-            Assert.Equal(testUsers, users);
+            Console.WriteLine(users.Provider);
+
+            //var users = _repository.Users.First();
+            var list = users.Select(c => c).ToList();
+
+
+            
+
+            /*foreach (ChatUser u in users)
+            {
+                Console.WriteLine("Result User Names: " + u.Name);
+            }*/
+            //Console.WriteLine("Result User Names: " + users.Name);
+
+            Console.WriteLine("Result Date Time: " + list[0].LastActivity);
+
+            Assert.Equal(user1.Name, list[0].Name);
+
+            Console.WriteLine("\tPersistedRepositoryTest.GetUsers: Complete");
 
             // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
-            _context.Remove(user1);
+            //context.Remove(user1);
+            //context.Remove(user1);
         }
 
         public IQueryable<ChatClient> Clients
