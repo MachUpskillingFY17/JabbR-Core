@@ -45,7 +45,7 @@ namespace JabbR_Core.Tests.Services
 
 
         //TODO: write tests for each of these functions. 
-        //Addroom 
+        //Addroom tests
         [Fact]
         public void ThrowsIfRoomNameIsLobby()
         {
@@ -159,12 +159,115 @@ namespace JabbR_Core.Tests.Services
             Assert.Same(room, _repository.GetRoomByName("NewRoom"));
             Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).Contains(user));
             Assert.Same(room.CreatorKeyNavigation, user);
-            Assert.True(user.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).Contains(room));
+            Assert.True(user.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+
+            _repository.Remove(user);
+        }
+
+        //JoinRoom tests
+        [Fact]
+        public void AddsUserToRoom()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room"
+            };
+
+            chatService.JoinRoom(user, room, null);
+
+            Assert.True(user.Rooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.Users.Select(c=>c.ChatUserKeyNavigation).ToList().Contains(user));
+
+            _repository.Remove(user);
+        }
+
+        [Fact]
+        public void AddsUserToRoomIfAllowedAndRoomIsPrivate()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                Private = true
+            };
+
+            ChatRoomChatUserAllowed cr = new ChatRoomChatUserAllowed() {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatUserKeyNavigation = user,
+                ChatRoomKeyNavigation = room
+            };
+
+            room.AllowedUsers.Add(cr);
+            user.AllowedRooms.Add(cr);
+
+            chatService.JoinRoom(user, room, null);
+
+            Assert.True(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
+
+            _repository.Remove(user);
+        }
+
+        [Fact]
+        public void ThrowsIfRoomIsPrivateAndNotAllowed()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                Private = true
+            };
+
+            Assert.Throws<HubException>(() => chatService.JoinRoom(user, room, null));
+
+            _repository.Remove(user);
+        }
+
+        [Fact]
+        public void AddsUserToRoomIfUserIsAdminAndRoomIsPrivate()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                Private = true
+            };
+
+            chatService.JoinRoom(user, room, null);
+
+            Assert.True(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
 
             _repository.Remove(user);
         }
 
 
+
+
+        //
+        public void JoinRoom(ChatUser user, ChatRoom room, string inviteCode)
+        {
+            throw new NotImplementedException();
+        }
 
         //rest of functions to test
         public void AddAdmin(ChatUser admin, ChatUser targetUser)
@@ -233,10 +336,7 @@ namespace JabbR_Core.Tests.Services
             throw new NotImplementedException();
         }
 
-        public void JoinRoom(ChatUser user, ChatRoom room, string inviteCode)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public void KickUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
         {
