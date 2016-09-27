@@ -8,14 +8,14 @@ namespace JabbR_Core.ViewModels
 {
     public class SocialLoginViewModel
     {
-        public SocialLoginViewModel(/*IEnumerable<IAuthenticationProvider> configuredProviders,*/ IEnumerable<ChatUserIdentities> userIdentities)
+        public SocialLoginViewModel(/*IEnumerable<IAuthenticationProvider> configuredProviders,*/ IEnumerable<ChatUserIdentity> userIdentities)
         {
             //ConfiguredProviders = configuredProviders != null ? configuredProviders.Select(x => x.Name) : Enumerable.Empty<string>();
             _userIdentities = userIdentities;
            
         }
 
-        private readonly IEnumerable<ChatUserIdentities> _userIdentities;
+        private readonly IEnumerable<ChatUserIdentity> _userIdentities;
         public IEnumerable<string> ConfiguredProviders { get; private set; }
 
         public bool IsAlreadyLinked(string providerName)

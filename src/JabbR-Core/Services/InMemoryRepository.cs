@@ -72,12 +72,12 @@ namespace JabbR_Core.Services
             RoomList = new List<ChatRoom> { room };
 
             RoomViewModel = new RoomViewModel();
-            _rooms.Add(Room);
+            _rooms.Add(room);
 
             // populate RoomView
             LobbyRoomView = new LobbyRoomViewModel
             {
-                Name = Room.Name,
+                Name = room.Name,
                 Count = 1,
                 Topic = "jabbr"
             };

@@ -1,0 +1,63 @@
+﻿@using JabbR_Core;
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <title>JabbR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @{
+        WriteLiteral(Bundle.Css()
+            .Add("~/Content/bootstrap.min.css")
+            .Add("~/Content/bootstrap-responsive.min.css")
+            .Add("~/Content/font-awesome.min.css")
+            .Add("~/Content/themes/default/Chat.css")
+            .Add("~/Content/emoji20.css")
+            .Render("~/Content/JabbR_#.css"));
+    }
+</head>
+<body>
+    <div class="container">
+        <div id="login">
+            <div class="login-header">
+                <div class="banner" role="banner">
+                    <h1>JabbR</h1>
+                </div>
+            </div>
+            <div class="login-body">
+                @Html.AlertMessages()
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+    <script src="@Url.Content("~/Scripts/jquery-2.0.3.min.js")"></script>
+    <script type="text/javascript">
+        (function($) {
+            $('input.error').closest('.control-group').addClass('error');
+
+            $('form').each(function () {
+                var $el = $(this),
+                    action = $el.attr('action');
+
+                if (action.indexOf('#') === -1) {
+                    $el.attr('action', action + document.location.hash);
+                }
+            });
+
+            $('a').each(function() {
+                var $el = $(this),
+                    href = $el.attr('href');
+
+                if (href.indexOf('#') === -1) {
+                    if ($el.is('.btn-provider')) {
+                        href = href + encodeURIComponent(document.location.hash);
+                    }
+
+                    $el.attr('href', href + document.location.hash);
+                }
+            });
+        }(jQuery));
+    </script>
+</body>
+</html>

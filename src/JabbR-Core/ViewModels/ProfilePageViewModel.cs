@@ -23,7 +23,7 @@ namespace JabbR_Core.ViewModels
            // Country = ChatService.GetCountry(user.Flag);
             LastActivity = user.LastActivity;
             IsAdmin = user.IsAdmin;
-          //  SocialDetails = new SocialLoginViewModel(configuredProviders, user.Identities);
+            SocialDetails = new SocialLoginViewModel(/*configuredProviders, */user.Identities);
          //   HasPassword = user.HasUserNameAndPasswordCredentials();
             OwnedRooms = user.OwnedRooms.OrderBy(e => e.Name).ToArray();
         }
@@ -40,7 +40,7 @@ namespace JabbR_Core.ViewModels
         public string Country { get; private set; }
         public DateTime LastActivity { get; private set; }
         public bool IsAdmin { get; private set; }
-       // public SocialLoginViewModel SocialDetails { get; private set; }
+        public SocialLoginViewModel SocialDetails { get; private set; }
 
         public ICollection<ChatRoom> OwnedRooms { get; private set; }
     }

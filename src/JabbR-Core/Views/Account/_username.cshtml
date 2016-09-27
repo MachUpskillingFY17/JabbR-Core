@@ -1,6 +1,6 @@
-﻿@using JabbR;
+﻿@using JabbR_Core;
 
-    <form class="form-horizontal" action="@Url.Content("~/account/login" + Html.RequestQuery())" method="post">
+    <form class="form-horizontal" action="@Url.Content("~/login"/* + Html.RequestQuery()*/)" method="post">
         @Html.ValidationSummary()
         <div class="control-group">
             <div class="controls">
@@ -23,24 +23,24 @@
                 <button type="submit" class="btn">@LanguageResources.Account_SignIn</button>
             </div>
         </div>
-        @if (Model.AllowUserRegistration || Model.AllowUserResetPassword)
-        { 
+     <!--   atsignif (Model.AllowUserRegistration || Model.AllowUserResetPassword)
+        { -->
             <div class="control-group">
                 <div class="controls">                    
-                    @if (Model.AllowUserRegistration)
-                    {
+                    <!--   atsignif  (Model.AllowUserRegistration)
+                    {-->
                         <p>
-                            @Html.Raw(String.Format(LanguageResources.Account_RegisterMessage, Url.Content("~/account/register" + Html.RequestQuery())))
+                            @Html.Raw(String.Format(LanguageResources.Account_RegisterMessage, Url.Content("~/account/register" /* + Html.RequestQuery()*/)))
                         </p>
-                    }
-                    @if (Model.AllowUserResetPassword && Model.HasEmailSender)
-                    { 
+                   <!-- }-->
+                    <!--   atsignif (Model.AllowUserResetPassword && Model.HasEmailSender)
+                    { -->
                         <p>
-                            @Html.Raw(String.Format(LanguageResources.Account_ResetPasswordMessage, Url.Content("~/account/requestresetpassword"  + Html.RequestQuery())))      
+                            @Html.Raw(String.Format(LanguageResources.Account_ResetPasswordMessage, Url.Content("~/account/requestresetpassword"  /* + Html.RequestQuery()*/)))      
                         </p>   
-                    }
+                    <!-- }-->
                 </div>
             </div>
-        }
+        <!-- }-->
         @Html.AntiForgeryToken()
     </form>
