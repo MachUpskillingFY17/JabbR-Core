@@ -39,7 +39,7 @@ namespace JabbR_Core.Tests.Repositories
         public void AddUser()
         {
             // Create a new chat user
-            var user1 = new ChatUser()
+            var userExpected = new ChatUser()
             {
                 Id = "1",
                 Name = "User 1",
@@ -47,15 +47,15 @@ namespace JabbR_Core.Tests.Repositories
             };
 
             // Try to add the user to the repository
-            _repository.Add(user1);
+            _repository.Add(userExpected);
 
             // Make sure repository returns the correct information
-            var user = _repository.Users.First();
+            var userActual = _repository.Users.First();
 
-            Assert.Equal(user1, user);
+            Assert.Equal(userExpected, userActual);
 
             // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
-            _repository.Remove(user1);
+            _repository.Remove(userExpected);
 
             Console.WriteLine("\tPersistedRepositoryTest.AddUser: Complete");
         }
@@ -64,17 +64,17 @@ namespace JabbR_Core.Tests.Repositories
         public void AddRoom()
         {
             // Create a user to populate the Creator_Key attribute in ChatRoom
-            var user1 = new ChatUser()
+            var user = new ChatUser()
             {
                 Id = "2",
                 Name = "User 1",
                 LastActivity = DateTime.Now
             };
-            _repository.Add(user1);
+            _repository.Add(user);
 
             // Create a new chat room
             var creatorKey = _repository.Users.First().Key;
-            var room1 = new ChatRoom()
+            var roomExpected = new ChatRoom()
             {
                 Name = "Room 1",
                 Closed = false,
@@ -83,16 +83,16 @@ namespace JabbR_Core.Tests.Repositories
             };
 
             // Try to add the room to the repository
-            _repository.Add(room1);
+            _repository.Add(roomExpected);
 
             // Make sure repository returns the correct information
-            var room = _repository.Rooms.First();
+            var roomActual = _repository.Rooms.First();
 
-            Assert.Equal(room1, room);
+            Assert.Equal(roomExpected, roomActual);
 
             // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
-            _repository.Remove(room1);
-            _repository.Remove(user1);
+            _repository.Remove(roomExpected);
+            _repository.Remove(user);
 
             Console.WriteLine("\tPersistedRepositoryTest.AddRoom: Complete");
         }
@@ -101,17 +101,17 @@ namespace JabbR_Core.Tests.Repositories
         public void AddClient()
         {
             // Create a user to populate the UserKey attribute in ChatClient
-            var user1 = new ChatUser()
+            var user = new ChatUser()
             {
                 Id = "3",
                 Name = "User 1",
                 LastActivity = DateTime.Now
             };
-            _repository.Add(user1);
+            _repository.Add(user);
 
             // Create a new client
             var userKey = _repository.Users.First().Key;
-            var client1 = new ChatClient()
+            var clientExpected = new ChatClient()
             {
                 Id = "1",
                 LastActivity = DateTime.Now,
@@ -120,27 +120,42 @@ namespace JabbR_Core.Tests.Repositories
             };
 
             // Try to add the client to the repository
-            _repository.Add(client1);
+            _repository.Add(clientExpected);
 
             // Make sure repository returns the correct information
-            var client = _repository.Clients.First();
+            var clientActual = _repository.Clients.First();
 
-            Assert.Equal(client1, client);
+            Assert.Equal(clientExpected, clientActual);
 
             // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
-            _repository.Remove(client1);
-            _repository.Remove(user1);
+            _repository.Remove(clientExpected);
+            _repository.Remove(user);
 
             Console.WriteLine("\tPersistedRepositoryTest.AddClient: Complete");
         }
 
-        /*public IQueryable<Settings> Settings
+        [Fact]
+        public void AddSettings()
         {
-            get
+            // Create a new client
+            var settingsExpected = new Settings()
             {
-                throw new NotImplementedException();
-            }
-        }*/
+                RawSettings = "These are my test settings."
+            };
+
+            // Try to add the client to the repository
+            _repository.Add(settingsExpected);
+
+            // Make sure repository returns the correct information
+            var settingsActual = _repository.Settings.First();
+
+            Assert.Equal(settingsExpected, settingsActual);
+
+            // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
+            _repository.Remove(settingsExpected);
+
+            Console.WriteLine("\tPersistedRepositoryTest.AddSettings: Complete");
+        }
 
         public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
         {
@@ -237,22 +252,7 @@ namespace JabbR_Core.Tests.Repositories
             throw new NotImplementedException();
         }
 
-        public void Add(ChatClient client)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Add(ChatMessage message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Add(ChatRoom room)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Add(ChatUser user)
         {
             throw new NotImplementedException();
         }
@@ -263,11 +263,6 @@ namespace JabbR_Core.Tests.Repositories
         }
 
         public void Add(Attachment attachment)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Add(Settings settings)
         {
             throw new NotImplementedException();
         }
@@ -283,21 +278,6 @@ namespace JabbR_Core.Tests.Repositories
         }
 
         public void Add(ChatUserChatRooms userRoom)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove(ChatClient client)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove(ChatRoom room)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove(ChatUser user)
         {
             throw new NotImplementedException();
         }

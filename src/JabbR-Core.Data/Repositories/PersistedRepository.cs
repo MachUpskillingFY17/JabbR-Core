@@ -123,6 +123,12 @@ namespace JabbR_Core.Data.Repositories
             _db.SaveChanges();
         }
 
+        public void Remove(Settings settings)
+        {
+            _db.Settings.Remove(settings);
+            _db.SaveChanges();
+        }
+
         public void Remove(ChatRoomChatUserOwner owner)
         {
             _db.ChatRoomsChatUsersOwned.Remove(owner);
