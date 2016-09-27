@@ -13,8 +13,8 @@ namespace JabbR_Core.Data.Repositories
         private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.ChatUsers.FirstOrDefault(u => u.Id == userId);
         private static readonly Func<JabbrContext, string, string, ChatUserIdentity> getIdentityByIdentity = (db, providerName, userIdentity) => db.Identities.Include(i => i.UserKeyNavigation).FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
         private static readonly Func<JabbrContext, string, ChatRoom> getRoomByName = (db, roomName) => db.ChatRooms.FirstOrDefault(r => r.Name == roomName);
-        private static readonly Func<JabbrContext, string, ChatClient> getClientById = (db, clientId) => db.Clients.FirstOrDefault(c => c.Id == clientId);
-        private static readonly Func<JabbrContext, string, ChatClient> getClientByIdWithUser = (db, clientId) => db.Clients.Include(c => c.UserKeyNavigation).FirstOrDefault(u => u.Id == clientId);
+        private static readonly Func<JabbrContext, string, ChatClient> getClientById = (db, clientId) => db.ChatClients.FirstOrDefault(c => c.Id == clientId);
+        private static readonly Func<JabbrContext, string, ChatClient> getClientByIdWithUser = (db, clientId) => db.ChatClients.Include(c => c.UserKeyNavigation).FirstOrDefault(u => u.Id == clientId);
         private static readonly Func<JabbrContext, string, string, DateTimeOffset, ChatUser> getUserByRequestResetPasswordId = (db, userName, requestId, now) => db.ChatUsers.FirstOrDefault(u => u.Name == userName && u.RequestPasswordResetId != null && u.RequestPasswordResetId.Equals(requestId, StringComparison.OrdinalIgnoreCase) && u.RequestPasswordResetValidThrough > now);
 
         public PersistedRepository(JabbrContext db)
@@ -34,7 +34,7 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatClient> Clients
         {
-            get { return _db.Clients; }
+            get { return _db.ChatClients; }
         }
         public IQueryable<Settings> Settings
         {
@@ -274,13 +274,13 @@ namespace JabbR_Core.Data.Repositories
 
         public void Add(ChatClient client)
         {
-            _db.Clients.Add(client);
+            _db.ChatClients.Add(client);
             _db.SaveChanges();
         }
 
         public void Remove(ChatClient client)
         {
-            _db.Clients.Remove(client);
+            _db.ChatClients.Remove(client);
             _db.SaveChanges();
         }
 

@@ -36,31 +36,6 @@ namespace JabbR_Core.Tests.Repositories
         }
 
         [Fact]
-        public void AddRoom()
-        {
-            // Create a new chat room
-            var room1 = new ChatRoom()
-            {
-                Name = "Room 1",
-                Closed = false,
-                Topic = "Horses"
-            };
-        
-            // Try to add the user to the repository
-            _repository.Add(room1);
-
-            // Make sure repository returns the correct information
-            var room = _repository.Rooms.First();
-
-            Assert.Equal(room1.Name, room.Name);
-
-            // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
-            _repository.Remove(room1);
-
-            Console.WriteLine("\tPersistedRepositoryTest.AddRoom: Complete");
-        }
-
-        [Fact]
         public void AddUser()
         {
             // Create a new chat user
@@ -77,7 +52,7 @@ namespace JabbR_Core.Tests.Repositories
             // Make sure repository returns the correct information
             var user = _repository.Users.First();
 
-            Assert.Equal(user1.Name, user.Name);
+            Assert.Equal(user1, user);
 
             // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
             _repository.Remove(user1);
@@ -85,15 +60,81 @@ namespace JabbR_Core.Tests.Repositories
             Console.WriteLine("\tPersistedRepositoryTest.AddUser: Complete");
         }
 
-        /*public IQueryable<ChatClient> Clients
+        [Fact]
+        public void AddRoom()
         {
-            get
+            // Create a user to populate the Creator_Key attribute in ChatRoom
+            var user1 = new ChatUser()
             {
-                throw new NotImplementedException();
-            }
+                Id = "2",
+                Name = "User 1",
+                LastActivity = DateTime.Now
+            };
+            _repository.Add(user1);
+
+            // Create a new chat room
+            var creatorKey = _repository.Users.First().Key;
+            var room1 = new ChatRoom()
+            {
+                Name = "Room 1",
+                Closed = false,
+                Topic = "Horses",
+                Creator_Key = creatorKey
+            };
+
+            // Try to add the room to the repository
+            _repository.Add(room1);
+
+            // Make sure repository returns the correct information
+            var room = _repository.Rooms.First();
+
+            Assert.Equal(room1, room);
+
+            // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
+            _repository.Remove(room1);
+            _repository.Remove(user1);
+
+            Console.WriteLine("\tPersistedRepositoryTest.AddRoom: Complete");
         }
 
-        public IQueryable<Settings> Settings
+        [Fact]
+        public void AddClient()
+        {
+            // Create a user to populate the UserKey attribute in ChatClient
+            var user1 = new ChatUser()
+            {
+                Id = "3",
+                Name = "User 1",
+                LastActivity = DateTime.Now
+            };
+            _repository.Add(user1);
+
+            // Create a new client
+            var userKey = _repository.Users.First().Key;
+            var client1 = new ChatClient()
+            {
+                Id = "1",
+                LastActivity = DateTime.Now,
+                LastClientActivity = DateTime.Now,
+                UserKey = userKey
+            };
+
+            // Try to add the client to the repository
+            _repository.Add(client1);
+
+            // Make sure repository returns the correct information
+            var client = _repository.Clients.First();
+
+            Assert.Equal(client1, client);
+
+            // FOR NOW, MAKE SURE TO DELETE THE OBJECT FROM THE DB AFTER THE TEST RUNS OTHERWISE IT WILL FAIL IF IT IS RUN TWICE
+            _repository.Remove(client1);
+            _repository.Remove(user1);
+
+            Console.WriteLine("\tPersistedRepositoryTest.AddClient: Complete");
+        }
+
+        /*public IQueryable<Settings> Settings
         {
             get
             {
