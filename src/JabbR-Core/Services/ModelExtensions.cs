@@ -14,7 +14,7 @@ namespace JabbR_Core.Data.Models
 
         public static IList<string> GetRoomNames(this ChatUser user)
         {
-            return user.Rooms.Select(r => r.Name).ToList();
+            return user.Rooms.Select(r => r.ChatRoomKeyNavigation.Name).ToList();
         }
 
         public static void EnsureAllowed(this ChatUser user, ChatRoom room)
