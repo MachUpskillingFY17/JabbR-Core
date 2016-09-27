@@ -46,7 +46,6 @@ namespace JabbR_Core.Tests.Services
 
         //TODO: write tests for each of these functions. 
         //Addroom 
-
         [Fact]
         public void ThrowsIfRoomNameIsLobby()
         {
@@ -131,14 +130,43 @@ namespace JabbR_Core.Tests.Services
 
         }
 
-
-
-        //
-        public ChatRoom AddRoom(ChatUser user, string roomName)
+        [Fact]
+        public void ThrowsIfRoomNameContainsPeriod()
         {
-            throw new NotImplementedException();
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+           
+            Assert.Throws<HubException>(() => chatService.AddRoom(user, "Invalid.name"));
+            _repository.Remove(user);
         }
 
+        [Fact]
+        public void AddsUserAsCreatorAndOwner()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+
+            ChatRoom room = chatService.AddRoom(user, "NewRoom");
+
+            Assert.NotNull(room);
+            Assert.Equal("NewRoom", room.Name);
+            Assert.Same(room, _repository.GetRoomByName("NewRoom"));
+            Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).Contains(user));
+            Assert.Same(room.CreatorKeyNavigation, user);
+            Assert.True(user.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).Contains(room));
+
+            _repository.Remove(user);
+        }
+
+
+
+        //rest of functions to test
         public void AddAdmin(ChatUser admin, ChatUser targetUser)
         {
             throw new NotImplementedException();
