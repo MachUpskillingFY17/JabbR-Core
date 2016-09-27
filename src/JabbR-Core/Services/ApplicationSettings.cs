@@ -33,6 +33,20 @@ namespace JabbR_Core.Services
 
         public string AppInsights { get; set; }
 
+        public string Sha { get; set; }
+
+        public string Branch { get; set; }
+        
+        public string Time { get; set; }
+
+        public bool DebugMode { get; set; }
+
+        public Version Version { get; set; }
+
+        public bool IsAdmin { get; set; }
+
+        public string ClientLanguageResources { get; set; }
+
         public bool AllowUserRegistration { get; set; }
 
         public bool AllowUserResetPassword { get; set; }

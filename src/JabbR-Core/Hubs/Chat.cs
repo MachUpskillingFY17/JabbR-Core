@@ -11,54 +11,54 @@ using System.Security.Principal;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 
 namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
     {
-        private readonly InMemoryRepository _repository;
-        private readonly List<LobbyRoomViewModel> _lobbyRoomList;
-        private readonly LobbyRoomViewModel _lobbyRoom;
-        private readonly List<ChatRoom> _roomList;
-        private readonly ChatUser _user;
-        private readonly UserViewModel _userViewModel;
-        private readonly RoomViewModel _roomViewModel;
-        private readonly ChatRoom _room;
-        private readonly List<string> _chatRooms;
-        private readonly ILogger _logger;
-        private readonly IChatService _service;
-        private readonly ApplicationSettings _settings;
         private readonly ICache _cache;
-        private readonly IRecentMessageCache _recentMessageCache;
+        private readonly ChatUser _user;
+        private readonly ChatRoom _room;
+        private readonly ILogger _logger;
+        private readonly List<string> _chatRooms;
+        private readonly ChatService _chatService;
+        private readonly List<ChatRoom> _roomList;
+        private readonly UserViewModel _userViewModel;  
+        private readonly RoomViewModel _roomViewModel;
+        private readonly ApplicationSettings _settings;
+        private readonly LobbyRoomViewModel _lobbyRoom;
+        private readonly InMemoryRepository _repository;
+        private readonly RecentMessageCache _recentMessageCache;
+        private readonly List<LobbyRoomViewModel> _lobbyRoomList;
 
         // Old Chat constructor parameters.
         //InMemoryRepository repository,
         //ILogger logger,
         //IChatService service
-        public Chat(IJabbrRepository repo)
+        public Chat(
+            IJabbrRepository repository, 
+            IOptions<ApplicationSettings> settings, 
+            IRecentMessageCache recentMessageCache,
+            IChatService chatService)
         {
             // Repository requires dependency injection via the constructor parameters (above)
-            _repository = (InMemoryRepository)repo;
-            _settings = new ApplicationSettings();
-            _recentMessageCache = new RecentMessageCache();
-            _service = new ChatService(null, _recentMessageCache, _repository,_settings);
-            _recentMessageCache = new RecentMessageCache();
+            _repository = (InMemoryRepository)repository;
+            _settings = settings.Value;
+            _recentMessageCache = (RecentMessageCache)recentMessageCache;
+            _chatService = (ChatService)chatService;
+
+            // Not instantiated with DI, set here
+            _chatService.Settings = _settings;
 
 
+            // Try to get DI working for this, avoid the new keyword in constructor
+            //_chatService = new ChatService(null, _recentMessageCache, _repository, _settings);
+
+            // Accessing _repository variables
             _roomList = _repository.RoomList;
             _lobbyRoomList = _repository.LobbyRoomList;
-
-            // Commenting out unused variables for cleanliness
-            //_repository = repository;
-            //_userViewModel = _repository.UserModel;
-            //_roomViewModel = _repository.RoomViewModel;
-            //_lobbyRoom = _repository.LobbyRoomView;
-            //_user = _repository.user;
-            //_room = _repository.Room;
-            //_chatRooms = repository.ChatRooms;
-            //_logger = logger;
-            //_service = service;
         }
 
         private string UserAgent
@@ -94,23 +94,6 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            //string userId = Context.User.GetUserId();
-            //ChatUser user = _repository.VerifyUserId(userId);
-
-            // var userId = _user.Id;
-            // ChatUser user = _user;
-
-
-            //var room = new LobbyRoomViewModel
-            //{
-            //    Name = user.Name,
-            //    Count = '1',
-            //    //    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
-            //    Private = _lobbyRoom.Private,
-            //    Closed = _lobbyRoom.Closed,
-            //    Topic = _lobbyRoom.Topic
-            //};
-
             return _lobbyRoomList;
         }
 
@@ -196,7 +179,7 @@ namespace JabbR_Core.Hubs
 
         private void UpdateActivity(ChatUser user)
         {
-            _service.UpdateActivity(user, Context.ConnectionId, UserAgent);
+            _chatService.UpdateActivity(user, Context.ConnectionId, UserAgent);
 
             _repository.CommitChanges();
         }
@@ -264,7 +247,7 @@ namespace JabbR_Core.Hubs
 
             // Create a true unique id and save the message to the db
             string id = Guid.NewGuid().ToString("d");
-            ChatMessage chatMessage = _service.AddMessage(user, room, id, clientMessage.Content);
+            ChatMessage chatMessage = _chatService.AddMessage(user, room, id, clientMessage.Content);
             _repository.CommitChanges();
 
 
@@ -329,7 +312,7 @@ namespace JabbR_Core.Hubs
             string userId = Context.User.GetUserId();
             //string userId = _user.Id;
 
-            var commandManager = new CommandManager(clientId, UserAgent, userId, room, _service, _repository, _cache, this);
+            var commandManager = new CommandManager(clientId, UserAgent, userId, room, _chatService, _repository, _cache, this);
             return commandManager.TryHandleCommand(command);
 
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using JabbR_Core.Localization;
-using JabbR_Core.Configuration;
 using JabbR_Core.Infrastructure;
 using JabbR_Core.Middleware;
 using Microsoft.AspNetCore.Builder;
@@ -56,17 +55,29 @@ namespace JabbR_Core
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             services.AddMvc();
+            services.AddOptions();
             services.AddSignalR();
-            services.AddSingleton<IJabbrRepository, InMemoryRepository>();
-            services.AddTransient<IChatService, ChatService>();
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            // Create instances to register. Required for ChatService to work
+            var repository = new InMemoryRepository();
+            var recentMessageCache = new RecentMessageCache();
+            var httpContextAccessor = new HttpContextAccessor();
+            var chatService = new ChatService(null, recentMessageCache, repository, null);
+
+            // Register the provider that points to the specific instance
+            services.AddSingleton<IJabbrRepository>(provider => repository);
+            services.AddSingleton<IRecentMessageCache>(provider => recentMessageCache);
+            services.AddSingleton<IHttpContextAccessor>(provider => httpContextAccessor);
+            services.AddSingleton<IChatService>(provider => chatService);
+
+            // investigate the below
+            //services.AddIdentity<>();
 
             // Establish default settings from appsettings.json
-            services.Configure<Configuration.ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
+            services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
 
             // Programmatically add other options that cannot be taken from static strings
-            services.Configure<Configuration.ApplicationSettings>(settings => 
+            services.Configure<ApplicationSettings>(settings =>
             {
                 settings.Version = Version.Parse("0.1");
                 settings.Time = DateTimeOffset.UtcNow.ToString();
