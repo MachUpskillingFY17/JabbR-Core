@@ -529,7 +529,7 @@ namespace JabbR_Core.Services
             // JC: Create ChatRoomChatUserOwner object to describe this relationship 
             ChatRoomChatUserOwner owner;
 
-            if (targetRoom.Owners.Where(r => (r.ChatRoomKey == targetRoom.Key) && (r.ChatUserKey == targetUser.Key)).First() != null)
+            if (targetRoom.Owners.Select(r=> r.ChatUserKeyNavigation).ToList().Contains(targetUser))
             {
                 // If the target user is already an owner, then throw
                 throw new HubException(String.Format(LanguageResources.RoomUserAlreadyOwner, targetUser.Name, targetRoom.Name));
