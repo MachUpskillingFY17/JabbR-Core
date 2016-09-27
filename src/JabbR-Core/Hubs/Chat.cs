@@ -747,7 +747,7 @@ namespace JabbR_Core.Hubs
                 Hash = user.Hash,
                 Rooms = user.Rooms.Allowed(userId).Select(r => r.Name)
             });
-        }met
+        }
 
         void INotificationService.ShowHelp()
         {
