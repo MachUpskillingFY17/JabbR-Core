@@ -224,7 +224,7 @@ namespace JabbR_Core.Hubs
             //ChatUser user = _user;
             //ChatRoom room = _room;
 
-            if (room == null || (room.Private && user.AllowedRooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)).First() == null))
+            if (room == null || (room.Private && user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).ToList().Contains(room)))
             {
                 return false;
             }
@@ -323,8 +323,7 @@ namespace JabbR_Core.Hubs
                 Closed = room.Closed
             };
 
-            // We can use .First() becasue the ChatRoomKey and ChatUserKey are primary keys and combined they will only return one unique value
-            var isOwner = user.OwnedRooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)).First();
+            var isOwner = user.OwnedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room);
 
             // Tell all clients to join this room
             Clients.User(user.Id).joinRoom(roomViewModel);
@@ -428,7 +427,7 @@ namespace JabbR_Core.Hubs
             //ChatRoom room = _repository.GetRoomByName(roomName);
             ChatRoom room = _room;
 
-            if (room == null || (room.Private && user.AllowedRooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)).First() == null))
+            if (room == null || (room.Private && user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room)))
             {
                 return null;
             }
