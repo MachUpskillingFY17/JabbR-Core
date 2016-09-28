@@ -420,7 +420,9 @@ namespace JabbR_Core.Services
         public void LeaveRoom(ChatUser user, ChatRoom room)
         {
             // Update the cache
-            _cache.RemoveUserInRoom(user, room);
+
+            //TODO ADD BACK IN CACHE
+            //_cache.RemoveUserInRoom(user, room);
 
             // Remove the user from this room
             _repository.RemoveUserRoom(user, room);
@@ -464,6 +466,9 @@ namespace JabbR_Core.Services
             _recentMessageCache.Add(chatMessage);
 
             _repository.Add(chatMessage);
+
+            //TODO Remove
+            room.Messages.Add(chatMessage);
 
             return chatMessage;
         }

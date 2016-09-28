@@ -352,7 +352,6 @@ namespace JabbR_Core.Hubs
             // Tell all clients to join this room
             Clients.User(user.Id).joinRoom(roomViewModel);
 
-            //Clients.Caller.joinRoom()
             // Tell the people in this room that you've joined
             Clients.Group(room.Name).addUser(userViewModel, room.Name, isOwner);
 
@@ -779,12 +778,17 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.LeaveRoom(ChatUser user, ChatRoom room)
         {
+
             LeaveRoom(user, room);
         }
 
         private void LeaveRoom(ChatUser user, ChatRoom room)
         {
             var userViewModel = new UserViewModel(user);
+            
+            //TODO Remove explicit hub call
+            Clients.Caller.leave(userViewModel, room.Name);
+
             Clients.Group(room.Name).leave(userViewModel, room.Name);
 
             foreach (var client in user.ConnectedClients)
