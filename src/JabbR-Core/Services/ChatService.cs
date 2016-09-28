@@ -555,7 +555,7 @@ namespace JabbR_Core.Services
             if (targetRoom.Private)
             {
                 // See if the user is already allowed in the room, otherwise make this user allowed
-                if (targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser))
+                if (!targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser))
                 {
                     // Create the allowed user relationship
                     var allowed = new ChatRoomChatUserAllowed()
