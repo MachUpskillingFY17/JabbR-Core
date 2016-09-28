@@ -242,14 +242,46 @@ namespace JabbR_Core.Tests.Repositories
             throw new NotImplementedException();
         }
 
-        public void AddUserRoom(ChatUser user, ChatRoom room)
+        [Fact]
+        public void AddRemoveUserRoom()
         {
-            throw new NotImplementedException();
-        }
+            // Create a new user and add it to the repository
+            var user = new ChatUser()
+            {
+                Id = "4", // TODO: fix the id to reflect right number in test
+                Name = "User 1",
+                LastActivity = DateTime.Now
+            };
+            _repository.Add(user);
 
-        public void RemoveUserRoom(ChatUser user, ChatRoom room)
-        {
-            throw new NotImplementedException();
+            // Create a new chat room and add it to the repository
+            var creatorKey = _repository.Users.First().Key;
+            var room = new ChatRoom()
+            {
+                Name = "Room 1",
+                Closed = false,
+                Topic = "Horses",
+                Creator_Key = creatorKey
+            };
+            _repository.Add(room);
+
+            // Add relationship between user and room
+            _repository.AddUserRoom(user, room);
+
+            // Verify the relationship was added properly
+            Assert.True(user.Rooms.Select(u => u.ChatRoomKeyNavigation).Contains(room));
+            Assert.True(room.Users.Select(r => r.ChatUserKeyNavigation).Contains(user));
+
+            // Remove the relationship
+            _repository.RemoveUserRoom(user, room);
+
+            // Verify the relationship was removed
+            Assert.False(user.Rooms.Select(u => u.ChatRoomKeyNavigation).Contains(room));
+            Assert.False(room.Users.Select(r => r.ChatUserKeyNavigation).Contains(user));
+
+            // Delete all test data
+            _repository.Remove(room);
+            _repository.Remove(user);
         }
 
         public void Add(ChatMessage message)

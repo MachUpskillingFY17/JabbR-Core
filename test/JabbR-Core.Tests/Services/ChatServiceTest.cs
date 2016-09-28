@@ -293,7 +293,6 @@ namespace JabbR_Core.Tests.Services
 
 
         //LeaveRoom tests
-        //AJS: Doesn't work due to incorrect inmemoryrepository function. 
         [Fact]
         public void RemovesUserFromRoom()
         {
@@ -306,6 +305,7 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room"
             };
+            _repository.Add(room);
 
             ChatUserChatRooms cr = new ChatUserChatRooms()
             {
@@ -324,6 +324,7 @@ namespace JabbR_Core.Tests.Services
             Assert.False(room.Users.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
 
             _repository.Remove(user);
+            _repository.Remove(room);
         }
 
         //AddMessage tests: ERROR

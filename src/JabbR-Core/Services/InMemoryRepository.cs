@@ -361,12 +361,13 @@ namespace JabbR_Core.Services
 
         public void RemoveUserRoom(ChatUser user, ChatRoom room)
         {
-            // First find the correct relationship in the user and the room AJS: make this right
-            var userRoom = user.Rooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key));
+            // First find the correct relationship in the user and the room
+            var userRelation= user.Rooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key));
+            var roomRelation = room.Users.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key));
 
             // This will either find 1 or 0 results, so we can remove the first result from each list
-            user.Rooms.Remove(userRoom.First());
-            room.Users.Remove(userRoom.First());
+            user.Rooms.Remove(userRelation.First());
+            room.Users.Remove(roomRelation.First());
         }
 
         public void Reload(object entity)

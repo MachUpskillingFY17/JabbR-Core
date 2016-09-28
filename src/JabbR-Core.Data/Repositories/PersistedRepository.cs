@@ -252,6 +252,7 @@ namespace JabbR_Core.Data.Repositories
 
             // Add the relationship to the room's user list
             room.Users.Add(userroom);
+            user.Rooms.Add(userroom);
 
             // Update the DB
             _db.Add(userroom);
@@ -271,9 +272,10 @@ namespace JabbR_Core.Data.Repositories
                 // Remove this object from the room's Users list
                 // We can use .First() becasue the ChatRoomKey and ChatUserKey are primary keys and combined they will only return one unique value
                 room.Users.Remove(chatUserChatRoom.First());
+                user.Rooms.Remove(chatUserChatRoom.First());
 
                 // Now delete the relationship object
-                _db.Remove(chatUserChatRoom);
+                _db.Remove(chatUserChatRoom.First());
                 _db.SaveChanges();
             }
         }
