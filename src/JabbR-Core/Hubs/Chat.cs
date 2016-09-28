@@ -80,6 +80,10 @@ namespace JabbR_Core.Hubs
 
         public void Join(bool reconnecting)
         {
+            //
+            // Shouldn't we be doing something with the "reconnecting" parameter?
+            //
+
             // Get the client state
             // var userId = _user.Id;
             var userId = Context.User.GetUserId();
@@ -89,6 +93,8 @@ namespace JabbR_Core.Hubs
             ChatUser user = _repository.GetUserById(userId);
 
             //Simple test to see if server is hit from client
+            // what if we comment this out?
+            Clients.Caller.userNameChanged(user);
             Clients.Caller.logOn(new object[0], new object[0], new { TabOrder = new List<string>() });
         }
 
@@ -247,7 +253,12 @@ namespace JabbR_Core.Hubs
 
             // Create a true unique id and save the message to the db
             string id = Guid.NewGuid().ToString("d");
+            
+            // Ensure the message is logged
             ChatMessage chatMessage = _chatService.AddMessage(user, room, id, clientMessage.Content);
+            room.Messages.Add(chatMessage);
+
+            // Save changes
             _repository.CommitChanges();
 
 
