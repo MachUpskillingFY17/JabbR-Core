@@ -263,7 +263,8 @@ namespace JabbR_Core.Tests.Services
 
 
 
-        //UpdateActivity test TODO: fix that stuff with clients???
+        //UpdateActivity tests: FAILS
+        //user.ConnectedClients isn't getting updated and will be null. Functionality to come?
         [Fact]
         public void CanUpdateActivity()
         {
@@ -281,9 +282,9 @@ namespace JabbR_Core.Tests.Services
 
 
             Assert.Equal((int)UserStatus.Active, user.Status);
-           // Assert.Equal(1, clients.Count); //not sure why ChatServiceFacts tests this? it'll obvi be null
-           // Assert.Equal("client1", clients[0].Id);
-           // Assert.Same(user, clients[0].UserKeyNavigation);
+            Assert.Equal(1, clients.Count); 
+            Assert.Equal("client1", clients[0].Id);
+            Assert.Same(user, clients[0].UserKeyNavigation);
             Assert.Null(user.AfkNote);
             Assert.False(user.IsAfk);
 
@@ -327,10 +328,12 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(room);
         }
 
-        //AddMessage tests: ERROR
+        //AddMessage tests: FAILS
+        //Right now room.ChatMessages isn't beeing updated-issue with cache?
         [Fact]
         public void AddsNewMessageToRepository()
         {
+            //create user and room
             var user = new ChatUser
             {
                 Name = "foo"
@@ -342,6 +345,7 @@ namespace JabbR_Core.Tests.Services
             };
             _repository.Add(room);
 
+            //create user/room relationship
             ChatUserChatRooms cr = new ChatUserChatRooms()
             {
                 ChatRoomKey = room.Key,
@@ -355,7 +359,7 @@ namespace JabbR_Core.Tests.Services
             ChatMessage message = chatService.AddMessage(user, room, Guid.NewGuid().ToString(), "Content");
 
             Assert.NotNull(message);
-            Assert.Same(message, room.ChatMessages.First()); //Where would chatmessages ever be updated???
+            Assert.Same(message, room.ChatMessages.First()); 
             Assert.Equal("Content", message.Content);
 
             _repository.Remove(user);
@@ -363,7 +367,7 @@ namespace JabbR_Core.Tests.Services
         }
 
 
-        //AddOwner tests: error with injabbrmemoryrepo
+        //AddOwner tests
         [Fact]
         public void ThrowsIfUserIsNotOwner()
         {
@@ -372,10 +376,13 @@ namespace JabbR_Core.Tests.Services
                 Name = "foo"
             };
             _repository.Add(user);
+
             var room = new ChatRoom
             {
                 Name = "Room"
             };
+            _repository.Add(room);
+
             ChatUserChatRooms cr = new ChatUserChatRooms()
             {
                 ChatRoomKey = room.Key,
@@ -383,13 +390,16 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
+            _repository.Add(cr);
 
             room.Users.Add(cr);
             user.Rooms.Add(cr);
-            
+
             Assert.Throws<HubException>(() => chatService.AddOwner(user, user, room));
+
             _repository.Remove(user);
-               
+            _repository.Remove(room);
+            _repository.Remove(cr);
         }
 
         [Fact]
@@ -433,50 +443,50 @@ namespace JabbR_Core.Tests.Services
         [Fact]
         public void MakesUserOwner()
         {
-            var user = new ChatUser
+            // User authorizing the new owner, this user is already a room owner
+            var oldOwner = new ChatUser
             {
-                Name = "foo"
+                Name = "foo",
+                Key = 1
             };
-            var user2 = new ChatUser
+            _repository.Add(oldOwner);
+
+            // This user will be made an owner of the room
+            var newOwner = new ChatUser
             {
-                Name = "foo2"
+                Name = "foo2",
             };
-            _repository.Add(user);
-            _repository.Add(user2);
+            _repository.Add(newOwner);
+
             var room = new ChatRoom
             {
                 Name = "Room",
-                CreatorKeyNavigation = user
-            };
-            ChatUserChatRooms cr = new ChatUserChatRooms()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
+                CreatorKeyNavigation = oldOwner,
+                Creator_Key = oldOwner.Key
             };
 
+            // Now that both the original owner and room have been created, add the owner relationship
             ChatRoomChatUserOwner cro = new ChatRoomChatUserOwner()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserKey = oldOwner.Key,
                 ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
+                ChatUserKeyNavigation = oldOwner
             };
             room.Owners.Add(cro);
-            user.OwnedRooms.Add(cro);
-            user.Rooms.Add(cr);
-            room.Users.Add(cr);
+            oldOwner.OwnedRooms.Add(cro);
 
-            chatService.AddOwner(user, user2, room);
+            // Try to add a new owner
+            chatService.AddOwner(oldOwner, newOwner, room);
 
-            Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user2));
-            Assert.True(user2.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            // Verify owner was added
+            Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(newOwner));
+            Assert.True(newOwner.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
 
-            _repository.Remove(user);
-            _repository.Remove(user2);
+            // Clean up data from the repository
+            _repository.Remove(oldOwner);
+            _repository.Remove(newOwner);
         }
-
 
 
         //
