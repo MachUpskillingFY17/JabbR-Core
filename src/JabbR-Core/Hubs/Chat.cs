@@ -45,9 +45,9 @@ namespace JabbR_Core.Hubs
         {
             // Repository requires dependency injection via the constructor parameters (above)
             _repository = (InMemoryRepository)repository;
-            _settings = settings.Value;
-            _recentMessageCache = (RecentMessageCache)recentMessageCache;
             _chatService = (ChatService)chatService;
+            _recentMessageCache = (RecentMessageCache)recentMessageCache;
+            _settings = settings.Value;
 
             // Not instantiated with DI, set here
             _chatService.Settings = _settings;

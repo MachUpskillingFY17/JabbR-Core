@@ -7,6 +7,8 @@ namespace JabbR_Core.Data.Models
     public partial class JabbrContext : DbContext
     {
         public JabbrContext(DbContextOptions<JabbrContext> options) : base(options) { }
+        //public JabbrContext(DbContextOptions<JabbrContext> options) { }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
