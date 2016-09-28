@@ -548,7 +548,6 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(newOwner);
         }
 
-        //FAILS: See comment below
         [Fact]
         public void MakesOwnerAllowedIfRoomLocked()
         {
@@ -592,8 +591,7 @@ namespace JabbR_Core.Tests.Services
             oldOwner.Rooms.Add(cr);
             room.Users.Add(cr);
 
-            //this is void and we didn't add allowedusr to allowedrooms. this function does it but is void so it doesn't stick. 
-            //ERROR?
+
             chatService.AddOwner(oldOwner, allowedUsr, room);
 
             Assert.True(allowedUsr.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
@@ -647,14 +645,63 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(admin);
             _repository.Remove(user);
         }
-        
-    
+
+        //RemoveOwner tests
+        [Fact]
+        public void ThrowsIfTargettedUserIsNotOwner()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+
+            var targetUser = new ChatUser
+            {
+                Name = "foo2"
+            };
+
+            _repository.Add(user);
+            _repository.Add(targetUser);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+            };
+
+            room.CreatorKeyNavigation = user;
+
+            //Add both users to room
+            ChatUserChatRooms cr = new ChatUserChatRooms()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+            ChatUserChatRooms crtrgt = new ChatUserChatRooms()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = targetUser.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = targetUser
+            };
+
+            user.Rooms.Add(cr);
+            targetUser.Rooms.Add(crtrgt);
+            room.Users.Add(cr);
+            room.Users.Add(crtrgt);
 
 
-    //
+            Assert.Throws<HubException>(() => chatService.RemoveOwner(user, targetUser, room));
 
-    //rest of functions to test
-    public void AddAdmin(ChatUser admin, ChatUser targetUser)
+            _repository.Remove(user);
+            _repository.Remove(targetUser);
+        }
+
+
+        //
+
+        //rest of functions to test
+        public void AddAdmin(ChatUser admin, ChatUser targetUser)
         {
             throw new NotImplementedException();
         }
