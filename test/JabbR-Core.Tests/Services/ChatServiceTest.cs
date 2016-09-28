@@ -291,8 +291,6 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(user);
         }
 
-
-
         //LeaveRoom tests
         [Fact]
         public void RemovesUserFromRoom()
@@ -480,8 +478,8 @@ namespace JabbR_Core.Tests.Services
             chatService.AddOwner(oldOwner, newOwner, room);
 
             // Verify owner was added
-            Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(newOwner));
-            Assert.True(newOwner.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(newOwner));
+            Assert.True(newOwner.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
 
             // Clean up data from the repository
             _repository.Remove(oldOwner);
