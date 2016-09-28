@@ -714,8 +714,7 @@ namespace JabbR_Core.Services
             // JC: Find the owner relationship
             var isOwner = room.Owners.Select(r => r.ChatUserKeyNavigation).ToList().Contains(user);
 
-            // We can use .First() becasue the ChatRoomKey and ChatUserKey are primary keys and combined they will only return one unique value
-            if (isOwner && !user.IsAdmin)
+            if (!isOwner && !user.IsAdmin)
             {
                 throw new HubException(String.Format(LanguageResources.RoomOwnerRequired, room.Name));
             }
