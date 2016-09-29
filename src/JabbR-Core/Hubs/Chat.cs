@@ -150,6 +150,7 @@ namespace JabbR_Core.Hubs
                     {
                         // If invoking roomLoaded fails don't get the roomInfo again
                         roomInfo = roomInfo ?? await GetRoomInfoCore(room);
+                        //roomInfo = roomInfo ?? GetRoomInfoCore(room);
                         Clients.Caller.roomLoaded(roomInfo);
                         break;
                     }
@@ -426,7 +427,7 @@ namespace JabbR_Core.Hubs
            
         //}
 
-        public Task<RoomViewModel> GetRoomInfo(string roomName)
+        public async Task<RoomViewModel> GetRoomInfo(string roomName)
         {
             if (string.IsNullOrEmpty(roomName))
             {
@@ -446,20 +447,27 @@ namespace JabbR_Core.Hubs
                 return null;
             }
 
-            return GetRoomInfoCore(room);
+            return await GetRoomInfoCore(room);
+            //return new Task<RoomViewModel>(() => thing);
         }
 
+        // This function doesn't behave well when you use .ToListAsync() on the messages query,
+        // but making it synchronous breaks some front end UI stuff. Leaving for now
         private async Task<RoomViewModel> GetRoomInfoCore(ChatRoom room)
         {
             var recentMessages = _recentMessageCache.GetRecentMessages(room.Name);
 
-            //// If we haven't cached enough messages just populate it now
+            // If we haven't cached enough messages just populate it now
             if (recentMessages.Count == 0)
             {
-                //var messages = await (from m in _repository.GetMessagesByRoom(room)
-                //                      orderby m.When descending
-                //                      select m).Take(50).ToListAsync();
-                var messages = new List<ChatMessage>();
+                var messages = (from m in _repository.GetMessagesByRoom(room)
+                                orderby m.When descending
+                                select m).Take(50).ToList();
+                //var messages = from m
+                //               in _repository.GetMessagesByRoom(room)
+                //               orderby m.When descending
+                //               select m;
+                //var messages = new List<ChatMessage>();
 
                 // Reverse them since we want to get them in chronological order
                 messages.Reverse();
@@ -473,6 +481,9 @@ namespace JabbR_Core.Hubs
             //List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
 
 
+            // when you remove the async tag
+            //return new Task<RoomViewModel>(() => new RoomViewModel
+            //return new Task<RoomViewModel>(() => new RoomViewModel
             return new RoomViewModel
             {
                 Name = room.Name,

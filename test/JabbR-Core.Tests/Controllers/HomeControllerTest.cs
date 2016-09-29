@@ -5,7 +5,7 @@ using Xunit;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using JabbR_Core.Configuration;
+using JabbR_Core.Services;
 using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.Tests.Controllers
