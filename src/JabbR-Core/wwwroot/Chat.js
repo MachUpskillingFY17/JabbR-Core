@@ -918,8 +918,8 @@
             ui.addNotification(utility.getLanguageResource('Chat_UserLeftRoom', user.Name, room), room);
         }
         //todo remove setactiveroom -- will work when authentication is set
-        ui.setActiveRoom('Lobby');
-        ui.removeRoom(room);
+        //ui.setActiveRoom('Lobby');
+        //ui.removeRoom(room);
     };
 
     chat.client.kick = function (user, room, callingUser, reason) {
