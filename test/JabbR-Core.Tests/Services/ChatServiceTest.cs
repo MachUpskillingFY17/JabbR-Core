@@ -1098,8 +1098,7 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(user);
             _repository.Remove(targetUser);
         }
-
-        //FAILS: I think the repository isn't removing the right user? 
+        
         [Fact]
         public void AdminCanKickUser()
         {
@@ -1150,8 +1149,7 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(user);
 
         }
-
-        //Same as above?
+        
         [Fact]
         public void DoesNotThrowIfAdminKicksOwner()
         {
@@ -1213,7 +1211,6 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(user);
         }
 
-        //Todo: same failing as above? 
         [Fact]
         public void AdminCanKickCreator()
         {
