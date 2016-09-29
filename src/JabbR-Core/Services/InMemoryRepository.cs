@@ -27,11 +27,13 @@ namespace JabbR_Core.Services
 
 
         private readonly ICollection<ChatUser> _users;
-        private readonly ICollection<ChatUserIdentity> _identities;
         private readonly ICollection<ChatRoom> _rooms;
+
+        // Never assigned to, always null
+        private readonly ICollection<Settings> _settings;
         private readonly ICollection<Attachment> _attachments;
         private readonly ICollection<Notification> _notifications;
-        private readonly ICollection<Settings> _settings;
+        private readonly ICollection<ChatUserIdentity> _identities;
 
         public InMemoryRepository()
         {

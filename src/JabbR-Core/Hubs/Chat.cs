@@ -18,17 +18,22 @@ namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
     {
+              
+        // Never assigned to, always null
         private readonly ICache _cache;
         private readonly ChatUser _user;
-        private readonly ChatRoom _room;
-        private readonly ILogger _logger;
         private readonly List<string> _chatRooms;
-        private readonly ChatService _chatService;
-        private readonly List<ChatRoom> _roomList;
+        
+        // Never used
+        private readonly ChatRoom _room;
         private readonly UserViewModel _userViewModel;  
         private readonly RoomViewModel _roomViewModel;
-        private readonly ApplicationSettings _settings;
         private readonly LobbyRoomViewModel _lobbyRoom;
+
+        private readonly ILogger _logger;
+        private readonly ChatService _chatService;
+        private readonly List<ChatRoom> _roomList;
+        private readonly ApplicationSettings _settings;
         private readonly InMemoryRepository _repository;
         private readonly RecentMessageCache _recentMessageCache;
         private readonly List<LobbyRoomViewModel> _lobbyRoomList;
