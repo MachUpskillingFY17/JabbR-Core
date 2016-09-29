@@ -53,7 +53,7 @@ namespace JabbR_Core
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
-            //services.AddDbContext<JabbrContext>(options => options.UseInMemoryDatabase());
+            // services.AddDbContext<JabbrContext>(options => options.UseInMemoryDatabase());
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 

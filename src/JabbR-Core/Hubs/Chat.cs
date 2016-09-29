@@ -92,10 +92,15 @@ namespace JabbR_Core.Hubs
             //ChatUser user = _user;
             ChatUser user = _repository.GetUserById(userId);
 
-            //Simple test to see if server is hit from client
-            // what if we comment this out?
+            // This function is being manually called here to establish
+            // your identity to SignalR and update the UI to match. In 
+            // original JabbR it isn't called explicitly anywhere, so 
+            // something about the natural authentication data flow 
+            // establishes this in SignalR for us. For now, call explicitly
+            // Delete this in the future (when auth is setup properly)
             Clients.Caller.userNameChanged(user);
 
+            // Pass the list of rooms & owned rooms to the logOn function.
             var rooms = _repository.Rooms.ToArray();
             var myRooms = _repository.Rooms.Where(r => r.Owners.Contains(user));
 
