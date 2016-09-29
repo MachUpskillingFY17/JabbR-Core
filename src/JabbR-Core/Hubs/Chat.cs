@@ -95,7 +95,11 @@ namespace JabbR_Core.Hubs
             //Simple test to see if server is hit from client
             // what if we comment this out?
             Clients.Caller.userNameChanged(user);
-            Clients.Caller.logOn(new object[0], new object[0], new { TabOrder = new List<string>() });
+
+            var rooms = _repository.Rooms.ToArray();
+            var myRooms = _repository.Rooms.Where(r => r.Owners.Contains(user));
+
+            Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
         }
 
         public List<LobbyRoomViewModel> GetRooms()

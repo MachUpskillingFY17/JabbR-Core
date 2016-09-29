@@ -55,6 +55,7 @@ namespace JabbR_Core
             string connection = _configuration["connectionString"];
             //services.AddDbContext<JabbrContext>(options => options.UseInMemoryDatabase());
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
+            //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
             services.AddMvc();
             services.AddSignalR();
