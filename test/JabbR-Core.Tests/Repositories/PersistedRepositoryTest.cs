@@ -46,6 +46,23 @@ namespace JabbR_Core.Tests.Repositories
             Topic = "Horses"
         };
 
+        // Test Messages
+        ChatMessage message1 = new ChatMessage()
+        {
+            Id = "1",
+            When = DateTime.MinValue,
+            MessageType = 1,
+            HtmlEncoded = false
+        };
+
+        ChatMessage message2 = new ChatMessage()
+        {
+            Id = "2",
+            When = DateTime.Now,
+            MessageType = 1,
+            HtmlEncoded = false
+        };
+
         public PersistedRepositoryTest()
         {
             //IServiceCollection service = new ServiceCollection();
@@ -249,25 +266,18 @@ namespace JabbR_Core.Tests.Repositories
             // Add a user to the repository
             _repository.Add(user1);
 
-            // Create a new chat room and add it to the repository
+            // Set up a new chat room and add it to the repository
             room1.Creator_Key = _repository.Users.First().Key;
             _repository.Add(room1);
 
             // Add relationship between user and room
             _repository.AddUserRoom(user1, room1);
 
-            // Create a message
-            var message1 = new ChatMessage()
-            {
-                Id = "1",
-                RoomKey = room1.Key,
-                RoomKeyNavigation = room1,
-                UserKey = user1.Key,
-                UserKeyNavigation = user1,
-                When = DateTime.MinValue,
-                MessageType = 1,
-                HtmlEncoded = false
-            };
+            // Set up the message and add it to the repository
+            message1.RoomKey = room1.Key;
+            message1.RoomKeyNavigation = room1;
+            message1.UserKey = user1.Key;
+            message1.UserKeyNavigation = user1;
             _repository.Add(message1);
 
             // Add message to user and room's lists
@@ -279,18 +289,11 @@ namespace JabbR_Core.Tests.Repositories
             Assert.Equal(new List<ChatMessage>() { message1 }, _repository.GetMessagesByRoom(room1));
             Assert.Equal(message1, _repository.GetMessageById("1"));
 
-            // Add another message
-            var message2 = new ChatMessage()
-            {
-                Id = "2",
-                RoomKey = room1.Key,
-                RoomKeyNavigation = room1,
-                UserKey = user1.Key,
-                UserKeyNavigation = user1,
-                When = DateTime.Now,
-                MessageType = 1,
-                HtmlEncoded = false
-            };
+            // Set up and add another message
+            message2.RoomKey = room1.Key;
+            message2.RoomKeyNavigation = room1;
+            message2.UserKey = user1.Key;
+            message2.UserKeyNavigation = user1;
             _repository.Add(message2);
 
             // Add message to user and room's lists
@@ -311,14 +314,50 @@ namespace JabbR_Core.Tests.Repositories
             Console.WriteLine("\tPersistedRepositoryTest.GetMessagesByRoomAndId: Complete");
         }
 
-        public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
+        [Fact]
+        public void GetNotificationsByUser()
         {
-            throw new NotImplementedException();
-        }
+            // Add a user to the repository
+            _repository.Add(user1);
 
-        public Notification GetNotificationById(int notificationId)
-        {
-            throw new NotImplementedException();
+            // Set up a new chat room and add it to the repository
+            room1.Creator_Key = _repository.Users.First().Key;
+            _repository.Add(room1);
+
+            // Add relationship between user and room
+            _repository.AddUserRoom(user1, room1);
+
+            // Set up the message and add it to the repository
+            message1.RoomKey = room1.Key;
+            message1.RoomKeyNavigation = room1;
+            message1.UserKey = user1.Key;
+            message1.UserKeyNavigation = user1;
+            _repository.Add(message1);
+
+            // Add message to user and room's lists
+            _repository.GetUserByName("User 1").ChatMessages.Add(message1);
+            _repository.GetRoomByName("Room 1").ChatMessages.Add(message1);
+            _repository.CommitChanges();
+
+            // Create a new notification and add it to the repository
+            var notification = new Notification()
+            {
+                MessageKey = message1.Key,
+                RoomKey = room1.Key,
+                UserKey = user1.Key,
+                Read = false
+            };
+            _repository.Add(notification);
+
+            // Verify notification was added properly
+            Assert.Equal(new List<Notification>() { notification }, _repository.GetNotificationsByUser(user1).ToList());
+
+            // Clean up data
+            _repository.Remove(notification);
+            _repository.Remove(message1);
+            _repository.RemoveUserRoom(user1, room1);
+            _repository.Remove(room1);
+            _repository.Remove(user1);
         }
 
         public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
