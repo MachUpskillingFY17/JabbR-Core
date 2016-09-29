@@ -302,7 +302,7 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        private bool TryHandleCommand(string command, string room)
+        public bool TryHandleCommand(string command, string room)
         {
             string clientId = Context.ConnectionId;
             //string userId = Context.User.GetUserId();
