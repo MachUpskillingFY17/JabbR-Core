@@ -93,6 +93,7 @@ namespace JabbR_Core.Models
 
         public static ChatRoom VerifyRoom(this IJabbrRepository repository, string roomName, bool mustBeOpen = true)
         {
+
             if (String.IsNullOrWhiteSpace(roomName))
             {
                 throw new HubException(LanguageResources.RoomNameCannotBeBlank);
@@ -101,7 +102,8 @@ namespace JabbR_Core.Models
             roomName = ChatService.NormalizeRoomName(roomName);
 
             var room = repository.GetRoomByName(roomName);
-
+            //REMOVE
+            //var room = new ChatRoom { Name = "light_meow" };
             if (room == null)
             {
                 throw new HubException(String.Format(LanguageResources.RoomNotFound, roomName));

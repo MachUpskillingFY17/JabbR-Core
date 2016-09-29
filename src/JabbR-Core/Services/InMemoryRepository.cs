@@ -10,14 +10,14 @@ namespace JabbR_Core.Services
     public class InMemoryRepository : IJabbrRepository
     {
         public List<string> ChatRooms { get; set; }
-        public ChatUser User { get; set; }
+        //public ChatUser User { get; set; }
         public string RoomNames { get; set; }
         public UserViewModel UserModel { get; set; }
         public ChatClient ChatClient { get; set; }
         public ClientState ClientState { get; set; }
 
         // Mock List for LoadRooms()
-        public ChatRoom Room { get; set; }
+        //public ChatRoom Room { get; set; }
         public List<ChatRoom> RoomList { get; set; }
 
         // Mock List for GetRoom()
@@ -35,20 +35,23 @@ namespace JabbR_Core.Services
 
         public InMemoryRepository()
         {
-            //_users = new SafeCollection<ChatUser>();
-            //_rooms = new SafeCollection<ChatRoom>();
+            _users = new SafeCollection<ChatUser>();
+            _rooms = new SafeCollection<ChatRoom>();
             //_identities = new SafeCollection<ChatUserIdentity>();
             //_attachments = new SafeCollection<Attachment>();
             //_notifications = new SafeCollection<Notification>();
             //_settings = new SafeCollection<Settings>();
-            User = new ChatUser
+            var user = new ChatUser
             {
-                Id= "1",
-                Name = "user1",
+                Id = "1",
+                Name = "Jane",
                 LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
                 IsAdmin = true,
-                IsAfk = true
+                IsAfk = true,
+                Status = 1
             };
+            _users.Add(user);
+            
 
             ChatClient = new ChatClient
             {
@@ -63,23 +66,24 @@ namespace JabbR_Core.Services
             };
 
             // instantiate UserViewModel object from User
-            UserModel = new UserViewModel(User);
+            UserModel = new UserViewModel(user);
 
             // populate ChatRoom and RoomList
-            Room = new ChatRoom { Name = "light_meow" };
-            RoomList = new List<ChatRoom> { Room };
+            var room = new ChatRoom { Name = "light_meow" };
+            RoomList = new List<ChatRoom> { room };
 
             RoomViewModel = new RoomViewModel();
+            _rooms.Add(room);
 
             // populate RoomView
             LobbyRoomView = new LobbyRoomViewModel
             {
-                Name = Room.Name,
+                Name = room.Name,
                 Count = 1,
                 Topic = "jabbr"
             };
             // Add RoomView to RoomList
-            LobbyRoomList = new List<LobbyRoomViewModel> {  };
+            LobbyRoomList = new List<LobbyRoomViewModel> { };
 
 
         }
