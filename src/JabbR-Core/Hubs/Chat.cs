@@ -88,6 +88,9 @@ namespace JabbR_Core.Hubs
             // Try to get the user from the client state
             //ChatUser user = _user;
             ChatUser user = _repository.GetUserById(userId);
+            
+            //remove
+            Clients.Caller.userNameChanged(user);
 
             //Simple test to see if server is hit from client
             Clients.Caller.logOn(new object[0], new object[0], new { TabOrder = new List<string>() });
