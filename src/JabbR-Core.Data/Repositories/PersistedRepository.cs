@@ -73,7 +73,7 @@ namespace JabbR_Core.Data.Repositories
 
         public void Add(ChatMessage message)
         {
-            _db.Messages.Add(message);
+            _db.ChatMessages.Add(message);
             _db.SaveChanges();
         }
 
@@ -123,6 +123,11 @@ namespace JabbR_Core.Data.Repositories
             _db.SaveChanges();
         }
 
+        public void Remove(ChatMessage message)
+        {
+            _db.ChatMessages.Remove(message);
+            _db.SaveChanges();
+        }
         public void Remove(Settings settings)
         {
             _db.Settings.Remove(settings);
@@ -172,7 +177,7 @@ namespace JabbR_Core.Data.Repositories
 
         public ChatMessage GetMessageById(string id)
         {
-            return _db.Messages.FirstOrDefault(m => m.Id == id);
+            return _db.ChatMessages.FirstOrDefault(m => m.Id == id);
         }
 
         public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
@@ -194,19 +199,19 @@ namespace JabbR_Core.Data.Repositories
 
         private IQueryable<ChatMessage> GetMessagesByRoom(string roomName)
         {
-            return _db.Messages.Include(r => r.RoomKeyNavigation).Where(r => r.RoomKeyNavigation.Name == roomName);
+            return _db.ChatMessages.Include(r => r.RoomKeyNavigation).Where(r => r.RoomKeyNavigation.Name == roomName);
         }
 
         public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
         {
-            return _db.Messages.Include(m => m.UserKeyNavigation)
+            return _db.ChatMessages.Include(m => m.UserKeyNavigation)
                                .Include(m => m.RoomKeyNavigation)
                                .Where(m => m.RoomKey == room.Key);
         }
 
         public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
         {
-            var info = (from m in _db.Messages.Include(m => m.RoomKeyNavigation)
+            var info = (from m in _db.ChatMessages.Include(m => m.RoomKeyNavigation)
                         where m.Id == messageId
                         select new
                         {
