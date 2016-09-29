@@ -1,120 +1,123 @@
-﻿using Xunit;
-using System;
-using System.Linq;
-using JabbR_Core.Hubs;
-using JabbR_Core.Data.Models;
-using JabbR_Core.ViewModels;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using JabbR_Core.Services;
-using Microsoft.AspNetCore.SignalR;
+﻿//using Xunit;
+//using System;
+//using System.Linq;
+//using JabbR_Core.Hubs;
+//using JabbR_Core.Data.Models;
+//using JabbR_Core.ViewModels;
+//using System.Threading.Tasks;
+//using System.Collections.Generic;
+//using System.Collections.ObjectModel;
+//using JabbR_Core.Services;
+//using Microsoft.AspNetCore.SignalR;
+//using Microsoft.AspNetCore.SignalR.Hubs;
 
-namespace JabbR_Core.Tests.Hubs
-{
-    public class ChatTest
-    {
-        private Chat _chat;
+//====================================
+// project.json nuget package
+// "moq.netcore": "4.4.0-beta8"
+//====================================
 
-        public ChatTest()
-        {
-            _chat = new Chat();
-        }
+//namespace JabbR_Core.Tests.Hubs
+//{
+//    public class ChatTest
+//    {
+//        private readonly Chat _chat;
 
-        // Join()
+//        public ChatTest()
+//        {
+//            _chat = new Chat();
+//        }
 
-        // GetRooms()
-        // Changes to InMemoryRepository are causing these to fail, commenting out until InMem is fixed
-        //[Fact]
-        //public void GetRoomsNotNull()
-        //{
-        //    Assert.NotEqual(null, _chat.GetRooms());
-        //    Console.WriteLine("\tChatTest.GetRoomsNotNull: Complete");
-        //}
+//        // Join()
 
-        //[Fact]
-        //public void GetRoomsNoDuplicates()
-        //{
-        //    var result = true;
-        //    var rooms = _chat.GetRooms();
-        //    var list = new List<string>();
+//        // GetRooms()
+//        // Changes to InMemoryRepository are causing these to fail, commenting out until InMem is fixed
+//        //[Fact]
+//        //public void GetRoomsNotNull()
+//        //{
+//        //    Assert.NotEqual(null, _chat.GetRooms());
+//        //    Console.WriteLine("\tChatTest.GetRoomsNotNull: Complete");
+//        //}
 
-        //    for (int i = 0; i < rooms.Count; i++)
-        //    {
-        //        if (!list.Contains(rooms[i].Name))
-        //        {
-        //            list.Add(rooms[i].Name);
-        //        }
-        //        else
-        //        {
-        //            result = false;
-        //            break;
-        //        }
-        //    }
+//        //[Fact]
+//        //public void GetRoomsNoDuplicates()
+//        //{
+//        //    var result = true;
+//        //    var rooms = _chat.GetRooms();
+//        //    var list = new List<string>();
 
-        //    Assert.True(result);
-        //    Console.WriteLine("\tChatTest.GetRoomsNoDuplicates: Complete");
-        //}
+//        //    for (int i = 0; i < rooms.Count; i++)
+//        //    {
+//        //        if (!list.Contains(rooms[i].Name))
+//        //        {
+//        //            list.Add(rooms[i].Name);
+//        //        }
+//        //        else
+//        //        {
+//        //            result = false;
+//        //            break;
+//        //        }
+//        //    }
 
-        // GetCommands()
-        // Implementation empty
+//        //    Assert.True(result);
+//        //    Console.WriteLine("\tChatTest.GetRoomsNoDuplicates: Complete");
+//        //}
 
-        // GetShortcuts()
-        // Should populate with hardcoded shortcut keys
-        [Fact]
-        public void GetShortcutsNotNull()
-        {
-            Assert.NotEqual(null, _chat.GetShortcuts());
-            Console.WriteLine("\tChatTest.GetShortcutsNotNull: Complete");
-        }
+//        // GetCommands()
+//        // Implementation empty
 
-        // LoadRooms()
-        // Can not LoadRoom with the current implementation.
-        //[Fact]
-        //public void LoadRoomsNotNull()
-        //{
-        //    string[] roomNames =
-        //    {
-        //        "room0",
-        //        "room1",
-        //        "room2"
-        //    };
-        //    _chat.LoadRooms(roomNames);
-        //    Collection<ChatUserChatRooms> collection;
-        //}
+//        // GetShortcuts()
+//        // Should populate with hardcoded shortcut keys
+//        [Fact]
+//        public void GetShortcutsNotNull()
+//        {
+//            Assert.NotEqual(null, _chat.GetShortcuts());
+//            Console.WriteLine("\tChatTest.GetShortcutsNotNull: Complete");
+//        }
 
-        // Send(string content, string roomName)
-        // Send(ClientMessage clientMessage)
-        // Basic test to see if any exceptions are hit
-        [Fact]
-        public void SendAcceptsParams()
-        {
-            var content = "/join foo";
-            var roomName = "bar";
-            Assert.Throws<HubException>(() => _chat.Send(content, roomName));
-            //Assert.True(_chat.Send(content, roomName));
-            //Assert.False(_chat.Send(content, roomName));
-            Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
-        }
+//        // LoadRooms()
+//        // Can not LoadRoom with the current implementation.
+//        //[Fact]
+//        //public void LoadRoomsNotNull()
+//        //{
+//        //    string[] roomNames =
+//        //    {
+//        //        "room0",
+//        //        "room1",
+//        //        "room2"
+//        //    };
+//        //    _chat.LoadRooms(roomNames);
+//        //    Collection<ChatUserChatRooms> collection;
+//        //}
 
-        [Fact]
-        public void SendParamsTooLongException()
-        {
-            var content = "/join foo";
-            var roomName = "bar";
+//        // Send(string content, string roomName)
+//        // Send(ClientMessage clientMessage)
+//        // Basic test to see if any exceptions are hit
+//        [Fact]
+//        public void SendAcceptsParams()
+//        {
+//            var content = "/join foo";
+//            var roomName = "bar";
+//            //Assert.Throws<HubException>(() => _chat.Send(content, roomName));
+//            Assert.True(_chat.Send(content, roomName));
+//            //Assert.False(_chat.Send(content, roomName));
+//            Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
+//        }
 
-            var _settings = new ApplicationSettings();
-            for (var i = 0; i >= (_settings.MaxMessageLength); i++)
-            {
-                content = content + "foo";
-            }
-            Assert.Throws<HubException>(() => _chat.Send(content, roomName));
-            //Assert.True(_chat.Send(content, roomName));
-            //Assert.False(_chat.Send(content, roomName));
-            Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
-        }
+//        [Fact]
+//        public void SendParamsTooLongException()
+//        {
+//            var content = "/join foo";
+//            var roomName = "bar";
 
-        
-
-    }
-}
+//            //for (var i = 0; i >= int.MaxValue; i++)
+//            //{
+//            //    content = content + "foo";
+//            //}
+//            //Assert.Throws<HubException>(() => _chat.Send(content, roomName));
+//            //Assert.True(_chat.Send(content, roomName));
+//            //Assert.False(_chat.Send(content, roomName));
+//            Assert.False(_chat.Send(content, roomName));
+//            Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
+//        }
+//    }
+//}

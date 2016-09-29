@@ -50,7 +50,7 @@ namespace JabbR_Core.Services
             _owner = new SafeCollection<ChatRoomChatUserOwner>();
             _userRooms = new SafeCollection<ChatUserChatRooms>();
 
-            /*User = new ChatUser
+            User = new ChatUser
             {
                 Id= "1",
                 Name = "user1",
@@ -88,8 +88,7 @@ namespace JabbR_Core.Services
                 Topic = "jabbr"
             };
             // Add RoomView to RoomList
-            LobbyRoomList = new List<LobbyRoomViewModel> {  };*/
-
+            LobbyRoomList = new List<LobbyRoomViewModel> {  };
 
         }
 

@@ -200,9 +200,9 @@ namespace JabbR_Core.Hubs
             ChatUser user = _user;
             ChatRoom room = _room;
             
-            Clients.Caller.joinRoom(user, room, new object());
-            GetRoomInfo(room.Name);
-            CheckStatus();
+            //Clients.Caller.joinRoom(user, room, new object());
+            //GetRoomInfo(room.Name);
+            //CheckStatus();
 
             //reject it if it's too long
             if (_settings.MaxMessageLength > 0 && clientMessage.Content.Length > _settings.MaxMessageLength)
