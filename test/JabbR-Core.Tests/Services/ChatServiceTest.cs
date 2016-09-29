@@ -697,6 +697,139 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(targetUser);
         }
 
+        [Fact]
+        public void ThrowsIfActingUserIsNotCreatorOrAdmin()
+        {
+            var unspecialUser = new ChatUser
+            {
+                Name = "foo"
+            };
+
+            var user = new ChatUser
+            {
+                Name = "foo2"
+            };
+
+            _repository.Add(unspecialUser);
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+            };
+            //add unspecialUser and user relationships to room
+            ChatUserChatRooms cr = new ChatUserChatRooms()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = unspecialUser.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = unspecialUser
+            };
+            ChatUserChatRooms cr2 = new ChatUserChatRooms()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            unspecialUser.Rooms.Add(cr);
+            user.Rooms.Add(cr2);
+
+            room.Users.Add(cr);
+            room.Users.Add(cr2);
+
+            //Make both owners
+            ChatRoomChatUserOwner cro = new ChatRoomChatUserOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = unspecialUser.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = unspecialUser
+            };
+            ChatRoomChatUserOwner cro2 = new ChatRoomChatUserOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            room.Owners.Add(cro);
+            unspecialUser.OwnedRooms.Add(cro);
+
+            room.Owners.Add(cro2);
+            user.OwnedRooms.Add(cro2);
+
+            Assert.Throws<HubException>(() => chatService.RemoveOwner(unspecialUser, user, room));
+
+            _repository.Remove(unspecialUser);
+            _repository.Remove(user);
+
+        }
+
+        [Fact]
+        public void RemovesOwnerIfActingUserIsAdmin()
+        {
+            var admin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+
+            var user = new ChatUser
+            {
+                Name = "foo2"
+            };
+
+            _repository.Add(admin);
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+            };
+            //Create user/room relationship 
+            ChatUserChatRooms cr = new ChatUserChatRooms()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = admin.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = admin
+            };
+            ChatUserChatRooms cr2 = new ChatUserChatRooms()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+            admin.Rooms.Add(cr);
+            user.Rooms.Add(cr2);
+
+            room.Users.Add(cr);
+            room.Users.Add(cr2);
+
+            //Create owner
+            ChatRoomChatUserOwner cro = new ChatRoomChatUserOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+            
+            chatService.RemoveOwner(admin, user, room);
+
+            Assert.False(room.Owners.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.False(user.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+
+            _repository.Remove(admin);
+            _repository.Remove(user);
+        }
+
+        //KickUsers 
+
 
         //
 
