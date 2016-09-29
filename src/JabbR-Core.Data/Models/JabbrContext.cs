@@ -277,7 +277,7 @@ namespace JabbR_Core.Data.Models
 
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<ChatClient> ChatClients { get; set; }
-        public DbSet<ChatMessage> Messages { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ChatRoomChatUserAllowed> ChatRoomsChatUsersAllowed { get; set; }
         public DbSet<ChatRoomChatUserOwner> ChatRoomsChatUsersOwned { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
