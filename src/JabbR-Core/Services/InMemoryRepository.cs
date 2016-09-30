@@ -35,7 +35,7 @@ namespace JabbR_Core.Services
         private readonly ICollection<Notification> _notifications;
         private readonly ICollection<ChatUserIdentity> _identities;
 
-        public InMemoryRepository()
+        public InMemoryRepository(Data.Models.JabbrContext context)
         {
             _users = new SafeCollection<ChatUser>();
             _rooms = new SafeCollection<ChatRoom>();

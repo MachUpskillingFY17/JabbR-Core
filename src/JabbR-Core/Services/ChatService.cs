@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 //using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using JabbR_Core.Hubs;
+using System.Diagnostics;
 
 namespace JabbR_Core.Services
 {
@@ -311,6 +312,9 @@ namespace JabbR_Core.Services
             _cache = cache;
             _recentMessageCache = recentMessageCache;
             _repository = repository;
+
+            Debug.WriteLine(_repository.GetHashCode());
+
             Settings = settings;
         }
         

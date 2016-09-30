@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace JabbR_Core.Hubs
 {
@@ -50,6 +51,9 @@ namespace JabbR_Core.Hubs
         {
             // Repository requires dependency injection via the constructor parameters (above)
             _repository = (InMemoryRepository)repository;
+
+            Debug.WriteLine(_repository.GetHashCode());
+
             _chatService = (ChatService)chatService;
             _recentMessageCache = (RecentMessageCache)recentMessageCache;
             _settings = settings.Value;

@@ -21,7 +21,7 @@ using JabbR_Core.Data.Models;
 namespace JabbR_Core
 {
     public class Startup
-    {           
+    {
         private IConfigurationRoot _configuration;
 
         public Startup(IHostingEnvironment env)
@@ -31,13 +31,13 @@ namespace JabbR_Core
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
 
-            if(env.IsDevelopment())
+            if (env.IsDevelopment())
             {
                 builder.AddUserSecrets();
             }
 
             builder.AddEnvironmentVariables();
-            
+
             _configuration = builder.Build();
         }
 
@@ -53,7 +53,19 @@ namespace JabbR_Core
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
-            // services.AddDbContext<JabbrContext>(options => options.UseInMemoryDatabase());
+
+
+            //services.AddEntityFrameworkInMemoryDatabase();
+            //services.AddDbContext<JabbrContext>();
+
+            services.AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<JabbrContext>((serviceProvider, options) =>
+                {
+                    options
+                    .UseInternalServiceProvider(serviceProvider)
+                    .UseInMemoryDatabase();
+                });
+
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
@@ -61,17 +73,19 @@ namespace JabbR_Core
             services.AddSignalR();
 
             // Create instances to register. Required for ChatService to work
-            var repository = new InMemoryRepository();
-            var recentMessageCache = new RecentMessageCache();
-            var httpContextAccessor = new HttpContextAccessor();
+            //var context = new JabbrContext(new DbContextOptions<JabbrContext>());
+            //var repository = new InMemoryRepository(context);
+            //var recentMessageCache = new RecentMessageCache();
+            //var httpContextAccessor = new HttpContextAccessor();
 
-            var chatService = new ChatService(null, recentMessageCache, repository, null);
+            //var chatService = new ChatService(null, recentMessageCache, repository, null);
 
             // Register the provider that points to the specific instance
-            services.AddSingleton<IJabbrRepository>(provider => repository);
-            services.AddSingleton<IRecentMessageCache>(provider => recentMessageCache);
-            services.AddSingleton<IHttpContextAccessor>(provider => httpContextAccessor);
-            services.AddSingleton<IChatService>(provider => chatService);
+            services.AddScoped<IJabbrRepository, InMemoryRepository>();
+            services.AddScoped<IChatService, ChatService>();
+
+            services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // investigate the below
             //services.AddIdentity<>();
@@ -87,17 +101,17 @@ namespace JabbR_Core
                 settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
         }
-       
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
 
             if (env.IsDevelopment())
             {
-                
+
                 app.UseCookieAuthentication(new CookieAuthenticationOptions()
                 {
-                    AuthenticationScheme =  Constants.JabbRAuthType,
+                    AuthenticationScheme = Constants.JabbRAuthType,
                     LoginPath = new PathString("/Account/Unauthorized/"),
                     AccessDeniedPath = new PathString("/Account/Forbidden/"),
                     AutomaticAuthenticate = true,
@@ -114,13 +128,14 @@ namespace JabbR_Core
                 app.UseDeveloperExceptionPage();
             }
 
+
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
             app.UseSignalR();
 
             //var context = app.ApplicationServices.GetService<JabbrContext>();
             //AddTestData(context);
-           
+
         }
 
         private void AddTestData(JabbrContext context)
