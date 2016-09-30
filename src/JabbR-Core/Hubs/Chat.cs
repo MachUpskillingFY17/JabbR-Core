@@ -49,21 +49,14 @@ namespace JabbR_Core.Hubs
             IRecentMessageCache recentMessageCache,
             IChatService chatService)
         {
-            // Repository requires dependency injection via the constructor parameters (above)
+            // Request the injected object instances
             _repository = (InMemoryRepository)repository;
-
-            Debug.WriteLine(_repository.GetHashCode());
-
             _chatService = (ChatService)chatService;
             _recentMessageCache = (RecentMessageCache)recentMessageCache;
             _settings = settings.Value;
 
             // Not instantiated with DI, set here
             _chatService.Settings = _settings;
-
-
-            // Try to get DI working for this, avoid the new keyword in constructor
-            //_chatService = new ChatService(null, _recentMessageCache, _repository, _settings);
 
             // Accessing _repository variables
             _roomList = _repository.RoomList;

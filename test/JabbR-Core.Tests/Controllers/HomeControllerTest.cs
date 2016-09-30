@@ -46,6 +46,8 @@ namespace JabbR_Core.Tests.Controllers
         [Fact]
         public void IndexNotNull()
         {
+            System.Diagnostics.Debug.WriteLine("some string" == null);
+
             var indexView = _homeController.Index();
 
             Assert.True(_homeController.ModelState.IsValid);

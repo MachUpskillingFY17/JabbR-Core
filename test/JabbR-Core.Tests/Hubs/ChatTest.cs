@@ -6,6 +6,10 @@ using JabbR_Core.Models;
 using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using JabbR_Core.Services;
+using Microsoft.Extensions.Options;
+using JabbR_Core.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace JabbR_Core.Tests.Hubs
 {
@@ -13,42 +17,70 @@ namespace JabbR_Core.Tests.Hubs
     {
         private Chat _chat;
 
+        private ICache _cache;
+        private JabbrContext _context;
+        private IChatService _chatService;
+        private IJabbrRepository _repository;
+        private IRecentMessageCache _recentMessageCache;
+        private IOptions<ApplicationSettings> _settings;
+
         public ChatTest()
         {
-            // These are null now, create instances of repository, etc, for params
-            _chat = new Chat(null, null, null, null);
+            // Fetch new instances of the required objects
+            GetCleanRepository();
+
+            // Settings
+            _settings = new OptionsManager<ApplicationSettings>(new List<IConfigureOptions<ApplicationSettings>>() { });
+
+            // Cache
+            _recentMessageCache = new RecentMessageCache();
+            _cache = new DefaultCache();
+
+            // Chat Service
+            _chatService = new ChatService(_cache, _recentMessageCache, _repository);
+
+            // Instantiate Chat hub.
+            _chat = new Chat(_repository, _settings, _recentMessageCache, _chatService);
+        }
+
+        // Use this method at the beginning of tests to make sure that 
+        // values in old tests won't impact the current one
+        public void GetCleanRepository()
+        {
+            // Repository
+            _context = new JabbrContext(new DbContextOptions<JabbrContext>());
+            _repository = new InMemoryRepository(_context);
         }
 
         // Tests
         [Fact]
         public void GetRoomsNotNull()
         {
+            GetCleanRepository();
             Assert.NotEqual(null, _chat.GetRooms());
             Console.WriteLine("\tChatTest.GetRoomsNotNull: Complete");
         }
 
         [Fact]
-        public void GetRoomsNoDuplicates()
+        public void AddRoomsVerification()
         {
-            var result = true;
+            GetCleanRepository();
+
             var rooms = _chat.GetRooms();
-            var list = new List<string>();
 
-            for(int i=0;i<rooms.Count;i++) 
+            Assert.Empty(rooms);
+
+            var room = new LobbyRoomViewModel()
             {
-                if(!list.Contains(rooms[i].Name))
-                {
-                    list.Add(rooms[i].Name);
-                }
-                else
-                {
-                    result = false;
-                    break;
-                }
-            }
+                Name = "Room",
+                Topic = "JabbR"
+            };
 
-            Assert.True(result);
-            Console.WriteLine("\tChatTest.GetRoomsNoDuplicates: Complete");
+            rooms.Add(room);
+
+            Assert.Contains(room, rooms);
+
+            Console.WriteLine($"{this.GetType().ToString()}.AddRoomsVerification: Complete");
         }
 
     }
