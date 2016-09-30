@@ -38,13 +38,22 @@ namespace JabbR_Core.Tests.Repositories
             LastActivity = DateTime.Now,
         };
 
-        // Test Room
+
+        // Test Rooms
         ChatRoom room1 = new ChatRoom()
         {
             Name = "Room 1",
             Closed = false,
             Topic = "Horses"
         };
+
+        ChatRoom room2 = new ChatRoom()
+        {
+            Name = "Room 2",
+            Closed = false,
+            Topic = "Jenga"
+        };
+
 
         // Test Messages
         ChatMessage message1 = new ChatMessage()
@@ -65,19 +74,18 @@ namespace JabbR_Core.Tests.Repositories
 
         public PersistedRepositoryTest()
         {
-            //IServiceCollection service = new ServiceCollection();
+            IServiceCollection service = new ServiceCollection();
 
             //_options = new DbContextOptionsBuilder();
             _options = new DbContextOptions<JabbrContext>();
 
-            /*string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            service.AddDbContext<JabbrContext>(_options => _options.UseSqlServer(connection));
+            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            //service.AddDbContext<JabbrContext>(_options => _options.UseSqlServer(connection));
 
-            var contextOps = new DbContextOptions<JabbrContext>();*/
+            //var contextOps = new DbContextOptions<JabbrContext>();
 
             //_context = new JabbrContext(contextOps);
             _context = new JabbrContext(_options);
-
 
             _repository = new PersistedRepository(_context);
         }
@@ -360,24 +368,163 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Remove(user1);
         }
 
-        public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
+        [Fact]
+        public void GetUserByIdentity()
         {
-            throw new NotImplementedException();
+            // Add a user to the repository
+            user1.Identity = "Identity Name";
+            _repository.Add(user1);
+
+            // Create a ChatUserIdentity and add it to the repository
+            var identity = new ChatUserIdentity()
+            {
+                UserKey = user1.Key,
+                UserKeyNavigation = user1,
+                ProviderName = "Provider",
+                Identity = "Identity Name"
+            };
+            _repository.Add(identity);
+
+            // Verify identity was added properly
+            Assert.Equal(user1, _repository.GetUserByIdentity("Provider", "Identity Name"));
+            Assert.Equal(user1, _repository.GetUserByLegacyIdentity("Identity Name"));
+
+            // Clean up data
+            _repository.Remove(identity);
+            _repository.Remove(user1);
         }
 
-        public ChatUser GetUserByLegacyIdentity(string userIdentity)
+        /*[Fact]
+        public void GetAllowedRooms()
         {
-            throw new NotImplementedException();
+            // Add a user to the repository
+            _repository.Add(user1);
+            var u1Key = _repository.Users.First().Key;
+
+            // Set up the rooms's creator key and private attributes then add them to the repository
+            room1.Creator_Key = u1Key;
+            room1.Private = true;
+            _repository.Add(room1);
+
+            room2.Creator_Key = u1Key;
+            room2.Private = true;
+            _repository.Add(room2);
+
+            // Create the UserRoomAllowed objects that will represent rooms user1 is allowed in
+            var isAllowedR1 = new UserRoomAllowed()
+            {
+                ChatRoomKey = _repository.GetRoomByName("Room 1").Key,
+                ChatUserKey = u1Key,
+                ChatRoomKeyNavigation = room1,
+                ChatUserKeyNavigation = user1
+            };
+            var isAllowedR2 = new UserRoomAllowed()
+            {
+                ChatRoomKey = _repository.GetRoomByName("Room 2").Key,
+                ChatUserKey = u1Key,
+                ChatRoomKeyNavigation = room2,
+                ChatUserKeyNavigation = user1
+            };
+
+            // Add the relationships to the rooms' allowed users lists and the user's allowed rooms list
+            _repository.GetRoomByName("Room 1").AllowedUsers.Add(isAllowedR1);
+            _repository.GetRoomByName("Room 2").AllowedUsers.Add(isAllowedR2);
+            _repository.Users.First().AllowedRooms.Add(isAllowedR1);
+            _repository.Users.First().AllowedRooms.Add(isAllowedR2);
+
+            // Now that the data is set up, add the relationships to the repository 
+            _repository.Add(isAllowedR1);
+            _repository.Add(isAllowedR2);
+
+            // Verify GetAllowedRooms returns both rooms
+            Assert.Equal(new List<ChatRoom>() { room1, room2 }, _repository.GetAllowedRooms(user1).ToList());
+
+            // Unallow user1 from room2
+            _repository.Users.First().AllowedRooms.Remove(isAllowedR2);
+            _repository.GetRoomByName("Room 2").AllowedUsers.Remove(isAllowedR2);
+            _repository.Remove(isAllowedR2);
+
+            // Verify GetAllowedRooms only returns one room
+            Assert.Equal(new List<ChatRoom>() { room1 }, _repository.GetAllowedRooms(user1).ToList());
+
+            // Clean up data
+            _repository.Remove(isAllowedR1);
+            _repository.Remove(room1);
+            _repository.Remove(room2);
+            _repository.Remove(user1);
+        }*/
+
+        [Fact]
+        public void AddAndRemoveRoomOwner()
+        {
+            // Add a user to the repository
+            _repository.Add(user1);
+            var u1Key = _repository.Users.First().Key;
+
+            // Set up the rooms's creator key and private attributes then add them to the repository
+            room1.Creator_Key = u1Key;
+            _repository.Add(room1);
+
+            // Create the UserRoomOwner object that will represent user1 being an owner
+            var isOwnerR1 = new UserRoomOwner()
+            {
+                ChatRoomKey = _repository.GetRoomByName("Room 1").Key,
+                ChatUserKey = u1Key,
+                ChatRoomKeyNavigation = room1,
+                ChatUserKeyNavigation = user1
+            };
+
+            // Add the relationships to the rooms' allowed users lists and the user's allowed rooms list
+            _repository.GetRoomByName("Room 1").Owners.Add(isOwnerR1);
+            _repository.Users.First().OwnedRooms.Add(isOwnerR1);
+
+            // Now that the data is set up, add the relationship to the repository 
+            _repository.Add(isOwnerR1);
+
+            // Verify the ownership relationship exists
+            Assert.True(_context.UserRoomOwner.ToList().Contains(isOwnerR1));
+            Assert.True(_repository.Users.First().OwnedRooms.Contains(isOwnerR1));
+            Assert.True(_repository.Rooms.First().Owners.Contains(isOwnerR1));
+
+            // Remove the ownership relationship
+            _repository.Users.First().OwnedRooms.Remove(isOwnerR1);
+            _repository.Rooms.First().Owners.Remove(isOwnerR1);
+            _repository.Remove(isOwnerR1);
+
+            // Verify the ownership relationship doesn't exist
+            Assert.False(_context.UserRoomOwner.ToList().Contains(isOwnerR1));
+            Assert.False(_repository.Users.First().OwnedRooms.Contains(isOwnerR1));
+            Assert.False(_repository.Rooms.First().Owners.Contains(isOwnerR1));
+
+            // Clean up data
+            _repository.Remove(room1);
+            _repository.Remove(user1);
         }
 
-        public ChatUser GetUserByIdentity(string providerName, string userIdentity)
+        [Fact]
+        public void GetUserByRequestResetPasswordId()
         {
-            throw new NotImplementedException();
-        }
+            // Set up the user and add them to the repository
+            user1.RequestPasswordResetId = "12345";
+            user1.RequestPasswordResetValidThrough = DateTimeOffset.Now.AddDays(1);
+            _repository.Add(user1);
 
-        public ChatUser GetUserByRequestResetPasswordId(string userName, string requestResetPasswordId)
-        {
-            throw new NotImplementedException();
+            // Add two more users with the wrong ids
+            user2.RequestPasswordResetId = "11123";
+            user2.RequestPasswordResetValidThrough = DateTimeOffset.Now.AddDays(3);
+            _repository.Add(user2);
+
+            user3.RequestPasswordResetId = "12332";
+            user3.RequestPasswordResetValidThrough = DateTimeOffset.Now.AddDays(3);
+            _repository.Add(user3);
+
+            // Verify the correct user is returned
+            Assert.Equal(user1, _repository.GetUserByRequestResetPasswordId("User 1", "12345"));
+
+            // Clean up data
+            _repository.Remove(user1);
+            _repository.Remove(user2);
+            _repository.Remove(user3);
         }
 
     }
