@@ -130,7 +130,7 @@ namespace JabbR_Core.Hubs
             // EF context with multiple concurrent queries.
             foreach (var room in _roomList)
             {
-                //if (room == null || (room.Private && !_user.AllowedRooms.Contains(room)))
+                //if (room == null || (room.Private && !_user.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).Contains(room)))
                 //{
                 //    continue;
                 //}
@@ -378,8 +378,8 @@ namespace JabbR_Core.Hubs
                 // First, check if the invite code is correct
                 if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
                 {
-                    // Create the ChatRoomChatUserAllowed object to represnt this relationship
-                    var isAllowed = new ChatRoomChatUserAllowed()
+                    // Create the UserRoomAllowed object to represnt this relationship
+                    var isAllowed = new UserRoomAllowed()
                     {
                         ChatRoomKey = room.Key,
                         ChatUserKey = user.Key,

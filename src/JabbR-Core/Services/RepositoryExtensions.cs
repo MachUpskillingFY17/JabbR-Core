@@ -34,7 +34,7 @@ namespace JabbR_Core.Services
             return source.Where(u => u.Status != (int)UserStatus.Offline);
         }
 
-        public static IEnumerable<ChatUser> Online(this IEnumerable<ChatUserChatRooms> source)
+        public static IEnumerable<ChatUser> Online(this IEnumerable<UserRoom> source)
         {
             var users = from s in source
                         where s.ChatUserKeyNavigation.Status != (int)UserStatus.Offline
