@@ -222,7 +222,7 @@
     }
 
     function getMessageViewModel(message) {
-        chat.client.userNameChanged(message.User)
+        //chat.client.userNameChanged(message.User)
         var re = new RegExp("\\b@?" + chat.state.name.replace(/\./g, '\\.') + "\\b", "i");
         return {
             name: message.User.Name,
