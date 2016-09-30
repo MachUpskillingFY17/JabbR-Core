@@ -203,7 +203,6 @@
 
     function getUserViewModel(user, isOwner) {
         var lastActive = user.LastActivity.fromJsonDate();
-        //var lastActive = "2016-08-23 00:26:35.713";
         return {
             name: user.Name,
             hash: user.Hash,
