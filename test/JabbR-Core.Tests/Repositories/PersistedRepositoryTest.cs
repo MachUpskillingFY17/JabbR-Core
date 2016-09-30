@@ -366,6 +366,8 @@ namespace JabbR_Core.Tests.Repositories
             _repository.RemoveUserRoom(user1, room1);
             _repository.Remove(room1);
             _repository.Remove(user1);
+
+            Console.WriteLine("\tPersistedRepositoryTest.GetNotificationByUser: Complete");
         }
 
         [Fact]
@@ -392,10 +394,74 @@ namespace JabbR_Core.Tests.Repositories
             // Clean up data
             _repository.Remove(identity);
             _repository.Remove(user1);
+
+            Console.WriteLine("\tPersistedRepositoryTest.GetUserByIdentity: Complete");
         }
 
-        /*[Fact]
-        public void GetAllowedRooms()
+        [Fact]
+        public void GetAllowedRoomsTwoUsersTwoRooms()
+        {
+            // Add a user to the repository
+            _repository.Add(user1);
+            _repository.Add(user2);
+            var u1Key = _repository.GetUserByName("User 1").Key;
+            var u2Key = _repository.GetUserByName("User 2").Key;
+
+            // Set up the rooms's creator key and private attributes then add them to the repository
+            room1.Creator_Key = u1Key;
+            room1.Private = true;
+            _repository.Add(room1);
+        
+            room2.Creator_Key = u1Key;
+            room2.Private = true;
+            _repository.Add(room2);
+        
+            // Create the UserRoomAllowed objects that will represent rooms user1 is allowed in
+            var isAllowedR1 = new UserRoomAllowed()
+            {
+                ChatRoomKey = _repository.GetRoomByName("Room 1").Key,
+                ChatUserKey = u1Key,
+                ChatRoomKeyNavigation = room1,
+                ChatUserKeyNavigation = user1
+            };
+            var isAllowedR2 = new UserRoomAllowed()
+            {
+                ChatRoomKey = _repository.GetRoomByName("Room 2").Key,
+                ChatUserKey = u2Key,
+                ChatRoomKeyNavigation = room2,
+                ChatUserKeyNavigation = user1
+            };
+        
+            // Add the relationships to the rooms' allowed users lists and the user's allowed rooms list
+            _repository.GetRoomByName("Room 1").AllowedUsers.Add(isAllowedR1);
+            _repository.GetRoomByName("Room 2").AllowedUsers.Add(isAllowedR2);
+            _repository.GetUserByName("User 1").AllowedRooms.Add(isAllowedR1);
+            _repository.GetUserByName("User 2").AllowedRooms.Add(isAllowedR2);
+            _repository.CommitChanges();
+        
+            // Verify GetAllowedRooms returns both rooms
+            Assert.Equal(new List<ChatRoom>() { room1 }, _repository.GetAllowedRooms(user1).ToList());
+        
+            // Unallow user1 from room2
+            _repository.GetUserByName("User 2").AllowedRooms.Remove(isAllowedR2);
+            _repository.GetRoomByName("Room 2").AllowedUsers.Remove(isAllowedR2);
+            _repository.Remove(isAllowedR2);
+        
+            // Verify GetAllowedRooms only returns one room
+            Assert.Empty(_repository.GetAllowedRooms(user2).ToList());
+        
+            // Clean up data
+            _repository.Remove(isAllowedR1);
+            _repository.Remove(room1);
+            _repository.Remove(room2);
+            _repository.Remove(user1);
+            _repository.Remove(user2);
+
+            Console.WriteLine("\tPersistedRepositoryTest.GetAllowedRoomsTwoUsersTwoRooms: Complete");
+        }
+
+        [Fact]
+        public void GetAllowedRoomsOneUserTwoRooms()
         {
             // Add a user to the repository
             _repository.Add(user1);
@@ -431,10 +497,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.GetRoomByName("Room 2").AllowedUsers.Add(isAllowedR2);
             _repository.Users.First().AllowedRooms.Add(isAllowedR1);
             _repository.Users.First().AllowedRooms.Add(isAllowedR2);
-
-            // Now that the data is set up, add the relationships to the repository 
-            _repository.Add(isAllowedR1);
-            _repository.Add(isAllowedR2);
+            _repository.CommitChanges();
 
             // Verify GetAllowedRooms returns both rooms
             Assert.Equal(new List<ChatRoom>() { room1, room2 }, _repository.GetAllowedRooms(user1).ToList());
@@ -452,7 +515,9 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Remove(room1);
             _repository.Remove(room2);
             _repository.Remove(user1);
-        }*/
+
+            Console.WriteLine("\tPersistedRepositoryTest.GetAllowedRoomsOneUserTwoRooms: Complete");
+        }
 
         [Fact]
         public void AddAndRemoveRoomOwner()
