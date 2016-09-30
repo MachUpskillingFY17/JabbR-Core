@@ -31,6 +31,7 @@ namespace JabbR_Core.Models
         // TODO: Migrate everyone off identity and email
         public string Identity { get; set; }
 
+        
         public string Email { get; set; }
 
         public bool IsAdmin { get; set; }

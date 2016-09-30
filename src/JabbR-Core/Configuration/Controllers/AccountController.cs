@@ -190,11 +190,13 @@ namespace JabbR_Core.Controllers
 
             if (String.IsNullOrEmpty(username))
             {
+                Console.Write("invalid username");
                 // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
             }
 
             if (String.IsNullOrEmpty(email))
             {
+                Console.Write("invalid email");
                 // this.AddValidationError("email", LanguageResources.Authentication_EmailRequired);
             }
 

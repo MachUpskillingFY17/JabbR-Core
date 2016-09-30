@@ -1,0 +1,103 @@
+﻿@using JabbR_Core
+@using JabbR_Core.ViewModels
+<!--using PagedList
+model NotificationsViewModel-->
+@{
+  //  var notificationsViewModel = Model as NotificationsViewModel;
+}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <title>JabbR - notifications</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Lato:100italic,300italic,700italic,100,300,700' rel='stylesheet' type='text/css'>
+    <link href="~/lib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+    <link href="~/lib/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/font/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/themes/default/Chat.css" />
+    <link href="~/css/emoji20.css" rel="stylesheet" />
+</head>
+<body class="notifications">
+    <section id="page" role="application">
+        <header id="heading" role="heading">
+            <div class="banner" role="banner">
+                <h1>JabbR</h1>
+            </div>
+        </header>
+        <div class="container">
+            <div class="row" style="padding-top: 75px;">
+            <!--   Html.AlertMessages()-->
+                <div class="row">
+                    <div class="span2">
+                        <span class="notifications-title pull-left">@LanguageResources.Notifications</span>
+                    </div>
+                    <div class="span2 offset8 pull-right">
+                        <a href="#" class="btn btn-mini pull-right js-mark-all-as-read" data-action-url="@Url.Content("~/notifications/markallasread")">@LanguageResources.Notifications_MarkAllRead</a> <!-- (notificationsViewModel.UnreadCount == 0 ? "disabled" : "")-->
+                    </div>
+                </div>
+                <hr />
+            </div>
+            <div class="tabbable tabs-left">
+                <ul class="nav nav-tabs">
+                    <li class=""> <!--"(!Model.ShowAll ? "active" : "")-->
+                        <a href="@Url.Content("~/notifications")">
+                            @Html.Raw(String.Format(LanguageResources.Notifications_UnreadWithCount))<!--, Model.UnreadCount-->
+                        </a>
+                    </li>
+                    <li class=""> <!--"(!Model.ShowAll ? "active" : "")-->
+                        <a href="@Url.Content("~/notifications?all=true")">@LanguageResources.Notifications_AllNotifications</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+              <!--      if (notificationsViewModel.Notifications.Count > 0)
+                    {-->
+                        <ul id="notifications-container" class="unstyled" data-mode=""> <!--"at(Model.ShowAll ? "all" : "unread")"-->
+                       <!--     foreach (var notification in notificationsViewModel.Notifications)
+                            {
+                                <li data-notification-id="atnotification.NotificationKey" class="notification-item at(!notification.Read ? "notification-unread" : "")">
+                                   <!-- if (!notification.Read)
+                                    {
+                                        <a href="#" title="@LanguageResources.Notifications_MarkAsRead" class="pull-right js-mark-as-read" data-action-url="@Url.Content("~/notifications/markasread")" data-notification-id="atnotification.NotificationKey">
+                                            <i class="icon-large icon-ok-circle"></i>
+                                        </a>
+                                    <!--}
+                                    <blockquote>
+                                        <p class="at(notification.HtmlEncoded ? "" : "linkify")">atnotification.Message</p>
+                                        <small>
+                                            <img class="gravatar" src="https://secure.gravatar.com/avatar/ atnotification.FromUserImage?s=16&amp;d=mm" />
+                                            atHtml.Raw(String.Format(LanguageResources.Notifications_MetadataInfo,
+                                                                        Encoder.HtmlEncode(notification.FromUserName),
+                                                                        Encoder.HtmlEncode(notification.RoomName),
+                                                                        Encoder.HtmlEncode(notification.WhenString)))
+                                        </small>
+                                    </blockquote>
+                                </li>
+                            <!--}-->
+                        </ul>
+                        <div id="notifications-pager">
+                            <!--atHtml.SimplePager(notificationsViewModel.Notifications, Model.ShowAll ? "?all=true&" : "?")-->
+                        </div>
+                    <!--}-->
+                    <p id="no-notifications" class="well well-large" >@LanguageResources.Notifications_NoUnread</p> <!--Html.DisplayNoneIf(model => model.Notifications.Count > 0)-->
+                </div>
+            </div>
+        </div>
+    </section>
+    <script id="multiline-content-template" type="text/x-jquery-tmpl">
+        <pre class="multiline">${content}</pre>
+    </script>
+    <script type="text/javascript" src="~/Scripts/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/json2.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/bootstrap.js"></script>
+    <script type="text/javascript" src="~/Scripts/jQuery.tmpl.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/moment.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/ba-linkify.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/marked.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.pubsub.js"></script>
+    <script type="text/javascript" src="~/Chat.emoji.js"></script>
+    <script type="text/javascript" src="~/notifications.unreadcounter.js"></script>
+    <script type="text/javascript" src="~/notifications.js"></script>
+</body>
+</html>
