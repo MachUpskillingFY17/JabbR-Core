@@ -55,6 +55,22 @@ namespace JabbR_Core.Tests.Repositories
         };
 
 
+        // Test Client
+        ChatClient client1 = new ChatClient()
+        {
+            Id = "1",
+            LastActivity = DateTime.Now,
+            LastClientActivity = DateTime.Now,
+        };
+
+
+        // Test Settings
+        Settings settings1 = new Settings()
+        {
+            RawSettings = "These are my test settings."
+        };
+
+
         // Test Messages
         ChatMessage message1 = new ChatMessage()
         {
@@ -71,6 +87,37 @@ namespace JabbR_Core.Tests.Repositories
             MessageType = 1,
             HtmlEncoded = false
         };
+
+
+        // Test Notifications
+        Notification notification1 = new Notification()
+        {
+            Read = false
+        };
+
+        Notification notification2 = new Notification()
+        {
+            Read = false
+        };
+
+
+        // Test Identity
+        ChatUserIdentity identity1 = new ChatUserIdentity()
+        {
+            ProviderName = "Provider",
+            Identity = "Identity Name"
+        };
+
+
+        // Test UserRoomAllowed relationship objects
+        UserRoomAllowed isAllowedR1 = new UserRoomAllowed();
+
+        UserRoomAllowed isAllowedR2 = new UserRoomAllowed();
+
+
+        // Test UserRoomOwner relationship object
+        UserRoomOwner isOwnerR1 = new UserRoomOwner();
+
 
         public PersistedRepositoryTest()
         {
@@ -99,8 +146,11 @@ namespace JabbR_Core.Tests.Repositories
             // Make sure repository returns the correct information
             Assert.Equal(user1, _repository.Users.First());
 
-            // Clean up data
+            // Remove user
             _repository.Remove(user1);
+
+            // Ensure users list is now empty
+            Assert.Empty(_repository.Users.ToList());
 
             Console.WriteLine("\tPersistedRepositoryTest.AddAndRemoveUser: Complete");
         }
@@ -119,8 +169,13 @@ namespace JabbR_Core.Tests.Repositories
             Assert.Equal(room1, _repository.Rooms.First());
             Assert.Equal(room1, _repository.GetRoomByName("Room 1"));
 
-            // Clean up data
+            // Remove the room
             _repository.Remove(room1);
+
+            //Ensure the room was removed
+            Assert.Null(_repository.GetRoomByName("Room 1"));
+
+            // Clean up data
             _repository.Remove(user1);
 
             Console.WriteLine("\tPersistedRepositoryTest.AddAndRemoveRoom: Complete");
@@ -133,22 +188,20 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user1);
 
             // Create a new client
-            var userKey = _repository.Users.First().Key;
-            var clientExpected = new ChatClient()
-            {
-                Id = "1",
-                LastActivity = DateTime.Now,
-                LastClientActivity = DateTime.Now,
-                UserKey = userKey
-            };
-            _repository.Add(clientExpected);
+            client1.UserKey= _repository.Users.First().Key;
+            _repository.Add(client1);
 
             // Make sure repository returns the correct information
-            Assert.Equal(clientExpected, _repository.Clients.First());
-            Assert.Equal(clientExpected, _repository.GetClientById("1"));
+            Assert.Equal(client1, _repository.Clients.First());
+            Assert.Equal(client1, _repository.GetClientById("1"));
+
+            // Remove the client
+            _repository.Remove(client1);
+
+            //Ensure the client was removed
+            Assert.Null(_repository.GetClientById("1"));
 
             // Clean up data
-            _repository.Remove(clientExpected);
             _repository.Remove(user1);
 
             Console.WriteLine("\tPersistedRepositoryTest.AddAndRemoveClient: Complete");
@@ -157,29 +210,27 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void AddAndRemoveSettings()
         {
-            // Create new settings
-            var settingsExpected = new Settings()
-            {
-                RawSettings = "These are my test settings."
-            };
-
             // Try to add the settings to the repository
-            _repository.Add(settingsExpected);
+            _repository.Add(settings1);
 
             // Make sure repository returns the correct information
-            Assert.Equal(settingsExpected, _repository.Settings.First());
+            Assert.Equal(settings1, _repository.Settings.First());
 
-            // Clean up data
-            _repository.Remove(settingsExpected);
+            // Remove settings from the repository
+            _repository.Remove(settings1);
+
+            // Ensure the settings were removed
+            Assert.Empty(_repository.Settings);
 
             Console.WriteLine("\tPersistedRepositoryTest.AddAndRemoveSettings: Complete");
         }
 
         [Fact]
-        public void AddAndRemoveUserFromRoom()
+        public void AddAndRemoveTwoUsersFromOneRoom()
         {
             // Add a user to the repository
             _repository.Add(user1);
+            _repository.Add(user2);
 
             // Set the creator key and add the chat room to the repository
             room1.Creator_Key = _repository.Users.First().Key;
@@ -187,25 +238,33 @@ namespace JabbR_Core.Tests.Repositories
 
             // Add relationship between user and room
             _repository.AddUserRoom(user1, room1);
+            _repository.AddUserRoom(user2, room1);
 
-            // Verify the relationship was added properly
+            // Verify the relationships were added properly
             Assert.True(user1.Rooms.Select(u => u.ChatRoomKeyNavigation).Contains(room1));
             Assert.True(room1.Users.Select(r => r.ChatUserKeyNavigation).Contains(user1));
             Assert.True(_repository.IsUserInRoom(user1, room1));
 
-            // Remove the relationship
-            _repository.RemoveUserRoom(user1, room1);
+            Assert.True(user2.Rooms.Select(u => u.ChatRoomKeyNavigation).Contains(room1));
+            Assert.True(room1.Users.Select(r => r.ChatUserKeyNavigation).Contains(user2));
+            Assert.True(_repository.IsUserInRoom(user2, room1));
 
-            // Verify the relationship was removed
-            Assert.False(user1.Rooms.Select(u => u.ChatRoomKeyNavigation).Contains(room1));
-            Assert.False(room1.Users.Select(r => r.ChatUserKeyNavigation).Contains(user1));
-            Assert.False(_repository.IsUserInRoom(user1, room1));
+            // Remove user2 from the room
+            _repository.RemoveUserRoom(user2, room1);
+
+            // Verify the relationship was removed and that user1 is still in the room
+            Assert.False(user2.Rooms.Select(u => u.ChatRoomKeyNavigation).Contains(room1));
+            Assert.False(room1.Users.Select(r => r.ChatUserKeyNavigation).Contains(user2));
+            Assert.False(_repository.IsUserInRoom(user2, room1));
+            Assert.True(_repository.IsUserInRoom(user1, room1));
 
             // Clean up data
+            _repository.RemoveUserRoom(user1, room1);
             _repository.Remove(room1);
             _repository.Remove(user1);
+            _repository.Remove(user2);
 
-            Console.WriteLine("\tPersistedRepositoryTest.AddAndRemoveUserFromRoom: Complete");
+            Console.WriteLine("\tPersistedRepositoryTest.AddAndRemoveTwoUsersFromOneRoom: Complete");
         }
 
         [Fact]
@@ -309,8 +368,9 @@ namespace JabbR_Core.Tests.Repositories
             _repository.GetRoomByName("Room 1").ChatMessages.Add(message1);
             _repository.CommitChanges();
 
-            // Verify previous messages are returned properly
+            // Verify previous messages and all messages are returned properly
             Assert.Equal(new List<ChatMessage>() { message1 }, _repository.GetPreviousMessages("2"));
+            Assert.Equal(new List<ChatMessage>() { message1, message2 }, _repository.GetMessagesByRoom(room1));
 
             // Clean up data
             _repository.Remove(message1);
@@ -327,6 +387,7 @@ namespace JabbR_Core.Tests.Repositories
         {
             // Add a user to the repository
             _repository.Add(user1);
+            _repository.Add(user2);
 
             // Set up a new chat room and add it to the repository
             room1.Creator_Key = _repository.Users.First().Key;
@@ -334,38 +395,57 @@ namespace JabbR_Core.Tests.Repositories
 
             // Add relationship between user and room
             _repository.AddUserRoom(user1, room1);
+            _repository.AddUserRoom(user2, room1);
 
-            // Set up the message and add it to the repository
+            // Set up the message for user1 and add it to the repository
             message1.RoomKey = room1.Key;
             message1.RoomKeyNavigation = room1;
             message1.UserKey = user1.Key;
             message1.UserKeyNavigation = user1;
             _repository.Add(message1);
 
-            // Add message to user and room's lists
+            // Add message1 to user1 and room1's lists
             _repository.GetUserByName("User 1").ChatMessages.Add(message1);
             _repository.GetRoomByName("Room 1").ChatMessages.Add(message1);
             _repository.CommitChanges();
 
-            // Create a new notification and add it to the repository
-            var notification = new Notification()
-            {
-                MessageKey = message1.Key,
-                RoomKey = room1.Key,
-                UserKey = user1.Key,
-                Read = false
-            };
-            _repository.Add(notification);
+            // Set up the message for user2 and add it to the repository
+            message2.RoomKey = room1.Key;
+            message2.RoomKeyNavigation = room1;
+            message2.UserKey = user2.Key;
+            message2.UserKeyNavigation = user2;
+            _repository.Add(message2);
 
-            // Verify notification was added properly
-            Assert.Equal(new List<Notification>() { notification }, _repository.GetNotificationsByUser(user1).ToList());
+            // Add message2 to user2 and room2's lists
+            _repository.GetUserByName("User 2").ChatMessages.Add(message2);
+            _repository.GetRoomByName("Room 1").ChatMessages.Add(message2);
+            _repository.CommitChanges();
+
+            // Set up a new notification for user1 and add it to the repository
+            notification1.MessageKey = message1.Key;
+            notification1.RoomKey = room1.Key;
+            notification1.UserKey = user1.Key;
+            _repository.Add(notification1);
+
+            // Set up a new notification for user2 and add it to the repository
+            notification2.MessageKey = message2.Key;
+            notification2.RoomKey = room1.Key;
+            notification2.UserKey = user2.Key;
+            _repository.Add(notification2);
+
+            // Verify notifications were added properly
+            Assert.Equal(new List<Notification>() { notification1 }, _repository.GetNotificationsByUser(user1).ToList());
+            Assert.Equal(new List<Notification>() { notification2 }, _repository.GetNotificationsByUser(user2).ToList());
 
             // Clean up data
-            _repository.Remove(notification);
+            _repository.Remove(notification1);
             _repository.Remove(message1);
+            _repository.Remove(message2);
             _repository.RemoveUserRoom(user1, room1);
+            _repository.RemoveUserRoom(user2, room1);
             _repository.Remove(room1);
             _repository.Remove(user1);
+            _repository.Remove(user2);
 
             Console.WriteLine("\tPersistedRepositoryTest.GetNotificationByUser: Complete");
         }
@@ -377,22 +457,17 @@ namespace JabbR_Core.Tests.Repositories
             user1.Identity = "Identity Name";
             _repository.Add(user1);
 
-            // Create a ChatUserIdentity and add it to the repository
-            var identity = new ChatUserIdentity()
-            {
-                UserKey = user1.Key,
-                UserKeyNavigation = user1,
-                ProviderName = "Provider",
-                Identity = "Identity Name"
-            };
-            _repository.Add(identity);
+            // Setup a ChatUserIdentity and add it to the repository
+            identity1.UserKey = user1.Key;
+            identity1.UserKeyNavigation = user1;
+            _repository.Add(identity1);
 
             // Verify identity was added properly
             Assert.Equal(user1, _repository.GetUserByIdentity("Provider", "Identity Name"));
             Assert.Equal(user1, _repository.GetUserByLegacyIdentity("Identity Name"));
 
             // Clean up data
-            _repository.Remove(identity);
+            _repository.Remove(identity1);
             _repository.Remove(user1);
 
             Console.WriteLine("\tPersistedRepositoryTest.GetUserByIdentity: Complete");
@@ -415,23 +490,18 @@ namespace JabbR_Core.Tests.Repositories
             room2.Creator_Key = u1Key;
             room2.Private = true;
             _repository.Add(room2);
-        
-            // Create the UserRoomAllowed objects that will represent rooms user1 is allowed in
-            var isAllowedR1 = new UserRoomAllowed()
-            {
-                ChatRoomKey = _repository.GetRoomByName("Room 1").Key,
-                ChatUserKey = u1Key,
-                ChatRoomKeyNavigation = room1,
-                ChatUserKeyNavigation = user1
-            };
-            var isAllowedR2 = new UserRoomAllowed()
-            {
-                ChatRoomKey = _repository.GetRoomByName("Room 2").Key,
-                ChatUserKey = u2Key,
-                ChatRoomKeyNavigation = room2,
-                ChatUserKeyNavigation = user1
-            };
-        
+
+            // Set up the UserRoomAllowed objects that will represent rooms user1 is allowed in
+            isAllowedR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
+            isAllowedR1.ChatUserKey = u1Key;
+            isAllowedR1.ChatRoomKeyNavigation = room1;
+            isAllowedR1.ChatUserKeyNavigation = user1;
+
+            isAllowedR2.ChatRoomKey = _repository.GetRoomByName("Room 2").Key;
+            isAllowedR2.ChatUserKey = u2Key;
+            isAllowedR2.ChatRoomKeyNavigation = room2;
+            isAllowedR2.ChatUserKeyNavigation = user2;
+
             // Add the relationships to the rooms' allowed users lists and the user's allowed rooms list
             _repository.GetRoomByName("Room 1").AllowedUsers.Add(isAllowedR1);
             _repository.GetRoomByName("Room 2").AllowedUsers.Add(isAllowedR2);
@@ -477,20 +547,15 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(room2);
 
             // Create the UserRoomAllowed objects that will represent rooms user1 is allowed in
-            var isAllowedR1 = new UserRoomAllowed()
-            {
-                ChatRoomKey = _repository.GetRoomByName("Room 1").Key,
-                ChatUserKey = u1Key,
-                ChatRoomKeyNavigation = room1,
-                ChatUserKeyNavigation = user1
-            };
-            var isAllowedR2 = new UserRoomAllowed()
-            {
-                ChatRoomKey = _repository.GetRoomByName("Room 2").Key,
-                ChatUserKey = u1Key,
-                ChatRoomKeyNavigation = room2,
-                ChatUserKeyNavigation = user1
-            };
+            isAllowedR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
+            isAllowedR1.ChatUserKey = u1Key;
+            isAllowedR1.ChatRoomKeyNavigation = room1;
+            isAllowedR1.ChatUserKeyNavigation = user1;
+
+            isAllowedR2.ChatRoomKey = _repository.GetRoomByName("Room 2").Key;
+            isAllowedR2.ChatUserKey = u1Key;
+            isAllowedR2.ChatRoomKeyNavigation = room2;
+            isAllowedR2.ChatUserKeyNavigation = user1;
 
             // Add the relationships to the rooms' allowed users lists and the user's allowed rooms list
             _repository.GetRoomByName("Room 1").AllowedUsers.Add(isAllowedR1);
@@ -531,13 +596,10 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(room1);
 
             // Create the UserRoomOwner object that will represent user1 being an owner
-            var isOwnerR1 = new UserRoomOwner()
-            {
-                ChatRoomKey = _repository.GetRoomByName("Room 1").Key,
-                ChatUserKey = u1Key,
-                ChatRoomKeyNavigation = room1,
-                ChatUserKeyNavigation = user1
-            };
+            isOwnerR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
+            isOwnerR1.ChatUserKey = u1Key;
+            isOwnerR1.ChatRoomKeyNavigation = room1;
+            isOwnerR1.ChatUserKeyNavigation = user1;
 
             // Add the relationships to the rooms' allowed users lists and the user's allowed rooms list
             _repository.GetRoomByName("Room 1").Owners.Add(isOwnerR1);
