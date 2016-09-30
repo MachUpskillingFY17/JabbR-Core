@@ -13,8 +13,7 @@ namespace JabbR_Core.Tests.Repositories
     {
         JabbrContext _context;
         PersistedRepository _repository;
-        //DbContextOptionsBuilder _options;
-        DbContextOptions<JabbrContext> _options;
+        DbContextOptionsBuilder<JabbrContext> _options;
 
         // Test Users
         ChatUser user1 = new ChatUser()
@@ -121,19 +120,14 @@ namespace JabbR_Core.Tests.Repositories
 
         public PersistedRepositoryTest()
         {
-            IServiceCollection service = new ServiceCollection();
+            // Set up the db context
+            _options = new DbContextOptionsBuilder<JabbrContext>();
+            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            _options.UseSqlServer(connection);
+            DbContextOptions<JabbrContext> options = _options.Options;
+            _context = new JabbrContext(options);
 
-            //_options = new DbContextOptionsBuilder();
-            _options = new DbContextOptions<JabbrContext>();
-
-            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            //service.AddDbContext<JabbrContext>(_options => _options.UseSqlServer(connection));
-
-            //var contextOps = new DbContextOptions<JabbrContext>();
-
-            //_context = new JabbrContext(contextOps);
-            _context = new JabbrContext(_options);
-
+            // Set up the repository
             _repository = new PersistedRepository(_context);
         }
 

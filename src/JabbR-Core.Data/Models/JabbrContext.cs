@@ -8,14 +8,6 @@ namespace JabbR_Core.Data.Models
     {
         public JabbrContext(DbContextOptions<JabbrContext> options) : base(options) { }
 
-        // THIS FUNCTION IS ONLY FOR THE TEST ENVIRONMENT
-        // TODO: set an environment variable to control when this is called and when it isn't
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            optionsBuilder.UseSqlServer(connection);
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Attachment>(entity =>
