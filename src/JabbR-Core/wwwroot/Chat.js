@@ -7,9 +7,6 @@
 (function ($, connection, window, ui, utility) {
     "use strict";
 
-    // Comment out to ensure logging is turned off.
-    $.cookie('jabbr.logging', '1', { expires: 100 });
-
     var chat = connection.chat,
         messageHistory = [],
         historyLocation = 0,

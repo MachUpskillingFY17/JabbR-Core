@@ -89,10 +89,6 @@ namespace JabbR_Core.Hubs
 
         public void Join(bool reconnecting)
         {
-            //
-            // Shouldn't we be doing something with the "reconnecting" parameter?
-            //
-
             // Get the client state
             // var userId = _user.Id;
             var userId = Context.User.GetUserId();
@@ -159,7 +155,6 @@ namespace JabbR_Core.Hubs
                     {
                         // If invoking roomLoaded fails don't get the roomInfo again
                         roomInfo = roomInfo ?? await GetRoomInfoCore(room);
-                        //roomInfo = roomInfo ?? GetRoomInfoCore(room);
                         Clients.Caller.roomLoaded(roomInfo);
                         break;
                     }
@@ -460,8 +455,6 @@ namespace JabbR_Core.Hubs
             //return new Task<RoomViewModel>(() => thing);
         }
 
-        // This function doesn't behave well when you use .ToListAsync() on the messages query,
-        // but making it synchronous breaks some front end UI stuff. Leaving for now
         private async Task<RoomViewModel> GetRoomInfoCore(ChatRoom room)
         {
             var recentMessages = _recentMessageCache.GetRecentMessages(room.Name);
@@ -469,14 +462,10 @@ namespace JabbR_Core.Hubs
             // If we haven't cached enough messages just populate it now
             if (recentMessages.Count == 0)
             {
-                var messages = (from m in _repository.GetMessagesByRoom(room)
-                                orderby m.When descending
-                                select m).Take(50).ToList();
-                //var messages = from m
-                //               in _repository.GetMessagesByRoom(room)
-                //               orderby m.When descending
-                //               select m;
-                //var messages = new List<ChatMessage>();
+                var messages = _repository.GetMessagesByRoom(room)
+                    .Take(50)
+                    .OrderBy(o => o.When)
+                    .ToList();
 
                 // Reverse them since we want to get them in chronological order
                 messages.Reverse();

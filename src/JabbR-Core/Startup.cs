@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
 using JabbR_Core.Localization;
 using JabbR_Core.Infrastructure;
 using JabbR_Core.Middleware;
@@ -11,11 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using JabbR_Core.Services;
-using JabbR_Core.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Authentication;
 using JabbR_Core.Data.Models;
 
 namespace JabbR_Core
@@ -54,7 +48,6 @@ namespace JabbR_Core
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
 
-
             //services.AddEntityFrameworkInMemoryDatabase();
             //services.AddDbContext<JabbrContext>();
 
@@ -83,12 +76,8 @@ namespace JabbR_Core
             // Register the provider that points to the specific instance
             services.AddScoped<IJabbrRepository, InMemoryRepository>();
             services.AddScoped<IChatService, ChatService>();
-
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            // investigate the below
-            //services.AddIdentity<>();
 
             // Establish default settings from appsettings.json
             services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
@@ -128,43 +117,9 @@ namespace JabbR_Core
                 app.UseDeveloperExceptionPage();
             }
 
-
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
             app.UseSignalR();
-
-            //var context = app.ApplicationServices.GetService<JabbrContext>();
-            //AddTestData(context);
-
-        }
-
-        private void AddTestData(JabbrContext context)
-        {
-            var room = new Data.Models.ChatRoom
-            {
-                Name = "Fun Room",
-                Topic = "Fun things & JabbR",
-            };
-            var user = new Data.Models.ChatUser
-            {
-                Name = "Jimmy Johnson",
-                ChatRooms = new List<Data.Models.ChatRoom>() { room }
-            };
-            var userRoom = new ChatUserChatRooms()
-            {
-                ChatUserKey = user.Key,
-                ChatRoomKey = room.Key
-            };
-            var userRoomList = new List<ChatUserChatRooms>() { userRoom };
-
-            room.Users = userRoomList;
-            user.Rooms = userRoomList;
-
-            context.Rooms.Add(room);
-            context.Users.Add(user);
-            context.ChatUserChatRooms.Add(userRoom);
         }
     }
-
-
 }
