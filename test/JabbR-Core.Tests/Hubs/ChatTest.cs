@@ -10,6 +10,7 @@ using JabbR_Core.Services;
 using Microsoft.Extensions.Options;
 using JabbR_Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
 namespace JabbR_Core.Tests.Hubs
 {
@@ -20,7 +21,7 @@ namespace JabbR_Core.Tests.Hubs
         private ICache _cache;
         private JabbrContext _context;
         private IChatService _chatService;
-        private IJabbrRepository _repository;
+        private InMemoryRepository _repository;
         private IRecentMessageCache _recentMessageCache;
         private IOptions<ApplicationSettings> _settings;
 
@@ -56,10 +57,50 @@ namespace JabbR_Core.Tests.Hubs
         [Fact]
         public void GetRoomsNotNull()
         {
-            GetCleanRepository();
             Assert.NotEqual(null, _chat.GetRooms());
-            Console.WriteLine("\tChatTest.GetRoomsNotNull: Complete");
         }
+
+        [Fact]
+        public void GetCommandsNotNullNotEmpty()
+        {
+            Assert.NotEqual(null, _chat.GetCommands());
+            Assert.NotEmpty((IEnumerable)_chat.GetCommands());
+        }
+
+        [Fact]
+        public void GetShortcutsNotNullNotEmpty()
+        {
+            Assert.NotEqual(null, _chat.GetShortcuts());
+            Assert.NotEmpty((IEnumerable)_chat.GetShortcuts());
+        }
+
+        // Context is null when called from external Hub, cannot test yet.
+        //[Fact]
+        //public void UpdateActivitySomething()
+        //{
+        //    _chat.UpdateActivity();
+        //}
+
+        // This throws an InvalidOperationException because actions that send through
+        // SignalR hubs that are not instantiated in the SignalR pipeline are forbidden
+        // Cannot test other operations until we change this behaviour.
+        //[Fact]
+        //public void LoadRoomsInvalidOperationException()
+        //{
+        //    GetCleanRepository(); 
+
+        //    _repository.RoomList.Add(new Models.ChatRoom
+        //    {
+        //        Name = "ChatRoom One",
+        //        Topic = "One"
+        //    });
+
+        //    // Need to reinstantiate _chat so that in its constructor the _repository.RoomList
+        //    // assignment is up to date with the RoomList changes we added above.
+        //    _chat = new Chat(_repository, _settings, _recentMessageCache, _chatService);
+
+        //    Assert.Throws<InvalidOperationException>(() => _chat.LoadRooms());
+        //}
 
         [Fact]
         public void AddRoomsVerification()
@@ -79,9 +120,6 @@ namespace JabbR_Core.Tests.Hubs
             rooms.Add(room);
 
             Assert.Contains(room, rooms);
-
-            Console.WriteLine($"{this.GetType().ToString()}.AddRoomsVerification: Complete");
         }
-
     }
 }

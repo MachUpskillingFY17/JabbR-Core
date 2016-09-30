@@ -110,12 +110,14 @@ namespace JabbR_Core.Hubs
             return _lobbyRoomList;
         }
 
+        // Why not more specific return type? Like IList<ICommand>?
         public object GetCommands()
         {
-            return CommandManager.GetCommandsMetaData();
-            //return CommandManager.GetCommands();
+            //return CommandManager.GetCommandsMetaData();
+            return CommandManager.GetCommands();
         }
 
+        // More specific return type? Object[]? or cast to Array?
         public object GetShortcuts()
         {
             return new[] {
@@ -125,7 +127,9 @@ namespace JabbR_Core.Hubs
             };
         }
 
-        public async void LoadRooms(string[] roomNames)
+        // Why does this have an unused parameter?
+        // string[] roomNames
+        public async void LoadRooms()
         {
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
@@ -135,12 +139,8 @@ namespace JabbR_Core.Hubs
                 {
                     continue;
                 }
+
                 RoomViewModel roomInfo = null;
-                //var roomInfo = new RoomViewModel
-                //{
-                //    Name = "light_meow",
-                //    Count = 1
-                //};
 
                 while (true)
                 {
