@@ -49,15 +49,16 @@ namespace JabbR_Core
             string connection = _configuration["connectionString"];
 
             //services.AddEntityFrameworkInMemoryDatabase();
-            //services.AddDbContext<JabbrContext>();
+            services.AddDbContext<JabbrContext>();
 
-            services.AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<JabbrContext>((serviceProvider, options) =>
-                {
-                    options
-                    .UseInternalServiceProvider(serviceProvider)
-                    .UseInMemoryDatabase();
-                });
+            // Throws a typeload exception
+            //services.AddEntityFrameworkInMemoryDatabase()
+            //    .AddDbContext<JabbrContext>((serviceProvider, options) =>
+            //    {
+            //        options
+            //        .UseInternalServiceProvider(serviceProvider)
+            //        .UseInMemoryDatabase();
+            //    });
 
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
@@ -66,18 +67,23 @@ namespace JabbR_Core
             services.AddSignalR();
 
             // Create instances to register. Required for ChatService to work
-            //var context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            //var repository = new InMemoryRepository(context);
-            //var recentMessageCache = new RecentMessageCache();
-            //var httpContextAccessor = new HttpContextAccessor();
+            var context = new JabbrContext(new DbContextOptions<JabbrContext>());
+            var repository = new InMemoryRepository(context);
+            var recentMessageCache = new RecentMessageCache();
+            var httpContextAccessor = new HttpContextAccessor();
 
-            //var chatService = new ChatService(null, recentMessageCache, repository, null);
+            var chatService = new ChatService(null, recentMessageCache, repository, null);
+
+            services.AddScoped<IJabbrRepository>(provider => repository);
+            services.AddScoped<IChatService>(provider => chatService);
+            services.AddSingleton<IRecentMessageCache>(provider => recentMessageCache);
+            services.AddSingleton<IHttpContextAccessor>(provider => httpContextAccessor);
 
             // Register the provider that points to the specific instance
-            services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            services.AddScoped<IChatService, ChatService>();
-            services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //services.AddScoped<IJabbrRepository, InMemoryRepository>();
+            //services.AddScoped<IChatService, ChatService>();
+            //services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
+            //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // Establish default settings from appsettings.json
             services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
