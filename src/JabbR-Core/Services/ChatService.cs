@@ -371,16 +371,11 @@ namespace JabbR_Core.Services
 
             // Add this user to the room
 
-            //REMOVE _openroom
-            //var _repository = new InMemoryRepository();
-
             _repository.AddUserRoom(user, room);
 
             ChatUserPreferences userPreferences = user.Preferences;
             userPreferences.TabOrder.Add(room.Name);
             user.Preferences = userPreferences;
-
-            // Clear the cache
             
             //REMOVE _openroom
             //_cache.RemoveUserInRoom(user, room);

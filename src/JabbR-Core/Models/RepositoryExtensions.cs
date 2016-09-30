@@ -102,8 +102,7 @@ namespace JabbR_Core.Models
             roomName = ChatService.NormalizeRoomName(roomName);
 
             var room = repository.GetRoomByName(roomName);
-            //REMOVE
-            //var room = new ChatRoom { Name = "light_meow" };
+
             if (room == null)
             {
                 throw new HubException(String.Format(LanguageResources.RoomNotFound, roomName));

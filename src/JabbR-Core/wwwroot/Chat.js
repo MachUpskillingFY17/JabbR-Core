@@ -202,8 +202,8 @@
     }
 
     function getUserViewModel(user, isOwner) {
-        //var lastActive = user.lastActivity.fromJsonDate();
-        var lastActive = "2016-08-23 00:26:35.713";
+        var lastActive = user.LastActivity.fromJsonDate();
+        //var lastActive = "2016-08-23 00:26:35.713";
         return {
             name: user.Name,
             hash: user.Hash,
@@ -222,7 +222,6 @@
     }
 
     function getMessageViewModel(message) {
-        //chat.client.userNameChanged(message.User)
         var re = new RegExp("\\b@?" + chat.state.name.replace(/\./g, '\\.') + "\\b", "i");
         return {
             name: message.User.Name,
@@ -917,9 +916,6 @@
             ui.removeUser(user, room);
             ui.addNotification(utility.getLanguageResource('Chat_UserLeftRoom', user.Name, room), room);
         }
-        //todo remove setactiveroom -- will work when authentication is set
-        //ui.setActiveRoom('Lobby');
-        //ui.removeRoom(room);
     };
 
     chat.client.kick = function (user, room, callingUser, reason) {
