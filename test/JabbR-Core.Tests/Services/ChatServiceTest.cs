@@ -264,7 +264,7 @@ namespace JabbR_Core.Tests.Services
 
 
         //UpdateActivity tests: FAILS
-        //user.ConnectedClients isn't getting updated and will be null. Functionality to come?
+        //user.ConnectedClients isn't getting updated and will be null until DI in ChatService is implemented
         [Fact]
         public void CanUpdateActivity()
         {
@@ -326,8 +326,7 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(room);
         }
 
-        //AddMessage tests: FAILS
-        //Right now room.ChatMessages isn't beeing updated-issue with cache?
+        //AddMessage tests
         [Fact]
         public void AddsNewMessageToRepository()
         {

@@ -141,13 +141,13 @@ namespace JabbR_Core.Services
         {
             // There's no need to keep a collection of messages outside of a room
             var room = _rooms.First(r => r == message.RoomKeyNavigation);
-            //room.Messages.Add(message);
+            room.ChatMessages.Add(message);
         }
 
         public void Add(ChatClient client)
         {
             var user = _users.FirstOrDefault(u => client.UserKeyNavigation == u);
-            //user.ConnectedClients.Add(client);
+            user.ConnectedClients.Add(client);
         }
 
         public void Add(Notification notification)
