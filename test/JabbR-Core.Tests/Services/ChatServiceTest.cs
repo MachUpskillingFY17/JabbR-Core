@@ -1663,6 +1663,40 @@ namespace JabbR_Core.Tests.Services
 
         }
 
+        [Fact] 
+        public void LocksRoomIfAdmin()
+        { 
+            var admin = new ChatUser
+            {  
+                Name = "foo",  
+                IsAdmin = true 
+            };  
+            _repository.Add(admin); 
+             
+            var room = new ChatRoom
+            { 
+                Name = "Room" 
+            }; 
+
+            UserRoom cr = new UserRoom()
+            { 
+                ChatRoomKey = room.Key, 
+                ChatUserKey = admin.Key, 
+                ChatRoomKeyNavigation = room, 
+                ChatUserKeyNavigation = admin 
+            }; 
+            room.Users.Add(cr); 
+            admin.Rooms.Add(cr);           
+
+            chatService.LockRoom(admin, room);  
+
+            Assert.True(room.Private);
+            Assert.True(admin.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(admin));  
+
+            _repository.Remove(admin); 
+        } 
+
         //  Change Welcome tests
         [Fact]
         public void ThrowsIfActingUserIsNotAdmin()
@@ -1676,14 +1710,13 @@ namespace JabbR_Core.Tests.Services
 
             _repository.Add(nonAdmin);
             _repository.Add(room);
-        
+
             Assert.Throws<HubException>(() => chatService.ChangeWelcome(nonAdmin, room, null));
         }
 
         [Fact]
         public void SetsRoomWelcome()
         {
-            var repository = new InMemoryRepository();
             var admin = new ChatUser
             {
                 Name = "foo",
@@ -1692,8 +1725,8 @@ namespace JabbR_Core.Tests.Services
             var room = new ChatRoom();
             var welcome = "bar";
 
-            repository.Add(admin);
-            repository.Add(room);
+            _repository.Add(admin);
+            _repository.Add(room);
 
             chatService.ChangeWelcome(admin, room, welcome);
 
@@ -1703,7 +1736,6 @@ namespace JabbR_Core.Tests.Services
         [Fact]
         public void ClearsRoomWelcome()
         {
-            var repository = new InMemoryRepository();
             var admin = new ChatUser
             {
                 Name = "foo",
@@ -1711,13 +1743,14 @@ namespace JabbR_Core.Tests.Services
             };
             var room = new ChatRoom { Welcome = "bar" };
 
-            repository.Add(admin);
-            repository.Add(room);
+            _repository.Add(admin);
+            _repository.Add(room);
 
             chatService.ChangeWelcome(admin, room, "");
 
             Assert.True(String.IsNullOrEmpty(room.Welcome));
         }
+
 
         //rest of functions to test
         public void AddAdmin(ChatUser admin, ChatUser targetUser)
