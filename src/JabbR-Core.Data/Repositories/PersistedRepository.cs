@@ -230,7 +230,6 @@ namespace JabbR_Core.Data.Repositories
                       .Collection(r => r.Users)
                       .Query()
                       .Online();
-            
         }
 
         public IQueryable<ChatUser> GetOnlineUsers()
