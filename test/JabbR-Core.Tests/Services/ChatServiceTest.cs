@@ -1663,6 +1663,41 @@ namespace JabbR_Core.Tests.Services
 
         }
 
+        [Fact]
+        public void LocksRoomIfAdmin()
+        {
+            var admin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+            _repository.Add(admin);
+            var room = new ChatRoom
+            {
+                Name = "Room"
+            };
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = admin.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = admin
+            };
+            room.Users.Add(cr);
+            admin.Rooms.Add(cr);
+
+          
+            chatService.LockRoom(admin, room);
+
+            Assert.True(room.Private);
+            Assert.True(admin.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(admin));
+
+            _repository.Remove(admin);
+        }
+
+
+
         //  
 
         //rest of functions to test
