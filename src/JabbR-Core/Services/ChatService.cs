@@ -762,7 +762,7 @@ namespace JabbR_Core.Services
 
             // JC: Find the allowed user relationship
             var isAllowed = targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser);
-            if (!isAllowed)
+            if (isAllowed)
             {
                 throw new HubException(String.Format(LanguageResources.RoomUserAlreadyAllowed, targetUser.Name, targetRoom.Name));
             } else
