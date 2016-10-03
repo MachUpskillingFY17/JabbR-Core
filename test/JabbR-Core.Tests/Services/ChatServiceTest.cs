@@ -1440,7 +1440,228 @@ namespace JabbR_Core.Tests.Services
 
         //LockRoom tests
 
+        [Fact]
+        public void LocksRoomIfOwner()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room"
+            };
 
+            //add relationships 
+            UserRoomOwner cro = new UserRoomOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            room.Users.Add(cr);
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+            user.Rooms.Add(cr);
+
+            chatService.LockRoom(user, room);
+
+            Assert.True(room.Private);
+            Assert.True(user.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
+
+            _repository.Remove(user);
+        }
+
+        [Fact]
+        public void ThrowsIfRoomAlreadyLocked()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                CreatorKeyNavigation = user,
+                Private = true
+            };
+            //Relationship ALL THE THINGS
+            UserRoomOwner cro = new UserRoomOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+            UserRoomAllowed cra = new UserRoomAllowed()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+            room.AllowedUsers.Add(cra);
+            user.AllowedRooms.Add(cra);
+            user.Rooms.Add(cr);
+            room.Users.Add(cr);
+
+            Assert.Throws<HubException>(() => chatService.LockRoom(user, room));
+
+            _repository.Remove(user);
+        }
+
+        [Fact]
+        public void LocksRoom()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                CreatorKeyNavigation = user
+            };
+            UserRoomOwner cro = new UserRoomOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+            user.Rooms.Add(cr);
+            room.Users.Add(cr);
+            
+            chatService.LockRoom(user, room);
+
+            Assert.True(room.Private);
+            Assert.True(user.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
+
+            _repository.Remove(user);
+        }
+
+        [Fact]
+        public void MakesAllUsersAllowed()
+        {
+            var creator = new ChatUser
+            {
+                Name = "foo"
+            };
+            //Online and offline users
+            var users = Enumerable.Range(0, 5).Select(i => new ChatUser
+            {
+                Name = "user_" + i
+            }).ToList();
+
+            var offlineUsers = Enumerable.Range(6, 10).Select(i => new ChatUser
+            {
+                Name = "user_" + i,
+                Status = (int)UserStatus.Offline
+            }).ToList();
+
+            var room = new ChatRoom
+            {
+                Name = "room",
+                CreatorKeyNavigation = creator
+            };
+
+            //Relationship
+            UserRoomOwner cro = new UserRoomOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = creator.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = creator
+            };
+
+            room.Owners.Add(cro);
+            creator.OwnedRooms.Add(cro);
+
+            _repository.Add(room);
+
+            foreach (var u in users)
+            {
+                UserRoom ur = new UserRoom()
+                {
+                    ChatRoomKey = room.Key,
+                    ChatUserKey = u.Key,
+                    ChatRoomKeyNavigation = room,
+                    ChatUserKeyNavigation = u
+                };
+                room.Users.Add(ur);
+                u.Rooms.Add(ur);
+                _repository.Add(u);
+            }
+            foreach (var u in offlineUsers)
+            {
+                UserRoom ur = new UserRoom()
+                {
+                    ChatRoomKey = room.Key,
+                    ChatUserKey = u.Key,
+                    ChatRoomKeyNavigation = room,
+                    ChatUserKeyNavigation = u
+                };
+                room.Users.Add(ur);
+                u.Rooms.Add(ur);
+                _repository.Add(u);
+            }
+          
+            chatService.LockRoom(creator, room);
+
+            foreach (var u in users)
+            {
+                Assert.True(u.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+                Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(u));
+                _repository.Remove(u);
+
+            }
+
+            foreach (var u in offlineUsers)
+            {
+                Assert.False(u.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+                Assert.False(room.AllowedUsers.Select(c=>c.ChatUserKeyNavigation).ToList().Contains(u));
+                _repository.Remove(u);
+
+            }
+
+            _repository.Remove(room);
+
+        }
 
         //  
 

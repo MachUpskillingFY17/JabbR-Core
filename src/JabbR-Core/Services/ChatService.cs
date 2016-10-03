@@ -871,9 +871,9 @@ namespace JabbR_Core.Services
                 var uIsAllowed = new UserRoomAllowed()
                 {
                     ChatRoomKey = targetRoom.Key,
-                    ChatUserKey = user.Key,
+                    ChatUserKey = u.Key,
                     ChatRoomKeyNavigation = targetRoom,
-                    ChatUserKeyNavigation = user
+                    ChatUserKeyNavigation = u
                 };
 
                 u.AllowedRooms.Add(uIsAllowed);
