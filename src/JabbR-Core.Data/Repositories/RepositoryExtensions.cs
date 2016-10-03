@@ -6,7 +6,7 @@ namespace JabbR_Core.Data.Repositories
 {
     public static class RepositoryExtensions
     {
-        public static IQueryable<ChatUser> Online(this IQueryable<ChatUserChatRooms> source)
+        public static IQueryable<ChatUser> Online(this IQueryable<UserRoom> source)
         {
             var users = from s in source
                         where s.ChatUserKeyNavigation.Status != (int)UserStatus.Offline

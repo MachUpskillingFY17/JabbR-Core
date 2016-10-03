@@ -8,15 +8,6 @@ namespace JabbR_Core.Data.Models
     {
         public JabbrContext(DbContextOptions<JabbrContext> options) : base(options) { }
 
-        // THIS FUNCTION IS ONLY FOR THE TEST ENVIRONMENT
-        // TODO: set an environment variable to control when this is called and when it isn't
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRCoreDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            optionsBuilder.UseSqlServer(connection);
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Attachment>(entity =>
@@ -82,10 +73,10 @@ namespace JabbR_Core.Data.Models
                     .HasForeignKey(d => d.UserKey);
             });
 
-            modelBuilder.Entity<ChatRoomChatUserAllowed>(entity =>
+            modelBuilder.Entity<UserRoomAllowed>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
-                    .HasName("PK_ChatRoomChatUserAllowed");
+                    .HasName("PK_UserRoomAllowed");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -102,10 +93,10 @@ namespace JabbR_Core.Data.Models
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<ChatRoomChatUserOwner>(entity =>
+            modelBuilder.Entity<UserRoomOwner>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
-                    .HasName("PK_ChatRoomChatUserOwner");
+                    .HasName("PK_UserRoomOwner");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -154,10 +145,10 @@ namespace JabbR_Core.Data.Models
                     .HasForeignKey(d => d.Creator_Key);
             });
 
-            modelBuilder.Entity<ChatUserChatRooms>(entity =>
+            modelBuilder.Entity<UserRoom>(entity =>
             {
                 entity.HasKey(e => new { e.ChatUserKey, e.ChatRoomKey })
-                    .HasName("PK_ChatUserChatRooms");
+                    .HasName("PK_UserRoom");
 
                 entity.Property(e => e.ChatUserKey).HasColumnName("ChatUser_Key");
 
@@ -278,11 +269,11 @@ namespace JabbR_Core.Data.Models
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<ChatClient> ChatClients { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
-        public DbSet<ChatRoomChatUserAllowed> ChatRoomsChatUsersAllowed { get; set; }
-        public DbSet<ChatRoomChatUserOwner> ChatRoomsChatUsersOwned { get; set; }
+        public DbSet<UserRoomAllowed> UserRoomAllowed { get; set; }
+        public DbSet<UserRoomOwner> UserRoomOwner { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
-        public DbSet<ChatUserChatRooms> ChatUserChatRooms { get; set; }
-        public DbSet<ChatUserIdentity> Identities { get; set; }
+        public DbSet<UserRoom> UserRoom { get; set; }
+        public DbSet<ChatUserIdentity> ChatUserIdentities { get; set; }
         public DbSet<ChatUser> ChatUsers { get; set; }
         public DbSet<MigrationHistory> MigrationHistory { get; set; }
         public DbSet<Notification> Notifications { get; set; }

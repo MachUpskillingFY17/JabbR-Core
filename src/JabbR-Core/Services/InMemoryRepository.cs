@@ -33,9 +33,9 @@ namespace JabbR_Core.Services
         private readonly ICollection<Attachment> _attachments;
         private readonly ICollection<Notification> _notifications;
         private readonly ICollection<Settings> _settings;
-        private readonly ICollection<ChatRoomChatUserAllowed> _allowed;
-        private readonly ICollection<ChatRoomChatUserOwner> _owner;
-        private readonly ICollection<ChatUserChatRooms> _userRooms;
+        private readonly ICollection<UserRoomAllowed> _allowed;
+        private readonly ICollection<UserRoomOwner> _owner;
+        private readonly ICollection<UserRoom> _userRooms;
 
         public InMemoryRepository()
         {
@@ -46,9 +46,9 @@ namespace JabbR_Core.Services
             _attachments = new SafeCollection<Attachment>();
             _notifications = new SafeCollection<Notification>();
             _settings = new SafeCollection<Settings>();
-            _allowed = new SafeCollection<ChatRoomChatUserAllowed>();
-            _owner = new SafeCollection<ChatRoomChatUserOwner>();
-            _userRooms = new SafeCollection<ChatUserChatRooms>();
+            _allowed = new SafeCollection<UserRoomAllowed>();
+            _owner = new SafeCollection<UserRoomOwner>();
+            _userRooms = new SafeCollection<UserRoom>();
 
             User = new ChatUser
             {
@@ -141,13 +141,13 @@ namespace JabbR_Core.Services
         {
             // There's no need to keep a collection of messages outside of a room
             var room = _rooms.First(r => r == message.RoomKeyNavigation);
-            //room.Messages.Add(message);
+            room.ChatMessages.Add(message);
         }
 
         public void Add(ChatClient client)
         {
             var user = _users.FirstOrDefault(u => client.UserKeyNavigation == u);
-            //user.ConnectedClients.Add(client);
+            user.ConnectedClients.Add(client);
         }
 
         public void Add(Notification notification)
@@ -155,15 +155,15 @@ namespace JabbR_Core.Services
             _notifications.Add(notification);
         }
 
-        public void Add(ChatRoomChatUserOwner owner)
+        public void Add(UserRoomOwner owner)
         {
             _owner.Add(owner);
         }
-        public void Add(ChatRoomChatUserAllowed allowed)
+        public void Add(UserRoomAllowed allowed)
         {
             _allowed.Add(allowed);
         }
-        public void Add(ChatUserChatRooms userRoom)
+        public void Add(UserRoom userRoom)
         {
             _userRooms.Add(userRoom); 
         }
@@ -194,15 +194,15 @@ namespace JabbR_Core.Services
             _notifications.Remove(notification);
         }
 
-        public void Remove(ChatRoomChatUserOwner owner)
+        public void Remove(UserRoomOwner owner)
         {
             _owner.Remove(owner);
         }
-        public void Remove(ChatRoomChatUserAllowed allowed)
+        public void Remove(UserRoomAllowed allowed)
         {
             _allowed.Remove(allowed);
         }
-        public void Remove(ChatUserChatRooms userRoom)
+        public void Remove(UserRoom userRoom)
         {
             _userRooms.Remove(userRoom);
         }
@@ -345,7 +345,7 @@ namespace JabbR_Core.Services
         public void AddUserRoom(ChatUser user, ChatRoom room)
         {
             // Create new user room relationship
-            var userRoom = new ChatUserChatRooms()
+            var userRoom = new UserRoom()
             {
                 ChatRoomKey = room.Key,
                 ChatUserKey = user.Key,
@@ -361,12 +361,12 @@ namespace JabbR_Core.Services
         public void RemoveUserRoom(ChatUser user, ChatRoom room)
         {
             // First find the correct relationship in the user and the room
-            var userRelation= user.Rooms.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key));
-            var roomRelation = room.Users.Where(r => (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key));
+            var userRelation = user.Rooms.ToList().Find(rm => rm.ChatRoomKeyNavigation == room);
+            var roomRelation = room.Users.ToList().Find(rm => rm.ChatUserKeyNavigation == user);
 
             // This will either find 1 or 0 results, so we can remove the first result from each list
-            user.Rooms.Remove(userRelation.First());
-            room.Users.Remove(roomRelation.First());
+            user.Rooms.Remove(userRelation);
+            room.Users.Remove(roomRelation);
         }
 
         public void Reload(object entity)
