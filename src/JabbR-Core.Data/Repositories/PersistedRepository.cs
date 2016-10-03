@@ -226,12 +226,11 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
         {
-            var temp = _db.Entry(room)
+            return _db.Entry(room)
                       .Collection(r => r.Users)
                       .Query()
                       .Online();
-
-            return temp;
+            
         }
 
         public IQueryable<ChatUser> GetOnlineUsers()

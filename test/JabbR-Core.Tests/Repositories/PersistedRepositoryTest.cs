@@ -87,7 +87,6 @@ namespace JabbR_Core.Tests.Repositories
             HtmlEncoded = false
         };
 
-
         // Test Notifications
         Notification notification1 = new Notification()
         {
