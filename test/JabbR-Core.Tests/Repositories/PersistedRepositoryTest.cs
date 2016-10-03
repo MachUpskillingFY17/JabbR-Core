@@ -61,7 +61,6 @@ namespace JabbR_Core.Tests.Repositories
             //_context = new JabbrContext(contextOps);
             _context = new JabbrContext(_options);
 
-
             _repository = new PersistedRepository(_context);
         }
 
