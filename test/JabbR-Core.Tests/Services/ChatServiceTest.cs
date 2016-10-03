@@ -1381,7 +1381,68 @@ namespace JabbR_Core.Tests.Services
             _repository.Remove(otherAdmin);
         }
 
-        //
+        //DisconnectClient tests
+        [Fact]
+        public void RemovesClientFromUserClientList()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo",
+                Status = (int)UserStatus.Inactive
+            };
+            user.ConnectedClients.Add(new ChatClient
+            {
+                Id = "foo",
+                UserKeyNavigation = user
+            });
+
+            user.ConnectedClients.Add(new ChatClient
+            {
+                Id = "bar",
+                UserKeyNavigation = user
+            });
+
+            _repository.Add(user);
+
+            chatService.DisconnectClient("foo");
+
+            Assert.Equal(1, user.ConnectedClients.Count);
+            Assert.Equal("bar", user.ConnectedClients.First().Id);
+
+            _repository.Remove(user);
+        }
+
+        [Fact]
+        public void MarksUserAsOfflineIfNoMoreClients()
+        {
+            var user = new ChatUser
+            {
+                Id = "userId",
+                Name = "foo",
+                Status = (int)UserStatus.Inactive
+            };
+            user.ConnectedClients.Add(new ChatClient
+            {
+                Id = "foo",
+                UserKeyNavigation = user
+            });
+
+            _repository.Add(user);
+
+            string userId = chatService.DisconnectClient("foo");
+
+            Assert.Equal(0, user.ConnectedClients.Count);
+            Assert.Equal("userId", userId);
+            Assert.Equal((int)UserStatus.Offline, user.Status);
+
+            _repository.Remove(user);
+        }
+
+        //LockRoom tests
+
+
+
+        //  
 
         //rest of functions to test
         public void AddAdmin(ChatUser admin, ChatUser targetUser)
