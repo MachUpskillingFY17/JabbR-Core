@@ -377,7 +377,7 @@ namespace JabbR_Core.Services
             userPreferences.TabOrder.Add(room.Name);
             user.Preferences = userPreferences;
             
-            //REMOVE _openroom
+            //TODO Add back in when cache working -- Clears the cache
             //_cache.RemoveUserInRoom(user, room);
         }
 
