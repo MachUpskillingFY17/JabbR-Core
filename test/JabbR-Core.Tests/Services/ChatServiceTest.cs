@@ -1663,7 +1663,61 @@ namespace JabbR_Core.Tests.Services
 
         }
 
-        //  
+        //  Change Welcome tests
+        [Fact]
+        public void ThrowsIfActingUserIsNotAdmin()
+        {
+            var nonAdmin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = false
+            };
+            var room = new ChatRoom();
+
+            _repository.Add(nonAdmin);
+            _repository.Add(room);
+        
+            Assert.Throws<HubException>(() => chatService.ChangeWelcome(nonAdmin, room, null));
+        }
+
+        [Fact]
+        public void SetsRoomWelcome()
+        {
+            var repository = new InMemoryRepository();
+            var admin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+            var room = new ChatRoom();
+            var welcome = "bar";
+
+            repository.Add(admin);
+            repository.Add(room);
+
+            chatService.ChangeWelcome(admin, room, welcome);
+
+            Assert.Equal(welcome, room.Welcome);
+        }
+
+        [Fact]
+        public void ClearsRoomWelcome()
+        {
+            var repository = new InMemoryRepository();
+            var admin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+            var room = new ChatRoom { Welcome = "bar" };
+
+            repository.Add(admin);
+            repository.Add(room);
+
+            chatService.ChangeWelcome(admin, room, "");
+
+            Assert.True(String.IsNullOrEmpty(room.Welcome));
+        }
 
         //rest of functions to test
         public void AddAdmin(ChatUser admin, ChatUser targetUser)
