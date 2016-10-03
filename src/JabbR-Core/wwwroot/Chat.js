@@ -412,15 +412,7 @@
         }
     };
 
-    //var hasBeenCalled = false;
     chat.client.roomLoaded = function (roomInfo) {
-        //if (!hasBeenCalled) {
-            // In old JabbR this is done by SignalR somewhere behind the scenes?
-            // chat.state.name is just magically set when we enter this function.
-            // Not the case now, so we manually set as early as possible.
-            //chat.client.userNameChanged(roomInfo.Users[0]);
-            //hasBeenCalled = true;
-        //}
         populateRoomFromInfo(roomInfo);
 
         if (roomsToLoad === 1) { 
