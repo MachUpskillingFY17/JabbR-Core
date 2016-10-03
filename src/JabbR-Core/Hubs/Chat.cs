@@ -61,6 +61,10 @@ namespace JabbR_Core.Hubs
             // Accessing _repository variables
             _roomList = _repository.RoomList;
             _lobbyRoomList = _repository.LobbyRoomList;
+
+            //var thing = Context.ConnectionId;
+
+            //this.Context = new Microsoft.AspNetCore.SignalR.Hubs.HubCallerContext();
         }
 
         private string UserAgent
@@ -113,8 +117,7 @@ namespace JabbR_Core.Hubs
         // Why not more specific return type? Like IList<ICommand>?
         public object GetCommands()
         {
-            //return CommandManager.GetCommandsMetaData();
-            return CommandManager.GetCommands();
+            return CommandManager.GetCommandsMetaData();
         }
 
         // More specific return type? Object[]? or cast to Array?

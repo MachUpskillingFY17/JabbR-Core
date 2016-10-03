@@ -1,16 +1,17 @@
 ﻿using Xunit;
 using System;
-using System.Linq;
 using JabbR_Core.Hubs;
-using JabbR_Core.Models;
 using JabbR_Core.ViewModels;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using JabbR_Core.Services;
 using Microsoft.Extensions.Options;
 using JabbR_Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
+
+//using Moq;
+//using Microsoft.AspNetCore.SignalR.Hubs;
+//using System.Dynamic;
 
 namespace JabbR_Core.Tests.Hubs
 {
@@ -41,8 +42,32 @@ namespace JabbR_Core.Tests.Hubs
             _chatService = new ChatService(_cache, _recentMessageCache, _repository);
 
             // Instantiate Chat hub.
-            _chat = new Chat(_repository, _settings, _recentMessageCache, _chatService);
+            //_chat = new Chat(_repository, _settings, _recentMessageCache, _chatService);
         }
+
+        //[Fact]
+        //public void ChatHubIsMockable()
+        //{
+        //    bool sendCalled = false;
+
+        //    _chat = new Chat(_repository, _settings, _recentMessageCache, _chatService);
+
+        //    var mockClients = new Mock<IHubCallerConnectionContext<dynamic>>();
+        //    var mockContext = new Mock<HubCallerContext>();
+            
+
+        //    _chat.Clients = mockClients.Object;
+        //    _chat.Context = mockContext.Object;
+
+        //    dynamic all = new ExpandoObject();
+        //    all.broadcastMessage = new Action<string, string>((name, message) => {
+        //        sendCalled = true;
+        //    });
+
+        //    mockClients.Setup(m => m.All).Returns((ExpandoObject)all);
+        //    _chat.Send("TestContent", "TestRoomname");
+        //    Assert.True(sendCalled);
+        //}
 
         // Use this method at the beginning of tests to make sure that 
         // values in old tests won't impact the current one
@@ -102,6 +127,8 @@ namespace JabbR_Core.Tests.Hubs
         //    Assert.Throws<InvalidOperationException>(() => _chat.LoadRooms());
         //}
 
+
+        // Wouldn't this be better as a repository test?
         [Fact]
         public void AddRoomsVerification()
         {
@@ -119,7 +146,14 @@ namespace JabbR_Core.Tests.Hubs
 
             rooms.Add(room);
 
-            Assert.Contains(room, rooms);
+            Assert.Contains(room, _chat.GetRooms());
         }
+
+        [Fact]
+        public void SendTrue()
+        {
+            Assert.True(_chat.Send("hello", null));
+        }
+
     }
 }
