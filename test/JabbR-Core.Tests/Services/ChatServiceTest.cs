@@ -1695,11 +1695,91 @@ namespace JabbR_Core.Tests.Services
             Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(admin));  
 
             _repository.Remove(admin); 
-        } 
+        }
+
+        // Add Admin tests
+        [Fact]
+        public void ThrowsIfActingUserIsNotAdminAddAdmin()
+        {
+            var nonAdmin = new ChatUser
+            {
+                Name = "foo"
+            };
+            var user = new ChatUser
+            {
+                Name = "foo2"
+            };
+            _repository.Add(nonAdmin);
+            _repository.Add(user);
+
+            Assert.Throws<HubException>(() => chatService.AddAdmin(nonAdmin, user));
+        }
+
+        [Fact]
+        public void MakesUserAdmin()
+        {
+            var admin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+            var user = new ChatUser
+            {
+                Name = "foo2",
+                IsAdmin = false
+            };
+            _repository.Add(admin);
+            _repository.Add(user);
+
+            chatService.AddAdmin(admin, user);
+
+            Assert.True(user.IsAdmin);
+        }
+        
+        // Remove Admin Tests
+        [Fact]
+        public void ThrowsIfActingUserIsNotAdminRemoveAdmin()
+        {
+            var nonAdmin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = false
+            };
+            var user = new ChatUser
+            {
+                Name = "foo2",
+                IsAdmin = true
+            };
+            _repository.Add(nonAdmin);
+            _repository.Add(user);
+
+            Assert.Throws<HubException>(() => chatService.RemoveAdmin(nonAdmin, user));
+        }
+
+        [Fact]
+        public void RemovesUserAdmin()
+        {
+            var admin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+            var user = new ChatUser
+            {
+                Name = "foo2",
+                IsAdmin = true
+            };
+            _repository.Add(admin);
+            _repository.Add(user);
+
+            chatService.RemoveAdmin(admin, user);
+
+            Assert.False(user.IsAdmin);
+        }
 
         //  Change Welcome tests
         [Fact]
-        public void ThrowsIfActingUserIsNotAdmin()
+        public void ThrowsIfActingUserIsNotAdminChangeWelcome()
         {
             var nonAdmin = new ChatUser
             {
