@@ -337,8 +337,7 @@
             });
 
             // Set the amount of rooms to load
-            roomsToLoad = filteredRooms.length;
-
+            roomsToLoad = filteredRooms.length
             populateRooms(filteredRooms);
         };
 

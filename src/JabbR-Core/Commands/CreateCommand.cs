@@ -41,7 +41,7 @@ namespace JabbR_Core.Commands
 
             // Create the room, then join it
             room = context.Service.AddRoom(callingUser, roomName);
-
+            
             context.Service.JoinRoom(callingUser, room, null);
 
             context.Repository.CommitChanges();
