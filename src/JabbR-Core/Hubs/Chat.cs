@@ -8,6 +8,7 @@ using JabbR_Core.Data.Models;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
+using JabbR_Core.Data.Repositories;
 
 namespace JabbR_Core.Hubs
 {

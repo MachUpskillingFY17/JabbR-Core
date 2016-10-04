@@ -30,7 +30,7 @@ namespace JabbR_Core.Tests.Services
             //_options = new DbContextOptions<JabbrContext>();
             //_context = new JabbrContext(_options);
             _repository = new InMemoryRepository();
-            
+
             _recentMessageCache = new RecentMessageCache();
 
             var setups = new List<IConfigureOptions<MemoryCacheOptions>>();
@@ -138,7 +138,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "foo"
             };
             _repository.Add(user);
-           
+
             Assert.Throws<HubException>(() => chatService.AddRoom(user, "Invalid.name"));
             _repository.Remove(user);
         }
@@ -157,9 +157,9 @@ namespace JabbR_Core.Tests.Services
             Assert.NotNull(room);
             Assert.Equal("NewRoom", room.Name);
             Assert.Same(room, _repository.GetRoomByName("NewRoom"));
-            Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).Contains(user));
+            Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).Contains(user));
             Assert.Same(room.CreatorKeyNavigation, user);
-            Assert.True(user.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(user.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
 
             _repository.Remove(user);
         }
@@ -180,8 +180,8 @@ namespace JabbR_Core.Tests.Services
 
             chatService.JoinRoom(user, room, null);
 
-            Assert.True(user.Rooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.True(room.Users.Select(c=>c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.True(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
 
             _repository.Remove(user);
         }
@@ -200,7 +200,8 @@ namespace JabbR_Core.Tests.Services
                 Private = true
             };
 
-            UserRoomAllowed cr = new UserRoomAllowed() {
+            UserRoomAllowed cr = new UserRoomAllowed()
+            {
                 ChatRoomKey = room.Key,
                 ChatUserKey = user.Key,
                 ChatUserKeyNavigation = user,
@@ -282,7 +283,7 @@ namespace JabbR_Core.Tests.Services
 
 
             Assert.Equal((int)UserStatus.Active, user.Status);
-            Assert.Equal(1, clients.Count); 
+            Assert.Equal(1, clients.Count);
             Assert.Equal("client1", clients[0].Id);
             Assert.Same(user, clients[0].UserKeyNavigation);
             Assert.Null(user.AfkNote);
@@ -319,8 +320,8 @@ namespace JabbR_Core.Tests.Services
 
             chatService.LeaveRoom(user, room);
 
-            Assert.False(user.Rooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.False(room.Users.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.False(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
 
             _repository.Remove(user);
             _repository.Remove(room);
@@ -356,7 +357,7 @@ namespace JabbR_Core.Tests.Services
             ChatMessage message = chatService.AddMessage(user, room, Guid.NewGuid().ToString(), "Content");
 
             Assert.NotNull(message);
-            Assert.Same(message, room.ChatMessages.First()); 
+            Assert.Same(message, room.ChatMessages.First());
             Assert.Equal("Content", message.Content);
 
             _repository.Remove(user);
@@ -477,8 +478,8 @@ namespace JabbR_Core.Tests.Services
             chatService.AddOwner(oldOwner, newOwner, room);
 
             // Verify owner was added
-            Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(newOwner));
-            Assert.True(newOwner.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(newOwner));
+            Assert.True(newOwner.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
 
             // Clean up data from the repository
             _repository.Remove(oldOwner);
@@ -540,8 +541,8 @@ namespace JabbR_Core.Tests.Services
             chatService.AddOwner(oldOwner, newOwner, room);
 
 
-            Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(newOwner));
-            Assert.True(newOwner.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(newOwner));
+            Assert.True(newOwner.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
 
             _repository.Remove(oldOwner);
             _repository.Remove(newOwner);
@@ -593,10 +594,10 @@ namespace JabbR_Core.Tests.Services
 
             chatService.AddOwner(oldOwner, allowedUsr, room);
 
-            Assert.True(allowedUsr.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(allowedUsr));
-            Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(allowedUsr));
-            Assert.True(allowedUsr.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(allowedUsr.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(allowedUsr));
+            Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(allowedUsr));
+            Assert.True(allowedUsr.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
 
             _repository.Remove(oldOwner);
             _repository.Remove(allowedUsr);
@@ -638,8 +639,8 @@ namespace JabbR_Core.Tests.Services
 
             chatService.AddOwner(admin, user, room);
 
-            Assert.True(room.Owners.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
-            Assert.True(user.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.True(user.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
 
             _repository.Remove(admin);
             _repository.Remove(user);
@@ -817,11 +818,11 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(cro);
             user.OwnedRooms.Add(cro);
-            
+
             chatService.RemoveOwner(admin, user, room);
 
-            Assert.False(room.Owners.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
-            Assert.False(user.OwnedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.False(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.False(user.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
 
             _repository.Remove(admin);
             _repository.Remove(user);
@@ -908,7 +909,7 @@ namespace JabbR_Core.Tests.Services
             targetUser.Rooms.Add(cr2);
             room.Users.Add(cr);
             room.Users.Add(cr2);
-            
+
             Assert.Throws<HubException>(() => chatService.KickUser(user, targetUser, room));
 
             _repository.Remove(user);
@@ -955,7 +956,7 @@ namespace JabbR_Core.Tests.Services
             room.Owners.Add(cro);
             user.Rooms.Add(cr);
             room.Users.Add(cr);
-            
+
             Assert.Throws<HubException>(() => chatService.KickUser(user, targetUser, room));
             repository.Add(user);
             repository.Add(targetUser);
@@ -1021,7 +1022,7 @@ namespace JabbR_Core.Tests.Services
             targetUser.Rooms.Add(cr2);
             room.Users.Add(cr);
             room.Users.Add(cr2);
-            
+
             Assert.Throws<HubException>(() => chatService.KickUser(user, targetUser, room));
             _repository.Remove(user);
             _repository.Remove(targetUser);
@@ -1091,13 +1092,13 @@ namespace JabbR_Core.Tests.Services
 
             chatService.KickUser(user, targetUser, room);
 
-            Assert.False(targetUser.Rooms.Select(c=>c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.False(room.Users.Select(c=>c.ChatUserKeyNavigation).ToList().Contains(targetUser));
+            Assert.False(targetUser.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(targetUser));
 
             _repository.Remove(user);
             _repository.Remove(targetUser);
         }
-        
+
         [Fact]
         public void AdminCanKickUser()
         {
@@ -1138,17 +1139,17 @@ namespace JabbR_Core.Tests.Services
             user.Rooms.Add(cr);
             room.Users.Add(cr2);
             room.Users.Add(cr);
-            
+
             chatService.KickUser(admin, user, room);
 
-            Assert.False(user.Rooms.Select(c=>c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.False(room.Users.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.False(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
 
             _repository.Remove(admin);
             _repository.Remove(user);
 
         }
-        
+
         [Fact]
         public void DoesNotThrowIfAdminKicksOwner()
         {
@@ -1191,7 +1192,7 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-           
+
             user.OwnedRooms.Add(cro);
             room.Owners.Add(cro);
 
@@ -1200,11 +1201,11 @@ namespace JabbR_Core.Tests.Services
             room.Users.Add(cr2);
             room.Users.Add(cr);
 
-           
+
             chatService.KickUser(admin, user, room);
 
-            Assert.False(user.Rooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.False(room.Users.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.False(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
 
             _repository.Remove(admin);
             _repository.Remove(user);
@@ -1262,11 +1263,11 @@ namespace JabbR_Core.Tests.Services
             creator.Rooms.Add(cr);
             room.Users.Add(cr2);
             room.Users.Add(cr);
-            
+
             chatService.KickUser(admin, creator, room);
 
-            Assert.False(creator.Rooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.False(room.Users.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(creator));
+            Assert.False(creator.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(creator));
 
             _repository.Remove(admin);
             _repository.Remove(creator);
@@ -1371,11 +1372,11 @@ namespace JabbR_Core.Tests.Services
             otherAdmin.Rooms.Add(cr2);
             room.Users.Add(cr);
             room.Users.Add(cr2);
-            
+
             chatService.KickUser(admin, otherAdmin, room);
 
-            Assert.False(otherAdmin.Rooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.False(room.Users.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(otherAdmin));
+            Assert.False(otherAdmin.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(otherAdmin));
 
             _repository.Remove(admin);
             _repository.Remove(otherAdmin);
@@ -1478,8 +1479,8 @@ namespace JabbR_Core.Tests.Services
             chatService.LockRoom(user, room);
 
             Assert.True(room.Private);
-            Assert.True(user.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.True(user.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
 
             _repository.Remove(user);
         }
@@ -1565,12 +1566,12 @@ namespace JabbR_Core.Tests.Services
             user.OwnedRooms.Add(cro);
             user.Rooms.Add(cr);
             room.Users.Add(cr);
-            
+
             chatService.LockRoom(user, room);
 
             Assert.True(room.Private);
-            Assert.True(user.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(user));
+            Assert.True(user.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+            Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
 
             _repository.Remove(user);
         }
@@ -1640,66 +1641,286 @@ namespace JabbR_Core.Tests.Services
                 u.Rooms.Add(ur);
                 _repository.Add(u);
             }
-          
+
             chatService.LockRoom(creator, room);
 
             foreach (var u in users)
             {
-                Assert.True(u.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-                Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(u));
+                Assert.True(u.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+                Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(u));
                 _repository.Remove(u);
-
             }
 
             foreach (var u in offlineUsers)
             {
-                Assert.False(u.AllowedRooms.Select(c=> c.ChatRoomKeyNavigation).ToList().Contains(room));
-                Assert.False(room.AllowedUsers.Select(c=>c.ChatUserKeyNavigation).ToList().Contains(u));
+                Assert.False(u.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+                Assert.False(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(u));
                 _repository.Remove(u);
-
             }
 
             _repository.Remove(room);
 
         }
 
-        [Fact] 
+        [Fact]
         public void LocksRoomIfAdmin()
-        { 
+        {
             var admin = new ChatUser
-            {  
-                Name = "foo",  
-                IsAdmin = true 
-            };  
-            _repository.Add(admin); 
-             
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+            _repository.Add(admin);
+
             var room = new ChatRoom
-            { 
-                Name = "Room" 
-            }; 
+            {
+                Name = "Room"
+            };
 
             UserRoom cr = new UserRoom()
-            { 
-                ChatRoomKey = room.Key, 
-                ChatUserKey = admin.Key, 
-                ChatRoomKeyNavigation = room, 
-                ChatUserKeyNavigation = admin 
-            }; 
-            room.Users.Add(cr); 
-            admin.Rooms.Add(cr);           
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = admin.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = admin
+            };
+            room.Users.Add(cr);
+            admin.Rooms.Add(cr);
 
-            chatService.LockRoom(admin, room);  
+            chatService.LockRoom(admin, room);
 
             Assert.True(room.Private);
             Assert.True(admin.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-            Assert.True(room.AllowedUsers.Select(c=> c.ChatUserKeyNavigation).ToList().Contains(admin));  
+            Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(admin));
 
-            _repository.Remove(admin); 
+            _repository.Remove(admin);
+        }
+
+        // Allow User tests
+        [Fact]
+        public void ThrowsIfRoomNotPrivate()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+
+            var user2 = new ChatUser
+            {
+                Name = "foo2"
+            };
+
+            _repository.Add(user);
+            _repository.Add(user2);
+
+            var room = new ChatRoom
+            {
+                Name = "Room",
+            };
+
+            UserRoomOwner cro = new UserRoomOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            room.Users.Add(cr);
+            user.Rooms.Add(cr);
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+
+            Assert.Throws<HubException>(() => chatService.AllowUser(user, user2, room));
+
+            _repository.Remove(user);
+            _repository.Remove(user2);
+        }
+
+        [Fact]
+        public void ThrowsIfUserIsNotOwnerAllowUserVersion()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            _repository.Add(user);
+
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                Private = true
+            };
+
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+            room.Users.Add(cr);
+            user.Rooms.Add(cr);
+
+            Assert.Throws<HubException>(() => chatService.AllowUser(user, user, room));
+
+            _repository.Remove(user);
+        }
+
+        [Fact]
+        public void ThrowsIfUserIsAlreadyAllowed()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            var user2 = new ChatUser
+            {
+                Name = "foo2"
+            };
+            _repository.Add(user);
+            _repository.Add(user2);
+
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                Private = true
+            };
+
+            //Add relationships
+            UserRoomOwner cro = new UserRoomOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            UserRoomAllowed cra = new UserRoomAllowed()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user2.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user2
+            };
+
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            room.Users.Add(cr);
+            room.AllowedUsers.Add(cra);
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+            user.Rooms.Add(cr);
+            user2.AllowedRooms.Add(cra);
+
+            Assert.Throws<HubException>(() => chatService.AllowUser(user, user2, room));
+
+            _repository.Remove(user);
+            _repository.Remove(user2);
+        }
+
+        [Fact]
+        public void AllowsUserIntoRoom()
+        {
+            var user = new ChatUser
+            {
+                Name = "foo"
+            };
+            var user2 = new ChatUser
+            {
+                Name = "foo2"
+            };
+            _repository.Add(user);
+            _repository.Add(user2);
+
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                Private = true
+            };
+
+            //Add relationships
+            UserRoomOwner cro = new UserRoomOwner()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+            user.Rooms.Add(cr);
+            room.Users.Add(cr);
+
+            chatService.AllowUser(user, user2, room);
+
+            Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user2));
+            Assert.True(user2.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+
+            _repository.Remove(user);
+            _repository.Remove(user2);
+        }
+
+        [Fact]
+        public void AdminCanAllowUserIntoRoom()
+        {
+            var admin = new ChatUser
+            {
+                Name = "foo",
+                IsAdmin = true
+            };
+            _repository.Add(admin);
+            var room = new ChatRoom
+            {
+                Name = "Room",
+                Private = true
+            };
+
+            //add relationship
+            UserRoom cr = new UserRoom()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = admin.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = admin
+            };
+            room.Users.Add(cr);
+            admin.Rooms.Add(cr);
+
+            chatService.AllowUser(admin, admin, room);
+
+            Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(admin));
+            Assert.True(admin.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
+
+            _repository.Remove(admin);
         }
 
         // Unallow user tests
         [Fact]
-        public void ThrowsIfRoomNotPrivate()
+        public void ThrowsIfRoomNotPrivateUnallow()
         {
             // Create two users and add them to the repository
             var user1 = new ChatUser
@@ -1736,7 +1957,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(uro);
             user1.OwnedRooms.Add(uro);
-                
+
             Assert.Throws<HubException>(() => chatService.UnallowUser(user1, user2, room));
 
             // Clean up
@@ -1943,7 +2164,7 @@ namespace JabbR_Core.Tests.Services
         public void ThrowIfOwnerTriesToUnallowOwner()
         {
             // Create two users
-            var user1 = new ChatUser
+            var user1 = new ChatUser()
             {
                 Name = "foo"
             };
@@ -2463,7 +2684,7 @@ namespace JabbR_Core.Tests.Services
 
             Assert.True(user.IsAdmin);
         }
-        
+
         // Remove Admin Tests
         [Fact]
         public void ThrowsIfActingUserIsNotAdminRemoveAdmin()
@@ -2571,7 +2792,7 @@ namespace JabbR_Core.Tests.Services
             throw new NotImplementedException();
         }
 
-   
+
 
         public ChatMessage AddMessage(ChatUser user, ChatRoom room, string id, string content)
         {
@@ -2618,7 +2839,7 @@ namespace JabbR_Core.Tests.Services
             throw new NotImplementedException();
         }
 
-        
+
 
         public void KickUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
         {
@@ -2662,6 +2883,6 @@ namespace JabbR_Core.Tests.Services
             throw new NotImplementedException();
         }
 
-       
+
     }
 }

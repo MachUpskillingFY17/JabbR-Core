@@ -24,25 +24,6 @@ namespace JabbR_Core.Services
             return repository.GetUserByIdentity(providerName, identity);
         }
 
-        public static IQueryable<ChatUser> Online(this IQueryable<ChatUser> source)
-        {
-            return source.Where(u => u.Status != (int)UserStatus.Offline);
-        }
-
-        public static IEnumerable<ChatUser> Online(this IEnumerable<ChatUser> source)
-        {
-            return source.Where(u => u.Status != (int)UserStatus.Offline);
-        }
-
-        public static IEnumerable<ChatUser> Online(this IEnumerable<UserRoom> source)
-        {
-            var users = from s in source
-                        where s.ChatUserKeyNavigation.Status != (int)UserStatus.Offline
-                        select s.ChatUserKeyNavigation;
-
-            return users;
-        }
-
         public static IEnumerable<ChatRoom> Allowed(this IEnumerable<ChatRoom> rooms, string userId)
         {
             return from r in rooms
