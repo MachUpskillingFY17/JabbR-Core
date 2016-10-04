@@ -818,15 +818,16 @@ namespace JabbR_Core.Services
                 throw new HubException(LanguageResources.UnAllow_CreatorRequiredToUnallowOwner);
             }
 
-            // Get the UserRoomAllowed objects and remove it from the room and the user's lists
-            var roomAllowed = targetRoom.AllowedUsers.Where(r => (r.ChatRoomKey == targetRoom.Key) && (r.ChatUserKey == targetUser.Key));
-            var userAllowed = targetUser.AllowedRooms.Where(u => (u.ChatUserKey == targetUser.Key) && (u.ChatRoomKey == targetRoom.Key));
+            // First find the correct relationship in the user and the room
+            var userRelation = targetUser.AllowedRooms.ToList().Find(rm => rm.ChatRoomKeyNavigation == targetRoom);
+            var roomRelation = targetRoom.AllowedUsers.ToList().Find(rm => rm.ChatUserKeyNavigation == targetUser);
 
-            targetRoom.AllowedUsers.Remove(roomAllowed.First());
-            targetUser.AllowedRooms.Remove(userAllowed.First());
+            // Unallow the user
+            targetRoom.AllowedUsers.Remove(userRelation);
+            targetUser.AllowedRooms.Remove(roomRelation);
 
             // Update db 
-            _repository.Remove(roomAllowed.FirstOrDefault());
+            _repository.Remove(userRelation);
 
             // Make the user leave the room
             LeaveRoom(targetUser, targetRoom);
