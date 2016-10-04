@@ -32,6 +32,11 @@ namespace JabbR_Core.Tests.Services
             _repository = new InMemoryRepository(_context);
             _principal = new ClaimsPrincipal();
             _cache = new DefaultCache();
+
+            // For now, Jane is hardcoded as a user in the InMemoryRepository
+            // Remove Jane for consistency in testing
+            var jane = _repository.GetUserByName("Jane");
+            _repository.Remove(jane);
         }
         
         // Tests
@@ -107,10 +112,10 @@ namespace JabbR_Core.Tests.Services
                 Status = (int)UserStatus.Offline
             };
 
-            _repository.Add(userOffline1);
             _repository.Add(userOnline1);
             _repository.Add(userOnline2);
-            
+            _repository.Add(userOffline1);
+
             // Create List<ChatUser> with only "Online" ChatUsers
             var queryableControl = new List<ChatUser>()
             {
@@ -119,7 +124,7 @@ namespace JabbR_Core.Tests.Services
             };
 
             // Test to see if only "Online" users are returned IQueryable.ToList()
-            Assert.Equal(queryableControl, _repository.Users.Online());
+            Assert.Equal(queryableControl, _repository.Users.ToList().Online());
 
             // Clean up
             _repository.Remove(userOnline1);
@@ -152,9 +157,9 @@ namespace JabbR_Core.Tests.Services
                 Status = (int)UserStatus.Offline
             };
 
-            _repository.Add(userOffline1);
             _repository.Add(userOnline1);
             _repository.Add(userOnline2);
+            _repository.Add(userOffline1);
 
             // Create List<ChatUser> with only "Online" ChatUsers
             var queryableControl = new List<ChatUser>()
@@ -164,7 +169,7 @@ namespace JabbR_Core.Tests.Services
             };
 
             // Test to see if only "Online" users are returned IEnum.ToList()
-            Assert.Equal(queryableControl, _repository.Users.ToList().Online(););
+            Assert.Equal(queryableControl, _repository.Users.ToList().Online());
 
             // Clean up
             _repository.Remove(userOnline1);
@@ -192,8 +197,8 @@ namespace JabbR_Core.Tests.Services
             };
 
             // add both rooms to repository
-            _repository.Add(roomPrivate);
             _repository.Add(roomPublic);
+            _repository.Add(roomPrivate);
 
             // create controlList with only public room inside
             var controlList = new List<ChatRoom>()
@@ -221,12 +226,12 @@ namespace JabbR_Core.Tests.Services
 
             roomPrivate.AllowedUsers.Add(allowed);
             user1.AllowedRooms.Add(allowed);
-            
+
             Assert.Equal(controlList, _repository.Rooms.Allowed("123").ToList());
 
             // Clean up
             _repository.Remove(roomPublic);
-            _repository.Remove(roomPublic);
+            _repository.Remove(roomPrivate);
             _repository.Remove(user1);
             roomPrivate.AllowedUsers.Remove(allowed);
             user1.AllowedRooms.Remove(allowed);
