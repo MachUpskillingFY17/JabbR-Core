@@ -460,7 +460,7 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room",
                 CreatorKeyNavigation = oldOwner,
-                Creator_Key = oldOwner.Key
+                CreatorKey = oldOwner.Key
             };
 
             // Now that both the original owner and room have been created, add the owner relationship

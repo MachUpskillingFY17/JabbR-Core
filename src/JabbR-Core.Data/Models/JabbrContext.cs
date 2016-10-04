@@ -124,7 +124,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.Property(e => e.Closed).HasDefaultValueSql("0");
 
-                entity.Property(e => e.Creator_Key);
+                entity.Property(e => e.CreatorKey);
 
                 entity.Property(e => e.InviteCode).HasColumnType("nchar(6)");
 
@@ -142,7 +142,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.CreatorKeyNavigation)
                     .WithMany(p => p.ChatRooms)
-                    .HasForeignKey(d => d.Creator_Key);
+                    .HasForeignKey(d => d.CreatorKey);
             });
 
             modelBuilder.Entity<UserRoom>(entity =>

@@ -155,7 +155,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user1);
 
             // Set the creator key then try to add the room to the repository
-            room1.Creator_Key = _repository.Users.First().Key;
+            room1.CreatorKey = _repository.Users.First().Key;
             _repository.Add(room1);
 
             // Make sure repository returns the correct information
@@ -226,7 +226,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user2);
 
             // Set the creator key and add the chat room to the repository
-            room1.Creator_Key = _repository.Users.First().Key;
+            room1.CreatorKey = _repository.Users.First().Key;
             _repository.Add(room1);
 
             // Add relationship between user and room
@@ -270,7 +270,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user2);
 
             // Set the creator key for the chat room and add it to the repository
-            room1.Creator_Key = _repository.Users.First().Key;
+            room1.CreatorKey = _repository.Users.First().Key;
             _repository.Add(room1);
 
             // Add the two users to the room
@@ -327,7 +327,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user1);
 
             // Set up a new chat room and add it to the repository
-            room1.Creator_Key = _repository.Users.First().Key;
+            room1.CreatorKey = _repository.Users.First().Key;
             _repository.Add(room1);
 
             // Add relationship between user and room
@@ -383,7 +383,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user2);
 
             // Set up a new chat room and add it to the repository
-            room1.Creator_Key = _repository.Users.First().Key;
+            room1.CreatorKey = _repository.Users.First().Key;
             _repository.Add(room1);
 
             // Add relationship between user and room
@@ -476,11 +476,11 @@ namespace JabbR_Core.Tests.Repositories
             var u2Key = _repository.GetUserByName("User 2").Key;
 
             // Set up the rooms's creator key and private attributes then add them to the repository
-            room1.Creator_Key = u1Key;
+            room1.CreatorKey = u1Key;
             room1.Private = true;
             _repository.Add(room1);
         
-            room2.Creator_Key = u1Key;
+            room2.CreatorKey = u1Key;
             room2.Private = true;
             _repository.Add(room2);
 
@@ -531,11 +531,11 @@ namespace JabbR_Core.Tests.Repositories
             var u1Key = _repository.Users.First().Key;
 
             // Set up the rooms's creator key and private attributes then add them to the repository
-            room1.Creator_Key = u1Key;
+            room1.CreatorKey = u1Key;
             room1.Private = true;
             _repository.Add(room1);
 
-            room2.Creator_Key = u1Key;
+            room2.CreatorKey = u1Key;
             room2.Private = true;
             _repository.Add(room2);
 
@@ -585,7 +585,7 @@ namespace JabbR_Core.Tests.Repositories
             var u1Key = _repository.Users.First().Key;
 
             // Set up the rooms's creator key and private attributes then add them to the repository
-            room1.Creator_Key = u1Key;
+            room1.CreatorKey = u1Key;
             _repository.Add(room1);
 
             // Create the UserRoomOwner object that will represent user1 being an owner
