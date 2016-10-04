@@ -19,17 +19,20 @@ namespace JabbR_Core.Tests.Services
         IJabbrRepository _repository;
         ICache _cache;
         IRecentMessageCache _recentMessageCache;
-        JabbrContext _context;
-        DbContextOptions<JabbrContext> _options;
         MemoryCache _memCache;
         IOptions<MemoryCacheOptions> optionsAccessor;
+        JabbrContext _context;
+        DbContextOptionsBuilder<JabbrContext> _options;
 
         public ChatServiceTest()
         {
-            // Set up connection string with local DB
-            //_options = new DbContextOptions<JabbrContext>();
-            //_context = new JabbrContext(_options);
-            _repository = new InMemoryRepository();
+            // Set up the db context and repository
+            _options = new DbContextOptionsBuilder<JabbrContext>();
+            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            _options.UseSqlServer(connection);
+            DbContextOptions<JabbrContext> options = _options.Options;
+            _context = new JabbrContext(options);
+            _repository = new InMemoryRepository(_context);
 
             _recentMessageCache = new RecentMessageCache();
 
@@ -919,7 +922,6 @@ namespace JabbR_Core.Tests.Services
         [Fact]
         public void ThrowsIfTargetUserNotInRoom()
         {
-            var repository = new InMemoryRepository();
             var user = new ChatUser
             {
                 Name = "foo"
@@ -929,9 +931,9 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "foo2"
             };
+            _repository.Add(user);
+            _repository.Add(targetUser);
 
-            repository.Add(user);
-            repository.Add(targetUser);
             var room = new ChatRoom
             {
                 Name = "Room",
@@ -958,9 +960,10 @@ namespace JabbR_Core.Tests.Services
             room.Users.Add(cr);
 
             Assert.Throws<HubException>(() => chatService.KickUser(user, targetUser, room));
-            repository.Add(user);
-            repository.Add(targetUser);
 
+            // Clean up
+            _repository.Add(user);
+            _repository.Add(targetUser);
         }
 
         [Fact]
@@ -2779,110 +2782,5 @@ namespace JabbR_Core.Tests.Services
 
             Assert.True(String.IsNullOrEmpty(room.Welcome));
         }
-
-
-        //rest of functions to test
-        public void AddAdmin(ChatUser admin, ChatUser targetUser)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ChatClient AddClient(ChatUser user, string clientId, string userAgent)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public ChatMessage AddMessage(ChatUser user, ChatRoom room, string id, string content)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddNotification(ChatUser mentionedUser, ChatMessage message, ChatRoom room, bool markAsRead)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AllowUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AppendMessage(string id, string content)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void BanUser(ChatUser callingUser, ChatUser targetUser)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ChangeTopic(ChatUser user, ChatRoom room, string newTopic)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ChangeWelcome(ChatUser user, ChatRoom room, string newWelcome)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CloseRoom(ChatUser user, ChatRoom targetRoom)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string DisconnectClient(string clientId)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public void KickUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public void LockRoom(ChatUser user, ChatRoom targetRoom)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OpenRoom(ChatUser user, ChatRoom targetRoom)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveAdmin(ChatUser admin, ChatUser targetUser)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveOwner(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetInviteCode(ChatUser user, ChatRoom room, string inviteCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UnallowUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UnbanUser(ChatUser admin, ChatUser targetUser)
-        {
-            throw new NotImplementedException();
-        }
-
-
     }
 }

@@ -25,7 +25,8 @@ namespace JabbR_Core.Tests.Hubs
 
         public ChatTest()
         {
-            _chat = new Chat();
+            // These are null now, create instances of repository, etc, for params
+            _chat = new Chat(null, null, null, null);
         }
 
          // Join()
