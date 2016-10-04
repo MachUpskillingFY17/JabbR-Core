@@ -10,14 +10,13 @@ namespace JabbR_Core.Services
     public class InMemoryRepository : IJabbrRepository
     {
         public List<string> ChatRooms { get; set; }
-        //public ChatUser User { get; set; }
         public string RoomNames { get; set; }
         public UserViewModel UserModel { get; set; }
         public ChatClient ChatClient { get; set; }
         public ClientState ClientState { get; set; }
 
         // Mock List for LoadRooms()
-        //public ChatRoom Room { get; set; }
+       
         public List<ChatRoom> RoomList { get; set; }
 
         // Mock List for GetRoom()
