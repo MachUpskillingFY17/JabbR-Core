@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using JabbR_Core.Data.Models;
 
 namespace JabbR_Core.Services
@@ -14,6 +15,7 @@ namespace JabbR_Core.Services
         {
             string key = CacheKeys.GetUserInRoom(user, room);
 
+            // Cache is not implemetned.
             return (bool?)cache.Get(key);
         }
 

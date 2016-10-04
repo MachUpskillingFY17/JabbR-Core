@@ -11,14 +11,13 @@ namespace JabbR_Core.Services
     public class InMemoryRepository : IJabbrRepository
     {
         public List<string> ChatRooms { get; set; }
-        public ChatUser User { get; set; }
         public string RoomNames { get; set; }
         public UserViewModel UserModel { get; set; }
         public ChatClient ChatClient { get; set; }
         public ClientState ClientState { get; set; }
 
         // Mock List for LoadRooms()
-        public ChatRoom Room { get; set; }
+       
         public List<ChatRoom> RoomList { get; set; }
 
         // Mock List for GetRoom()
@@ -28,16 +27,17 @@ namespace JabbR_Core.Services
 
 
         private readonly ICollection<ChatUser> _users;
-        private readonly ICollection<ChatUserIdentity> _identities;
         private readonly ICollection<ChatRoom> _rooms;
+
+        private readonly ICollection<Settings> _settings;
         private readonly ICollection<Attachment> _attachments;
         private readonly ICollection<Notification> _notifications;
-        private readonly ICollection<Settings> _settings;
         private readonly ICollection<UserRoomAllowed> _allowed;
         private readonly ICollection<UserRoomOwner> _owner;
         private readonly ICollection<UserRoom> _userRooms;
+        private readonly ICollection<ChatUserIdentity> _identities;
 
-        public InMemoryRepository()
+        public InMemoryRepository(Data.Models.JabbrContext context)
         {
             /*AJS: UNCOMMENTED THIS AND COMMENTED OUT HARD CODING TO GET TESTS TO WORK*/
             _users = new SafeCollection<ChatUser>();
@@ -50,14 +50,16 @@ namespace JabbR_Core.Services
             _owner = new SafeCollection<UserRoomOwner>();
             _userRooms = new SafeCollection<UserRoom>();
 
-            User = new ChatUser
+            var user = new ChatUser
             {
-                Id= "1",
-                Name = "user1",
+                Id = "1",
+                Name = "Jane",
                 LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
                 IsAdmin = true,
-                IsAfk = true
+                IsAfk = true,
+                Status = 1
             };
+            _users.Add(user);
 
             ChatClient = new ChatClient
             {
@@ -72,24 +74,13 @@ namespace JabbR_Core.Services
             };
 
             // instantiate UserViewModel object from User
-            UserModel = new UserViewModel(User);
+            UserModel = new UserViewModel(user);
 
             // populate ChatRoom and RoomList
-            Room = new ChatRoom { Name = "light_meow" };
-            RoomList = new List<ChatRoom> { Room };
+            RoomList = new List<ChatRoom> { /*room*/ };
 
-            RoomViewModel = new RoomViewModel();
-
-            // populate RoomView
-            LobbyRoomView = new LobbyRoomViewModel
-            {
-                Name = Room.Name,
-                Count = 1,
-                Topic = "jabbr"
-            };
             // Add RoomView to RoomList
-            LobbyRoomList = new List<LobbyRoomViewModel> {  };
-
+            LobbyRoomList = new List<LobbyRoomViewModel> { };
         }
 
         public IQueryable<ChatRoom> Rooms { get { return _rooms.AsQueryable(); } }
@@ -115,6 +106,7 @@ namespace JabbR_Core.Services
 
         public void Add(ChatRoom room)
         {
+            RoomList.Add(room);
             _rooms.Add(room);
         }
 

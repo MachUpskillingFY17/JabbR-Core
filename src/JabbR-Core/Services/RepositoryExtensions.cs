@@ -84,6 +84,7 @@ namespace JabbR_Core.Services
 
         public static ChatRoom VerifyRoom(this IJabbrRepository repository, string roomName, bool mustBeOpen = true)
         {
+
             if (String.IsNullOrWhiteSpace(roomName))
             {
                 throw new HubException(LanguageResources.RoomNameCannotBeBlank);

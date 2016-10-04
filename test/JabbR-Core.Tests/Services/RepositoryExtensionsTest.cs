@@ -7,6 +7,7 @@ using JabbR_Core.Data.Models;
 using JabbR_Core.Data.Repositories;
 using System.Security.Claims;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace JabbR_Core.Tests.Services
 {
@@ -16,10 +17,19 @@ namespace JabbR_Core.Tests.Services
         private readonly ClaimsPrincipal _principal;
         private IQueryable<ChatUser> _queryableChatUser;
         private readonly ICache _cache;
+        JabbrContext _context;
+        DbContextOptionsBuilder<JabbrContext> _options;
 
         public RepositoryExtensionsTest()
         {
-            _repository = new InMemoryRepository();
+            // Set up the db context
+            _options = new DbContextOptionsBuilder<JabbrContext>();
+            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            _options.UseSqlServer(connection);
+            DbContextOptions<JabbrContext> options = _options.Options;
+            _context = new JabbrContext(options);
+
+            _repository = new InMemoryRepository(_context);
             _principal = new ClaimsPrincipal();
             _cache = new DefaultCache();
         }
@@ -154,7 +164,7 @@ namespace JabbR_Core.Tests.Services
             };
 
             // Test to see if only "Online" users are returned IEnum.ToList()
-            Assert.Equal(queryableControl, _repository.Users.ToList().Online());
+            Assert.Equal(queryableControl, _repository.Users.ToList().Online(););
 
             // Clean up
             _repository.Remove(userOnline1);
