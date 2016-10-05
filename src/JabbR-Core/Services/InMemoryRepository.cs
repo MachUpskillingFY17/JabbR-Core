@@ -10,14 +10,13 @@ namespace JabbR_Core.Services
     public class InMemoryRepository : IJabbrRepository
     {
         public List<string> ChatRooms { get; set; }
-        //public ChatUser User { get; set; }
         public string RoomNames { get; set; }
         public UserViewModel UserModel { get; set; }
         public ChatClient ChatClient { get; set; }
         public ClientState ClientState { get; set; }
 
         // Mock List for LoadRooms()
-        //public ChatRoom Room { get; set; }
+       
         public List<ChatRoom> RoomList { get; set; }
 
         // Mock List for GetRoom()
@@ -72,21 +71,8 @@ namespace JabbR_Core.Services
             UserModel = new UserViewModel(user);
 
             // populate ChatRoom and RoomList
-            //var room = new ChatRoom { Name = "light_meow1" };
             RoomList = new List<ChatRoom> { /*room*/ };
 
-            // this viewmodel isn't used
-            //RoomViewModel = new RoomViewModel();
-
-            //_rooms.Add(room);
-
-            // populate RoomView
-            //LobbyRoomView = new LobbyRoomViewModel
-            //{
-            //    Name = room.Name,
-            //    Count = 1,
-            //    Topic = "jabbr"
-            //};
             // Add RoomView to RoomList
             LobbyRoomList = new List<LobbyRoomViewModel> { };
         }

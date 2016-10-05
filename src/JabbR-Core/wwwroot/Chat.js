@@ -202,8 +202,7 @@
     }
 
     function getUserViewModel(user, isOwner) {
-        //var lastActive = user.lastActivity.fromJsonDate();
-        var lastActive = "2016-08-23 00:26:35.713";
+        var lastActive = user.LastActivity.fromJsonDate();
         return {
             name: user.Name,
             hash: user.Hash,
@@ -413,15 +412,7 @@
         }
     };
 
-    //var hasBeenCalled = false;
     chat.client.roomLoaded = function (roomInfo) {
-        //if (!hasBeenCalled) {
-            // In old JabbR this is done by SignalR somewhere behind the scenes?
-            // chat.state.name is just magically set when we enter this function.
-            // Not the case now, so we manually set as early as possible.
-            //chat.client.userNameChanged(roomInfo.Users[0]);
-            //hasBeenCalled = true;
-        //}
         populateRoomFromInfo(roomInfo);
 
         if (roomsToLoad === 1) { 
@@ -920,6 +911,7 @@
             ui.removeRoom(room);
         }
         else {
+
             ui.removeUser(user, room);
             ui.addNotification(utility.getLanguageResource('Chat_UserLeftRoom', user.Name, room), room);
         }
@@ -1164,11 +1156,6 @@
 
    $ui.bind(ui.events.openRoom, function (ev, room) {
         try {
-            //chat.state.activeRoom = 'Lobby';
-            connection.hub.log('room: ' + room);
-            connection.hub.log('activeroom: ' + chat.state.activeRoom);
-
-            //chat.state.activeRoom = 'Lobby';
             chat.server.send('/join ' + room, chat.state.activeRoom)
                     .fail(function (e) {
                         ui.setActiveRoom('Lobby');

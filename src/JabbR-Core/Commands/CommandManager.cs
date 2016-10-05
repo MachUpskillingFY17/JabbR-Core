@@ -131,37 +131,18 @@ namespace JabbR_Core.Commands
             return true;
         }
 
-        //private void MatchCommand(string commandName, out ICommand command)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
         public void MatchCommand(string commandName, out ICommand command)
         {
             if (_commandCache == null)
             {
-                //foreach (var c in _commands.Value.ToList())
-                //{
-
-                //    var typeStuff = c.GetType().GetTypeInfo().GetCustomAttributes<CommandAttribute>();
-                //    Debug.WriteLine(typeStuff);
-
-                //}
-
-                //Regex regex = new Regex("Commands.(.*?)Command");
-                var commands = from c in _commands.Value
+               var commands = from c in _commands.Value
                                let commandAttribute = c.GetType().GetTypeInfo().GetCustomAttributes<CommandAttribute>()
-                                                       //.GetCustomAttributes()
-                                                       //.OfType<CommandAttribute>()
                                                        .FirstOrDefault()
                                where commandAttribute != null
                                select new
                                {
                                    Name = commandAttribute.CommandName,
-                                   //Name = regex.Match(c.ToString()).ToString().Replace("Commands.","").Replace("Command",""),
-                                   //Name = "join",
-
+                                   
                                    Command = c
                                };
 

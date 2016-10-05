@@ -118,14 +118,14 @@
                 <div id="preferences" class="navbar account pull-right">
                     <div class="navbar-inner">
                         <ul class="nav">
-                            <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_self"><i class="icon-comments"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
+                            <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_self"><i class="icon-comment"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
                             <li><a class="" title="@LanguageResources.Client_AccountSettings" href="@Url.Content("~/account")" target="_self"><i class="icon-user"></i></a></li>
                             @if (Model.IsAdmin)
                             {
                                 <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_self"><i class="icon-cog"></i></a></li>
                             }
                             <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
-                            <li><a class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-signout"></i></a></li>
+                            <li><a class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-arrow-right"></i></a></li>
                         </ul>
                     </div>
                 </div>

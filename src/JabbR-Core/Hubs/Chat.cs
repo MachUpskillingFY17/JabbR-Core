@@ -87,12 +87,13 @@ namespace JabbR_Core.Hubs
         public void Join(bool reconnecting)
         {
             // Get the client state
-            // var userId = _user.Id;
             var userId = Context.User.GetUserId();
 
             // Try to get the user from the client state
-            //ChatUser user = _user;
             ChatUser user = _repository.GetUserById(userId);
+            
+            //remove
+            Clients.Caller.userNameChanged(user);
 
             // This function is being manually called here to establish
             // your identity to SignalR and update the UI to match. In 
@@ -111,11 +112,24 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
+            string userId = Context.User.GetUserId();
+            ChatUser user = _repository.VerifyUserId(userId);
+
+            var room = new LobbyRoomViewModel
+            {
+                Name = user.Name,
+                Count = '1',
+                //    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
+                Private = _lobbyRoom.Private,
+                Closed = _lobbyRoom.Closed,
+                Topic = _lobbyRoom.Topic
+            };
+
+            _lobbyRoomList.Add(_lobbyRoom);
             return _lobbyRoomList;
         }
 
-        // Why not more specific return type? Like IList<ICommand>?
-        public object GetCommands()
+        public IEnumerable<CommandMetaData> GetCommands()
         {
             return CommandManager.GetCommandsMetaData();
         }
@@ -144,7 +158,6 @@ namespace JabbR_Core.Hubs
                 }
 
                 RoomViewModel roomInfo = null;
-
                 while (true)
                 {
                     try
@@ -209,7 +222,6 @@ namespace JabbR_Core.Hubs
 
         public bool Send(ClientMessage clientMessage, bool testing = false)
         {
-
             CheckStatus(testing);
 
             //reject it if it's too long
@@ -225,16 +237,11 @@ namespace JabbR_Core.Hubs
             }
 
             var userId = Context.User.GetUserId();
-            //var userId = _user.Id;
 
             ChatUser user = _repository.VerifyUserId(userId);
 
             // this line breaks when we message in a new room
             ChatRoom room = _repository.VerifyUserRoom(_cache, user, clientMessage.Room);
-
-
-            //ChatUser user = _user;
-            //ChatRoom room = _room;
 
             if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
             {
@@ -320,8 +327,6 @@ namespace JabbR_Core.Hubs
         {
             string clientId = Context.ConnectionId;
             string userId = Context.User.GetUserId();
-            //string userId = _user.Id;
-
             var commandManager = new CommandManager(clientId, UserAgent, userId, room, _chatService, _repository, _cache, this);
             return commandManager.TryHandleCommand(command);
 
@@ -344,7 +349,6 @@ namespace JabbR_Core.Hubs
             // Tell all clients to join this room
             Clients.User(user.Id).joinRoom(roomViewModel);
 
-            //Clients.Caller.joinRoom()
             // Tell the people in this room that you've joined
             Clients.Group(room.Name).addUser(userViewModel, room.Name, isOwner);
 
@@ -357,66 +361,8 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        //void JoinRoom(ChatUser user, ChatRoom room)
-        //{
-        //    var userViewModel = new UserViewModel(user);
-        //    var roomViewModel = new RoomViewModel
-        //    {
-        //        Name = room.Name,
-        //        Private = room.Private,
-        //        Welcome = room.Welcome ?? String.Empty,
-        //        Closed = room.Closed
-        //    };
-
-        //    var isOwner = user.OwnedRooms.Contains(room);
-
-        //     Tell all clients to join this room
-        //    Clients.User(user.Id).joinRoom(roomViewModel);
-
-        //     Tell the people in this room that you've joined
-        //    Clients.Group(room.Name).addUser(userViewModel, room.Name, isOwner);
-
-        //     Notify users of the room count change
-        //    OnRoomChanged(room);
-
-        //    foreach (var client in user.ConnectedClients)
-        //    {
-        //        Groups.Add(client.Id, room.Name);
-        //    }
-        //}
-
-        //public void JoinRoom(ChatUser user, ChatRoom room, string inviteCode)
-        //{
-           
-        //    // Throw if the room is private but the user isn't allowed
-        //    if (room.Private)
-        //    {
-        //        // First, check if the invite code is correct
-        //        if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
-        //        {
-        //            // It is, add the user to the allowed users so that future joins will work
-        //            room.AllowedUsers.Add(user);
-        //        }
-
-        //        if (!room.IsUserAllowed(user))
-        //        {
-        //            throw new HubException(String.Format(LanguageResources.Join_LockedAccessPermission, room.Name));
-        //        }
-        //    }
-
-        //    // Add this user to the room
-        //    _repository.AddUserRoom(user, room);
-
-        //    ChatUserPreferences userPreferences = user.Preferences;
-        //    userPreferences.TabOrder.Add(room.Name);
-        //    user.Preferences = userPreferences;
-
-        //    // Clear the cache
-        //    _cache.RemoveUserInRoom(user, room);
-           
-        //}
-
-        public async Task<RoomViewModel> GetRoomInfo(string roomName)
+        
+        public Task<RoomViewModel> GetRoomInfo(string roomName)
         {
             if (string.IsNullOrEmpty(roomName))
             {
@@ -424,13 +370,11 @@ namespace JabbR_Core.Hubs
             }
 
             string userId = Context.User.GetUserId();
-            //string userId = _user.Id;
+            
             ChatUser user = _repository.VerifyUserId(userId);
-            //ChatUser user = _user;
-
+            
             ChatRoom room = _repository.GetRoomByName(roomName);
-            //ChatRoom room = _room;
-
+            
             if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
             {
                 return null;
@@ -481,20 +425,7 @@ namespace JabbR_Core.Hubs
                 Closed = room.Closed
                 
             };
-            //_roomViewModel.RecentMessages = recentMessages;
-            //return _roomViewModel;
-            //return new RoomViewModel
-            //{
-            //    Name = room.Name,
-            //    Users = from u in onlineUsers
-            //            select new UserViewModel(u),
-            //    Owners = from u in room.Owners.Online()
-            //             select u.Name,
-            //    RecentMessages = recentMessages,
-            //    Topic = room.Topic ?? String.Empty,
-            //    Welcome = room.Welcome ?? String.Empty,
-            //    Closed = room.Closed
-            //};
+            
         }
 
 
@@ -775,12 +706,17 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.LeaveRoom(ChatUser user, ChatRoom room)
         {
+
             LeaveRoom(user, room);
         }
 
         private void LeaveRoom(ChatUser user, ChatRoom room)
         {
             var userViewModel = new UserViewModel(user);
+            
+            //TODO Remove explicit hub call
+            Clients.Caller.leave(userViewModel, room.Name);
+
             Clients.Group(room.Name).leave(userViewModel, room.Name);
 
             foreach (var client in user.ConnectedClients)
