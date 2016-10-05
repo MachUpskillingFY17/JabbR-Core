@@ -56,15 +56,10 @@ namespace JabbR_Core.Hubs
             _settings = settings.Value;
 
             // Not instantiated with DI, set here
-            //_chatService.Settings = _settings;
 
             // Accessing _repository variables
             _roomList = _repository.RoomList;
             _lobbyRoomList = _repository.LobbyRoomList;
-
-            //var thing = Context.ConnectionId;
-
-            //this.Context = new Microsoft.AspNetCore.SignalR.Hubs.HubCallerContext();
         }
 
         private string UserAgent
@@ -112,20 +107,26 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            string userId = Context.User.GetUserId();
-            ChatUser user = _repository.VerifyUserId(userId);
+            /***********************************************************************/
+            // We should not be inserting a new room every time we call GetRooms(),
+            // when the repository is setup correctly this results in duplicates being 
+            // added very frequently. Leaving here for visibility (for now)
+            //
+            //string userId = Context.User.GetUserId();
+            //ChatUser user = _repository.VerifyUserId(userId);
 
-            var room = new LobbyRoomViewModel
-            {
-                Name = user.Name,
-                Count = '1',
-                //    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
-                Private = _lobbyRoom.Private,
-                Closed = _lobbyRoom.Closed,
-                Topic = _lobbyRoom.Topic
-            };
+            ////    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
+            //var room = new LobbyRoomViewModel
+            //{
+            //    Name = user.Name,
+            //    Count = '1',
+            //    Private = _lobbyRoom.Private,
+            //    Closed = _lobbyRoom.Closed,
+            //    Topic = _lobbyRoom.Topic
+            //};
+            //_lobbyRoomList.Add(_lobbyRoom);
+            /***********************************************************************/
 
-            _lobbyRoomList.Add(_lobbyRoom);
             return _lobbyRoomList;
         }
 
@@ -380,7 +381,7 @@ namespace JabbR_Core.Hubs
                 return null;
             }
 
-            return await GetRoomInfoCore(room);
+            return GetRoomInfoCore(room);
             //return new Task<RoomViewModel>(() => thing);
         }
 
@@ -403,31 +404,20 @@ namespace JabbR_Core.Hubs
 
                 _recentMessageCache.Add(room.Name, recentMessages);
             }
-            //REMOVE AND CHANGEEEEE
-            ////Get online users through the repository
-            //List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
 
-
-            // when you remove the async tag
-            //return new Task<RoomViewModel>(() => new RoomViewModel
-            //return new Task<RoomViewModel>(() => new RoomViewModel
             return new RoomViewModel
             {
                 Name = room.Name,
                 Users = from u in _repository.Users
                         select new UserViewModel(u),
-                //Owners = from u in room.Owners.Online()
-                //         select u.Name,
-                Owners = from u in room.Owners select u.Name,
+                Owners = from u in room.Owners
+                         select u.Name,
                 RecentMessages = recentMessages,
                 Topic = room.Topic ?? string.Empty,
                 Welcome = room.Welcome ?? String.Empty,
                 Closed = room.Closed
-                
             };
-            
         }
-
 
         void INotificationService.LogOn(ChatUser user, string clientId)
         {

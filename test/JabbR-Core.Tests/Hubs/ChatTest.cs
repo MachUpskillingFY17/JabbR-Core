@@ -104,7 +104,7 @@ namespace JabbR_Core.Tests.Hubs
         public void GetCommandsNotNullNotEmpty()
         {
             Assert.NotEqual(null, _chat.GetCommands());
-            Assert.NotEmpty((IEnumerable)_chat.GetCommands());
+            Assert.NotEmpty(_chat.GetCommands());
         }
 
         [Fact]
