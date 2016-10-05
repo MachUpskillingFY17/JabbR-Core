@@ -15,8 +15,9 @@ namespace JabbR_Core.Services
         {
             string key = CacheKeys.GetUserInRoom(user, room);
 
-            // Cache is not implemetned.
-            return (bool?)cache.Get(key);
+            // Cache is not implemetned, return true for now
+            //return (bool?)cache.Get(key);
+            return true;
         }
 
         public static void SetUserInRoom(this ICache cache, ChatUser user, ChatRoom room, bool value)

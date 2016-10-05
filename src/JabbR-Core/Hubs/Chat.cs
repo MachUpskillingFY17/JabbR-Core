@@ -117,7 +117,9 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            string userId = Context.User.GetUserId();
+            // This is adding a new room to the lobby every time getrooms is called (ex. when the page is refreshed)
+            // Can be deleted
+            /*string userId = Context.User.GetUserId();
             ChatUser user = _repository.VerifyUserId(userId);
 
             var room = new LobbyRoomViewModel
@@ -130,7 +132,7 @@ namespace JabbR_Core.Hubs
                 Topic = _lobbyRoom.Topic
             };
 
-            _lobbyRoomList.Add(_lobbyRoom);
+            _lobbyRoomList.Add(_lobbyRoom);*/
             return _lobbyRoomList;
         }
 
