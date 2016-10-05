@@ -184,16 +184,16 @@ namespace JabbR_Core.Commands
         public static IList<ICommand> GetCommands()
         {
             
-            IEnumerable<ICommand> commandsList = typeof(CommandManager).GetType().GetTypeInfo().Assembly.GetExportedTypes()
+         /*   IEnumerable<ICommand> commandsList = typeof(CommandManager).GetType().GetTypeInfo().Assembly.GetExportedTypes()
                 .Where(t => t.GetType().GetTypeInfo().IsSubclassOf(typeof(ICommand)))
                 .Select(t => (ICommand)Activator.CreateInstance(t));
-            return commandsList.ToList();
+            return commandsList.ToList();*/
           
             // Use MEF to locate the content providers in this assembly
             //var catalog = new AssemblyCatalog(typeof(CommandManager).Assembly);
             //var compositionContainer = new CompositionContainer(catalog);
             //return compositionContainer.GetExportedValues<ICommand>().ToList();
-            //return new List<ICommand>() { new JoinCommand(), new OpenCommand(), new CreateCommand(), new LeaveCommand(), new CloseCommand() };
+            return new List<ICommand>() { new JoinCommand(), new OpenCommand(), new CreateCommand(), new LeaveCommand(), new CloseCommand(), new ListCommand() };
         }
 
         public static IEnumerable<CommandMetaData> GetCommandsMetaData()
