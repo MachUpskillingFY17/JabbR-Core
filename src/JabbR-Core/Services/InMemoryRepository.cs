@@ -68,7 +68,7 @@ namespace JabbR_Core.Services
             UserModel = new UserViewModel(user);
 
             // populate ChatRoom and RoomList
-            var room = new ChatRoom { Name = "light_meow" };
+            var room = new ChatRoom { Name = "light_meow" , Users = _users};
             RoomList = new List<ChatRoom> { room };
 
             RoomViewModel = new RoomViewModel();
