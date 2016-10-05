@@ -354,6 +354,10 @@ namespace JabbR_Core.Services
 
             user.OwnedRooms.Add(room);
 
+            Debug.WriteLine(name);
+            Debug.WriteLine(user.Name);
+            Debug.WriteLine(user.Id);
+
             return room;
         }
 

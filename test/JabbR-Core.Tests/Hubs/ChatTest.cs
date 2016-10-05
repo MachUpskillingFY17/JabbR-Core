@@ -9,8 +9,16 @@ using JabbR_Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 
-//using Moq;
-//using Microsoft.AspNetCore.SignalR.Hubs;
+using Moq;
+using Microsoft.AspNetCore.SignalR.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using System.Security.Principal;
+using Microsoft.AspNetCore.Http;
+using JabbR_Core.Controllers;
+using Microsoft.AspNetCore.Builder.Internal;
+using System.Threading.Tasks;
+using System.Security.Claims;
+using JabbR_Core.Infrastructure;
 //using System.Dynamic;
 
 namespace JabbR_Core.Tests.Hubs
@@ -21,53 +29,75 @@ namespace JabbR_Core.Tests.Hubs
 
         private ICache _cache;
         private JabbrContext _context;
-        private IChatService _chatService;
+        private ChatService _chatService;
         private InMemoryRepository _repository;
         private IRecentMessageCache _recentMessageCache;
-        private IOptions<ApplicationSettings> _settings;
+        //private IOptions<ApplicationSettings> _settings;
+        private OptionsManager<ApplicationSettings> _settings;
+
+        public Action Convert(Action<HttpContext> action, HttpContext context)
+        {
+            if (action == null) return null;
+            return new Action(() => { action(obj: context); });
+        }
+
+        public Task MyThing(HttpContext context)
+        {
+            HttpContext c;
+            return new Task(() => c = context);
+        }
 
         public ChatTest()
         {
             // Fetch new instances of the required objects
             GetCleanRepository();
 
-            // Settings
+            _cache = new DefaultCache();
+            _recentMessageCache = new RecentMessageCache();
             _settings = new OptionsManager<ApplicationSettings>(new List<IConfigureOptions<ApplicationSettings>>() { });
 
-            // Cache
-            _recentMessageCache = new RecentMessageCache();
-            _cache = new DefaultCache();
-
-            // Chat Service
             _chatService = new ChatService(_cache, _recentMessageCache, _repository);
 
-            // Instantiate Chat hub.
-            //_chat = new Chat(_repository, _settings, _recentMessageCache, _chatService);
-        }
+            var request = new Mock<HttpRequest>();
+            var connection = new Mock<IConnection>();
+            var pipeline = new Mock<IHubPipelineInvoker>();
+            var connectionId = "79482a87-8d16-42bc-b5ce-1fb7b309ad1e";
 
-        //[Fact]
-        //public void ChatHubIsMockable()
-        //{
-        //    bool sendCalled = false;
+            var chat = new TestableChat(_repository, _settings, _chatService, connection);
 
-        //    _chat = new Chat(_repository, _settings, _recentMessageCache, _chatService);
+            chat.Clients = new HubConnectionContext(pipeline.Object, chat.MockConnection.Object, "Chat", connectionId);
 
-        //    var mockClients = new Mock<IHubCallerConnectionContext<dynamic>>();
-        //    var mockContext = new Mock<HubCallerContext>();
             
+            // Include required claims with request for authentication
+            var claims = new List<Claim>();
+            claims.Add(new Claim(ClaimTypes.Name, "James"));
+            claims.Add(new Claim(ClaimTypes.AuthenticationMethod, "provider"));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, "identity"));
+            claims.Add(new Claim(ClaimTypes.Email, "james@no.com"));
+            claims.Add(new Claim(JabbRClaimTypes.Identifier, "2"));
 
-        //    _chat.Clients = mockClients.Object;
-        //    _chat.Context = mockContext.Object;
+            var claimsIdentity = new ClaimsIdentity(claims, Constants.JabbRAuthType);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        //    dynamic all = new ExpandoObject();
-        //    all.broadcastMessage = new Action<string, string>((name, message) => {
-        //        sendCalled = true;
-        //    });
+            Models.ChatUser user = new Models.ChatUser()
+            {
+                Name = "James",
+                Email = "james@no.com",
+                Id = "2",
+                Identity = claimsIdentity.ToString()
+            };
 
-        //    mockClients.Setup(m => m.All).Returns((ExpandoObject)all);
-        //    _chat.Send("TestContent", "TestRoomname");
-        //    Assert.True(sendCalled);
-        //}
+            _repository.Add(user);
+
+            request.Setup(r => r.Cookies).Returns(new Mock<IRequestCookieCollection>().Object);
+            request.Setup(r => r.HttpContext.User).Returns(claimsPrincipal);
+
+            // Connection ID taken from actual JabbR-Core instance.
+            chat.Context = new HubCallerContext(request.Object, connectionId);
+            
+            // Instantiate Chat hub.
+            _chat = chat;
+        }
 
         // Use this method at the beginning of tests to make sure that 
         // values in old tests won't impact the current one
@@ -100,11 +130,11 @@ namespace JabbR_Core.Tests.Hubs
         }
 
         // Context is null when called from external Hub, cannot test yet.
-        //[Fact]
-        //public void UpdateActivitySomething()
-        //{
-        //    _chat.UpdateActivity();
-        //}
+        [Fact]
+        public void UpdateAcivityNoException()
+        {
+            _chat.UpdateActivity(testing: true);
+        }
 
         // This throws an InvalidOperationException because actions that send through
         // SignalR hubs that are not instantiated in the SignalR pipeline are forbidden
@@ -150,10 +180,29 @@ namespace JabbR_Core.Tests.Hubs
         }
 
         [Fact]
-        public void SendTrue()
+        public void CreateRoomSendTrue()
         {
-            Assert.True(_chat.Send("hello", null));
+            Assert.True(_chat.Send("/create MyRoom", null, testing: true));
         }
 
+    }
+
+    public class TestableChat : Chat
+    {
+        public IJabbrRepository Repository { get; set; }
+        public ChatService ChatService { get; set; }
+        public Mock<IConnection> MockConnection { get; set; }
+        public OptionsManager<ApplicationSettings> Settings { get; set; }
+        //public OptionsManager<ApplicationSettings> Settings = new OptionsManager<ApplicationSettings>(new List<IConfigureOptions<ApplicationSettings>>() { });
+
+
+        public TestableChat(IJabbrRepository repository, OptionsManager<ApplicationSettings> settings, ChatService chatService, Mock<IConnection> mockConnection) 
+            : base(repository, settings, new Mock<RecentMessageCache>().Object, chatService)
+        {
+            Repository = repository;
+            ChatService = chatService;
+            MockConnection = mockConnection;
+            Settings = settings;
+        }
     }
 }

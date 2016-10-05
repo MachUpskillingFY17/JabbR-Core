@@ -32,7 +32,7 @@ namespace JabbR_Core.Hubs
         private readonly LobbyRoomViewModel _lobbyRoom;
 
         private readonly ILogger _logger;
-        private readonly ChatService _chatService;
+        private readonly IChatService _chatService;
         private readonly List<ChatRoom> _roomList;
         private readonly ApplicationSettings _settings;
         private readonly InMemoryRepository _repository;
@@ -51,12 +51,12 @@ namespace JabbR_Core.Hubs
         {
             // Request the injected object instances
             _repository = (InMemoryRepository)repository;
-            _chatService = (ChatService)chatService;
+            _chatService = chatService;
             _recentMessageCache = (RecentMessageCache)recentMessageCache;
             _settings = settings.Value;
 
             // Not instantiated with DI, set here
-            _chatService.Settings = _settings;
+            //_chatService.Settings = _settings;
 
             // Accessing _repository variables
             _roomList = _repository.RoomList;
@@ -162,10 +162,11 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        //public void UpdateActivity()
-        //{
-        //    UpdateActivity(_user, _room);
-        //}
+        public void UpdateActivity(bool testing)
+        {
+            UpdateActivity();
+            CheckStatus(testing);
+        }
         public void UpdateActivity()
         {
             string userId = Context.User.GetUserId();
@@ -176,8 +177,6 @@ namespace JabbR_Core.Hubs
             {
                 UpdateActivity(user, room);
             }
-
-            CheckStatus();
         }
 
         private void UpdateActivity(ChatUser user, ChatRoom room)
@@ -200,7 +199,7 @@ namespace JabbR_Core.Hubs
             _repository.CommitChanges();
         }
 
-        public bool Send(string content, string roomName)
+        public bool Send(string content, string roomName, bool testing)
         {
             var message = new ClientMessage
             {
@@ -209,10 +208,22 @@ namespace JabbR_Core.Hubs
             };
 
 
-            return Send(message);
+            return Send(message, testing);
         }
 
-        public bool Send(ClientMessage clientMessage)
+        public bool Send(string content, string roomName)
+        {
+            var message = new ClientMessage
+            {
+                Content = content,  // '/join light_meow'
+                Room = roomName,    // 'Lobby'
+            };
+
+            // Not testing if unspecified
+            return Send(message, false);
+        }
+
+        public bool Send(ClientMessage clientMessage, bool testing)
         {
             //ChatUser user = _repository.;
             //ChatRoom room = _room;
@@ -221,7 +232,7 @@ namespace JabbR_Core.Hubs
             //Clients.Caller.joinRoom(user, room, new object());
             //GetRoomInfo(room.Name);
 
-            CheckStatus();
+            CheckStatus(testing);
 
             //reject it if it's too long
             if (_settings.MaxMessageLength > 0 && clientMessage.Content.Length > _settings.MaxMessageLength)
@@ -301,6 +312,14 @@ namespace JabbR_Core.Hubs
             //}
 
             return true;
+        }
+
+        private void CheckStatus(bool testing)
+        {
+            if(!testing)
+            {
+                CheckStatus();
+            }
         }
 
         private void CheckStatus()
