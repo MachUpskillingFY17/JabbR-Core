@@ -29,7 +29,8 @@ namespace JabbR_Core.Tests.Hubs
         public ChatTest()
         {
             // Fetch new instances of the required objects
-            GetCleanRepository();
+            _context = new JabbrContext(new DbContextOptions<JabbrContext>());
+            _repository = new InMemoryRepository(_context);
 
             _cache = new DefaultCache();
             _recentMessageCache = new RecentMessageCache();
@@ -82,15 +83,6 @@ namespace JabbR_Core.Tests.Hubs
             
             // Instantiate Chat hub.
             _chat = chat;
-        }
-
-        // Use this method at the beginning of tests to make sure that 
-        // values in old tests won't impact the current one
-        public void GetCleanRepository()
-        {
-            // Repository
-            _context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            _repository = new InMemoryRepository(_context);
         }
 
         // Tests
@@ -147,8 +139,6 @@ namespace JabbR_Core.Tests.Hubs
         [Fact]
         public void AddRoomsVerification()
         {
-            GetCleanRepository();
-
             var rooms = _chat.GetRooms();
 
             Assert.Empty(rooms);
@@ -165,10 +155,170 @@ namespace JabbR_Core.Tests.Hubs
         }
 
         [Fact]
-        public void CreateRoomSendTrue()
+        public void CreateRoomReturnsTrue()
         {
             Assert.True(_chat.Send("/create MyRoom", null, testing: true));
         }
+
+        [Fact]
+        public void CreateRoomExceptionAlreadyExists()
+        {
+            _chat.Send("/create MyRoom", null, testing: true);
+
+            Assert.Throws<HubException>(() => _chat.Send("/create MyRoom", null, testing: true));
+        }
+
+        [Fact]
+        public void LeaveRoomReturnsTrue()
+        {
+            // Must create and join room before leaving it
+            _chat.Send("/create MyRoom", null, testing: true);
+
+            Assert.True(_chat.Send("/leave MyRoom", null, testing: true));
+        }
+
+        [Fact]
+        public void LeaveRoomExceptionDoesNotExist()
+        {
+            // Must create and join room before leaving it
+            _chat.Send("/create MyRoom", null, testing: true);
+
+            Assert.Throws<HubException>(() => _chat.Send("/leave AnotherRoom", null, testing: true));
+        }
+
+        [Fact]
+        public void LeaveRoomExceptionAlreadyLeft()
+        {
+            // Must create and join room before leaving it
+            _chat.Send("/create MyRoom", null, testing: true);
+            _chat.Send("/leave MyRoom", null, testing: true);
+
+            // Returns true and notification is shown
+            Assert.True(_chat.Send("/leave MyRoom", null, testing: true));
+        }
+
+        [Fact]
+        public void OpenRoomExceptionRoomAlreadyOpen()
+        {
+            _chat.Send("/create MyRoomA", null, testing: true);
+            _chat.Send("/create MyRoomB", null, testing: true);
+
+            // MyRoomA is already open
+            Assert.Throws<HubException>(() => _chat.Send("/open MyRoomA", null, testing: true));
+        }
+
+        [Fact]
+        public void SendMessageReturnsTrue()
+        {
+            // Create and join room
+            _chat.Send("/create MyRoom", null, testing: true);
+
+            Assert.True(_chat.Send("Hey there!", "MyRoom", testing: true));
+        }
+
+        [Fact]
+        public void SendMultipleMessageReturnsTrue()
+        {
+            // Create and join room
+            _chat.Send("/create MyRoom", null, testing: true);
+
+            Assert.True(_chat.Send("Hey there!", "MyRoom", testing: true));
+            Assert.True(_chat.Send("Hello again", "MyRoom", testing: true));
+            Assert.True(_chat.Send("Hi friends", "MyRoom", testing: true));
+        }
+
+        [Fact]
+        public void JoinWhenMultpleRoomsReturnsTrue()
+        {
+            _chat.Send("/create MyRoomA", null, testing: true);
+            _chat.Send("/create MyRoomB", null, testing: true);
+
+            Assert.True(_chat.Send("/join MyRoomA", null, testing: true));
+        }
+
+        [Fact]
+        public void JoinCurrentRoomReturnsTrue()
+        {
+            _chat.Send("/create MyRoomA", null, testing: true);
+            _chat.Send("/create MyRoomB", null, testing: true);
+
+            Assert.True(_chat.Send("/join MyRoomB", null, testing: true));
+        }
+
+        [Fact]
+        public void JoinRoomExceptionDoesNotExist()
+        {
+            _chat.Send("/create MyRoom", null, testing: true);
+
+            Assert.Throws<HubException>(() => _chat.Send("/join AnotherRoom", null, testing: true));
+        }
+
+        [Fact]
+        public void JoinRoomAfterLeavingReturnsTrue()
+        {
+            _chat.Send("/create MyRoom", null, testing: true);
+            _chat.Send("/leave MyRoom", null, testing: true);
+
+            Assert.True(_chat.Send("/join MyRoom", null, testing: true));
+        }
+
+        // send message to roomA while in roomB ??
+
+        [Fact]
+        public void CreateRoomMessageThenLeaveReturnsTrue()
+        {
+            Assert.True(_chat.Send("/create MyRoomA", null, testing: true));
+            Assert.True(_chat.Send("Hey friends", "MyRoomA", testing: true));
+            Assert.True(_chat.Send("/create MyRoomB", null, testing: true));
+            Assert.True(_chat.Send("Hello again", "MyRoomB", testing: true));
+            Assert.True(_chat.Send("/leave MyRoomA", null, testing: true));
+            Assert.True(_chat.Send("/leave MyRoomB", null, testing: true));
+        }
+
+        [Fact]
+        public void SendMessageAfterLeavingException()
+        {
+            _chat.Send("/create MyRoomA", null, testing: true);
+            _chat.Send("Hey friends", "MyRoomA", testing: true);
+            _chat.Send("/leave MyRoomA", null, testing: true);
+
+            // Correct behaviour is returning true when not in the room, but maybe that should change
+            Assert.True(_chat.Send("Hello again", "MyRoomA", testing: true));
+        }
+
+        [Fact]
+        public void SendMessageFromAnotherRoomTrue()
+        {
+            _chat.Send("/create MyRoomA", null, testing: true);
+            _chat.Send("/create MyRoomB", null, testing: true);
+
+            // Correct behaviour, but maybe returning True when sent from another room is bad?
+            Assert.True(_chat.Send("Hey friends", "MyRoomA", testing: true));
+        }
+
+        [Fact]
+        public void SendMessageRoomNullException()
+        {
+            _chat.Send("/create MyRoomA", null, testing: true);
+
+            // Cannot send a message when no room specified, even when in a room
+            Assert.Throws<HubException>(() => _chat.Send("Hey friends", null, testing: true));
+        }
+
+        [Fact]
+        public void SendMessageExceptionNoRoom()
+        {
+            // Cannot send a message when no rooms exist
+            Assert.Throws<HubException>(() => _chat.Send("Hey friends", null, testing: true));
+        }
+
+        [Fact]
+        public void SendMessageExceptionRoomDoesNotExist()
+        {
+            // Cannot send a message when no rooms exist
+            Assert.Throws<HubException>(() => _chat.Send("Hey friends", "MyRoomA", testing: true));
+        }
+
     }
 
     public class TestableChat : Chat
