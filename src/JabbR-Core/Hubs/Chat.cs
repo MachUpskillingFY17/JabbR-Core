@@ -162,12 +162,7 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        public void UpdateActivity(bool testing)
-        {
-            UpdateActivity();
-            CheckStatus(testing);
-        }
-        public void UpdateActivity()
+        public void UpdateActivity(bool testing = false)
         {
             string userId = Context.User.GetUserId();
 
@@ -177,6 +172,8 @@ namespace JabbR_Core.Hubs
             {
                 UpdateActivity(user, room);
             }
+
+            CheckStatus(testing);
         }
 
         private void UpdateActivity(ChatUser user, ChatRoom room)
@@ -199,38 +196,19 @@ namespace JabbR_Core.Hubs
             _repository.CommitChanges();
         }
 
-        public bool Send(string content, string roomName, bool testing)
+        public bool Send(string content, string roomName, bool testing = false)
         {
             var message = new ClientMessage
             {
                 Content = content,  // '/join light_meow'
                 Room = roomName,    // 'Lobby'
             };
-
 
             return Send(message, testing);
         }
 
-        public bool Send(string content, string roomName)
+        public bool Send(ClientMessage clientMessage, bool testing = false)
         {
-            var message = new ClientMessage
-            {
-                Content = content,  // '/join light_meow'
-                Room = roomName,    // 'Lobby'
-            };
-
-            // Not testing if unspecified
-            return Send(message, false);
-        }
-
-        public bool Send(ClientMessage clientMessage, bool testing)
-        {
-            //ChatUser user = _repository.;
-            //ChatRoom room = _room;
-            
-            //REMOVE -- added manually to explicitly call joinRoom
-            //Clients.Caller.joinRoom(user, room, new object());
-            //GetRoomInfo(room.Name);
 
             CheckStatus(testing);
 
@@ -314,17 +292,9 @@ namespace JabbR_Core.Hubs
             return true;
         }
 
-        private void CheckStatus(bool testing)
+        private void CheckStatus(bool testing = false)
         {
-            if(!testing)
-            {
-                CheckStatus();
-            }
-        }
-
-        private void CheckStatus()
-        {
-            if (OutOfSync)
+            if (!testing && OutOfSync)
             {
                 Clients.Caller.outOfSync();
             }
