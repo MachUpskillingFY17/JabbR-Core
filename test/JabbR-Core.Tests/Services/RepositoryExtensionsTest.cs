@@ -124,7 +124,7 @@ namespace JabbR_Core.Tests.Services
             };
 
             // Test to see if only "Online" users are returned IQueryable.ToList()
-            Assert.Equal(queryableControl, _repository.Users.ToList().Online());
+            Assert.Equal(queryableControl, _repository.Users.ToList().Online().OrderBy(u => u.Name));
 
             // Clean up
             _repository.Remove(userOnline1);
@@ -169,7 +169,7 @@ namespace JabbR_Core.Tests.Services
             };
 
             // Test to see if only "Online" users are returned IEnum.ToList()
-            Assert.Equal(queryableControl, _repository.Users.ToList().Online());
+            Assert.Equal(queryableControl, _repository.Users.ToList().Online().OrderBy(u => u.Name));
 
             // Clean up
             _repository.Remove(userOnline1);
