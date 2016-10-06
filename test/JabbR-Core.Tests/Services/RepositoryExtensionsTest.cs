@@ -187,12 +187,14 @@ namespace JabbR_Core.Tests.Services
             // create room.private = 0
             var roomPublic = new ChatRoom()
             {
+                Name = "Room1",
                 Private = false
             };
 
             // create room.private = 1
             var roomPrivate = new ChatRoom()
             {
+                Name = "Room2",
                 Private = true
             };
 
@@ -227,7 +229,7 @@ namespace JabbR_Core.Tests.Services
             roomPrivate.AllowedUsers.Add(allowed);
             user1.AllowedRooms.Add(allowed);
 
-            Assert.Equal(controlList, _repository.Rooms.Allowed("123").ToList());
+            Assert.Equal(controlList, _repository.Rooms.Allowed("123").ToList().OrderBy(r => r.Name));
 
             // Clean up
             _repository.Remove(roomPublic);
