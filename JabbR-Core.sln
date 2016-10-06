@@ -17,6 +17,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "JabbR-Core.Tests", "test\Ja
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "JabbR-Core.Data", "src\JabbR-Core.Data\JabbR-Core.Data.xproj", "{CF5231E0-E3E5-40F0-852B-5258E54F5531}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JabbR-Core.WebTests", "test\JabbR-Core.WebTests\JabbR-Core.WebTests.csproj", "{5BA72C3D-5FB6-456A-8D66-B411263DCA62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{CF5231E0-E3E5-40F0-852B-5258E54F5531}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF5231E0-E3E5-40F0-852B-5258E54F5531}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF5231E0-E3E5-40F0-852B-5258E54F5531}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BA72C3D-5FB6-456A-8D66-B411263DCA62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BA72C3D-5FB6-456A-8D66-B411263DCA62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BA72C3D-5FB6-456A-8D66-B411263DCA62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BA72C3D-5FB6-456A-8D66-B411263DCA62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,5 +49,6 @@ Global
 		{44F3E272-7DD2-4F54-A013-DEBADFA29CE8} = {575CF6F1-A57B-4BAA-80AC-79FE62E749C3}
 		{C86B5482-BA50-486E-AC03-8828344C2AE2} = {575CF6F1-A57B-4BAA-80AC-79FE62E749C3}
 		{CF5231E0-E3E5-40F0-852B-5258E54F5531} = {575CF6F1-A57B-4BAA-80AC-79FE62E749C3}
+		{5BA72C3D-5FB6-456A-8D66-B411263DCA62} = {575CF6F1-A57B-4BAA-80AC-79FE62E749C3}
 	EndGlobalSection
 EndGlobal
