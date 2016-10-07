@@ -25,7 +25,7 @@ namespace JabbR_Core.Services
             string key = CacheKeys.GetUserInRoom(user, room);
 
             // cache very briefly.  We could set this much higher if we know that we're on a non-scaled-out server.
-            cache.Set(key, value, TimeSpan.FromSeconds(1));
+            //cache.Set(key, value, TimeSpan.FromSeconds(1));
         }
 
         public static void RemoveUserInRoom(this ICache cache, ChatUser user, ChatRoom room)
