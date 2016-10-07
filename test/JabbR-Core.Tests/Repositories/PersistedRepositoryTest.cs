@@ -107,14 +107,14 @@ namespace JabbR_Core.Tests.Repositories
         };
 
 
-        // Test UserRoomAllowed relationship objects
-        UserRoomAllowed isAllowedR1 = new UserRoomAllowed();
+        // Test ChatPrivateRoomUsers relationship objects
+        ChatPrivateRoomUsers isAllowedR1 = new ChatPrivateRoomUsers();
 
-        UserRoomAllowed isAllowedR2 = new UserRoomAllowed();
+        ChatPrivateRoomUsers isAllowedR2 = new ChatPrivateRoomUsers();
 
 
-        // Test UserRoomOwner relationship object
-        UserRoomOwner isOwnerR1 = new UserRoomOwner();
+        // Test ChatRoomOwners relationship object
+        ChatRoomOwners isOwnerR1 = new ChatRoomOwners();
 
 
         public PersistedRepositoryTest()
@@ -484,7 +484,7 @@ namespace JabbR_Core.Tests.Repositories
             room2.Private = true;
             _repository.Add(room2);
 
-            // Set up the UserRoomAllowed objects that will represent rooms user1 is allowed in
+            // Set up the ChatPrivateRoomUsers objects that will represent rooms user1 is allowed in
             isAllowedR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
             isAllowedR1.ChatUserKey = u1Key;
             isAllowedR1.ChatRoomKeyNavigation = room1;
@@ -539,7 +539,7 @@ namespace JabbR_Core.Tests.Repositories
             room2.Private = true;
             _repository.Add(room2);
 
-            // Create the UserRoomAllowed objects that will represent rooms user1 is allowed in
+            // Create the ChatPrivateRoomUsers objects that will represent rooms user1 is allowed in
             isAllowedR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
             isAllowedR1.ChatUserKey = u1Key;
             isAllowedR1.ChatRoomKeyNavigation = room1;
@@ -588,7 +588,7 @@ namespace JabbR_Core.Tests.Repositories
             room1.CreatorKey = u1Key;
             _repository.Add(room1);
 
-            // Create the UserRoomOwner object that will represent user1 being an owner
+            // Create the ChatRoomOwners object that will represent user1 being an owner
             isOwnerR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
             isOwnerR1.ChatUserKey = u1Key;
             isOwnerR1.ChatRoomKeyNavigation = room1;
@@ -602,7 +602,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(isOwnerR1);
 
             // Verify the ownership relationship exists
-            Assert.True(_context.UserRoomOwner.ToList().Contains(isOwnerR1));
+            Assert.True(_context.ChatRoomOwners.ToList().Contains(isOwnerR1));
             Assert.True(_repository.Users.First().OwnedRooms.Contains(isOwnerR1));
             Assert.True(_repository.Rooms.First().Owners.Contains(isOwnerR1));
 
@@ -612,7 +612,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Remove(isOwnerR1);
 
             // Verify the ownership relationship doesn't exist
-            Assert.False(_context.UserRoomOwner.ToList().Contains(isOwnerR1));
+            Assert.False(_context.ChatRoomOwners.ToList().Contains(isOwnerR1));
             Assert.False(_repository.Users.First().OwnedRooms.Contains(isOwnerR1));
             Assert.False(_repository.Rooms.First().Owners.Contains(isOwnerR1));
 

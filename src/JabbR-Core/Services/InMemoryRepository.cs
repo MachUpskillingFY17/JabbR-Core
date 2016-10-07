@@ -32,9 +32,9 @@ namespace JabbR_Core.Services
         private readonly ICollection<Settings> _settings;
         private readonly ICollection<Attachment> _attachments;
         private readonly ICollection<Notification> _notifications;
-        private readonly ICollection<UserRoomAllowed> _allowed;
-        private readonly ICollection<UserRoomOwner> _owner;
-        private readonly ICollection<UserRoom> _userRooms;
+        private readonly ICollection<ChatPrivateRoomUsers> _allowed;
+        private readonly ICollection<ChatRoomOwners> _owner;
+        private readonly ICollection<ChatRoomUsers> _userRooms;
         private readonly ICollection<ChatUserIdentity> _identities;
 
         public InMemoryRepository(Data.Models.JabbrContext context)
@@ -46,9 +46,9 @@ namespace JabbR_Core.Services
             _attachments = new SafeCollection<Attachment>();
             _notifications = new SafeCollection<Notification>();
             _settings = new SafeCollection<Settings>();
-            _allowed = new SafeCollection<UserRoomAllowed>();
-            _owner = new SafeCollection<UserRoomOwner>();
-            _userRooms = new SafeCollection<UserRoom>();
+            _allowed = new SafeCollection<ChatPrivateRoomUsers>();
+            _owner = new SafeCollection<ChatRoomOwners>();
+            _userRooms = new SafeCollection<ChatRoomUsers>();
 
             var user = new ChatUser
             {
@@ -147,15 +147,15 @@ namespace JabbR_Core.Services
             _notifications.Add(notification);
         }
 
-        public void Add(UserRoomOwner owner)
+        public void Add(ChatRoomOwners owner)
         {
             _owner.Add(owner);
         }
-        public void Add(UserRoomAllowed allowed)
+        public void Add(ChatPrivateRoomUsers allowed)
         {
             _allowed.Add(allowed);
         }
-        public void Add(UserRoom userRoom)
+        public void Add(ChatRoomUsers userRoom)
         {
             _userRooms.Add(userRoom); 
         }
@@ -186,15 +186,15 @@ namespace JabbR_Core.Services
             _notifications.Remove(notification);
         }
 
-        public void Remove(UserRoomOwner owner)
+        public void Remove(ChatRoomOwners owner)
         {
             _owner.Remove(owner);
         }
-        public void Remove(UserRoomAllowed allowed)
+        public void Remove(ChatPrivateRoomUsers allowed)
         {
             _allowed.Remove(allowed);
         }
-        public void Remove(UserRoom userRoom)
+        public void Remove(ChatRoomUsers userRoom)
         {
             _userRooms.Remove(userRoom);
         }
@@ -337,7 +337,7 @@ namespace JabbR_Core.Services
         public void AddUserRoom(ChatUser user, ChatRoom room)
         {
             // Create new user room relationship
-            var userRoom = new UserRoom()
+            var userRoom = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
                 ChatUserKey = user.Key,

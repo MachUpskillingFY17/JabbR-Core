@@ -83,19 +83,19 @@ namespace JabbR_Core.Data.Repositories
             _db.SaveChanges();
         }
 
-        public void Add(UserRoomOwner owner)
+        public void Add(ChatRoomOwners owner)
         {
-            _db.UserRoomOwner.Add(owner);
+            _db.ChatRoomOwners.Add(owner);
             _db.SaveChanges();
         }
-        public void Add(UserRoomAllowed allowed)
+        public void Add(ChatPrivateRoomUsers allowed)
         {
-            _db.UserRoomAllowed.Add(allowed);
+            _db.ChatPrivateRoomUsers.Add(allowed);
             _db.SaveChanges();
         }
-        public void Add(UserRoom userRoom)
+        public void Add(ChatRoomUsers userRoom)
         {
-            _db.UserRoom.Add(userRoom);
+            _db.ChatRoomUsers.Add(userRoom);
             _db.SaveChanges();
         }
 
@@ -134,19 +134,19 @@ namespace JabbR_Core.Data.Repositories
             _db.SaveChanges();
         }
 
-        public void Remove(UserRoomOwner owner)
+        public void Remove(ChatRoomOwners owner)
         {
-            _db.UserRoomOwner.Remove(owner);
+            _db.ChatRoomOwners.Remove(owner);
             _db.SaveChanges();
         }
-        public void Remove(UserRoomAllowed allowed)
+        public void Remove(ChatPrivateRoomUsers allowed)
         {
-            _db.UserRoomAllowed.Remove(allowed);
+            _db.ChatPrivateRoomUsers.Remove(allowed);
             _db.SaveChanges();
         }
-        public void Remove(UserRoom userRoom)
+        public void Remove(ChatRoomUsers userRoom)
         {
-            _db.UserRoom.Remove(userRoom);
+            _db.ChatRoomUsers.Remove(userRoom);
             _db.SaveChanges();
         }
 
@@ -244,8 +244,8 @@ namespace JabbR_Core.Data.Repositories
 
         public void AddUserRoom(ChatUser user, ChatRoom room)
         {
-            // First, create a UserRoom object to represent this relationship
-            UserRoom userroom = new UserRoom()
+            // First, create a ChatRoomUsers object to represent this relationship
+            ChatRoomUsers userroom = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
                 ChatUserKey = user.Key,
@@ -264,8 +264,8 @@ namespace JabbR_Core.Data.Repositories
 
         public void RemoveUserRoom(ChatUser user, ChatRoom room)
         {
-            // JC: First, find the UserRoom object that represents this relationship
-            var chatUserChatRoom = from r in _db.UserRoom
+            // JC: First, find the ChatRoomUsers object that represents this relationship
+            var chatUserChatRoom = from r in _db.ChatRoomUsers
                                    where (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)
                                    select r;
 

@@ -223,7 +223,7 @@ namespace JabbR_Core.Tests.Services
 
             _repository.Add(user1);
 
-            var allowed = new UserRoomAllowed();
+            var allowed = new ChatPrivateRoomUsers();
             allowed.ChatUserKeyNavigation = user1;
 
             roomPrivate.AllowedUsers.Add(allowed);

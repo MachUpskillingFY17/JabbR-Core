@@ -6,7 +6,7 @@ namespace JabbR_Core.Data.Repositories
 {
     public static class RepositoryExtensions
     {
-        public static IQueryable<ChatUser> Online(this IQueryable<UserRoom> source)
+        public static IQueryable<ChatUser> Online(this IQueryable<ChatRoomUsers> source)
         {
             var users = from s in source
                         where s.ChatUserKeyNavigation.Status != (int)UserStatus.Offline
@@ -20,7 +20,7 @@ namespace JabbR_Core.Data.Repositories
             return source.Where(u => u.Status != (int)UserStatus.Offline);
         }
 
-        public static IEnumerable<ChatUser> Online(this IEnumerable<UserRoom> source)
+        public static IEnumerable<ChatUser> Online(this IEnumerable<ChatRoomUsers> source)
         {
             var users = from s in source
                         where s.ChatUserKeyNavigation.Status != (int)UserStatus.Offline

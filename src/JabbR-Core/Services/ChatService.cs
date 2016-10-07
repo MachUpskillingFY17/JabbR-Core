@@ -345,7 +345,7 @@ namespace JabbR_Core.Services
                 CreatorKeyNavigation = user
             };
 
-            var owner = new UserRoomOwner()
+            var owner = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
                 ChatUserKey = user.Key,
@@ -372,7 +372,7 @@ namespace JabbR_Core.Services
                 if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
                 {
                     // Create a ChatUserChatRoomAllowed object to represent this relationship
-                    UserRoomAllowed allowed = new UserRoomAllowed()
+                    ChatPrivateRoomUsers allowed = new ChatPrivateRoomUsers()
                     {
                         ChatRoomKey = room.Key,
                         ChatUserKey = user.Key,
@@ -536,8 +536,8 @@ namespace JabbR_Core.Services
             // Ensure the user is owner of the target room
             EnsureOwnerOrAdmin(ownerOrCreator, targetRoom);
 
-            // JC: Create UserRoomOwner object to describe this relationship 
-            UserRoomOwner owner;
+            // JC: Create ChatRoomOwners object to describe this relationship 
+            ChatRoomOwners owner;
 
             if (targetRoom.Owners.Select(r=> r.ChatUserKeyNavigation).ToList().Contains(targetUser))
             {
@@ -546,7 +546,7 @@ namespace JabbR_Core.Services
             } else
             {
                 // Populate object
-                owner = new UserRoomOwner()
+                owner = new ChatRoomOwners()
                 {
                     ChatRoomKey = targetRoom.Key,
                     ChatUserKey = targetUser.Key,
@@ -568,7 +568,7 @@ namespace JabbR_Core.Services
                 if (!targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser))
                 {
                     // Create the allowed user relationship
-                    var allowed = new UserRoomAllowed()
+                    var allowed = new ChatPrivateRoomUsers()
                     {
                         ChatRoomKey = targetRoom.Key,
                         ChatUserKey = targetUser.Key,
@@ -601,7 +601,7 @@ namespace JabbR_Core.Services
                 throw new HubException(String.Format(LanguageResources.UserNotRoomOwner, targetUser.Name, targetRoom.Name));
             }
 
-            // Get the UserRoomOwner relationships
+            // Get the ChatRoomOwners relationships
             var roomRelation = targetRoom.Owners.Where(r => (targetRoom.Key == r.ChatRoomKey) && (targetUser.Key == r.ChatUserKey)).ToList();
             var userRelation = targetRoom.Owners.Where(r => (targetRoom.Key == r.ChatRoomKey) && (targetUser.Key == r.ChatUserKey)).ToList();
 
@@ -767,8 +767,8 @@ namespace JabbR_Core.Services
                 throw new HubException(String.Format(LanguageResources.RoomNotPrivate, targetRoom.Name));
             }
 
-            // Create a UserRoomAllowed object to represent this relationship
-            UserRoomAllowed userroomAllowed;
+            // Create a ChatPrivateRoomUsers object to represent this relationship
+            ChatPrivateRoomUsers userroomAllowed;
 
             // JC: Find the allowed user relationship
             var isAllowed = targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser);
@@ -778,7 +778,7 @@ namespace JabbR_Core.Services
             } else
             {
                 // Populate object
-                userroomAllowed = new UserRoomAllowed()
+                userroomAllowed = new ChatPrivateRoomUsers()
                 {
                     ChatRoomKey = targetRoom.Key,
                     ChatUserKey = targetUser.Key,
@@ -857,8 +857,8 @@ namespace JabbR_Core.Services
             // Make the room private
             targetRoom.Private = true;
 
-            // Create UserRoomAllowed object to represent this relationship
-            var isAllowed = new UserRoomAllowed()
+            // Create ChatPrivateRoomUsers object to represent this relationship
+            var isAllowed = new ChatPrivateRoomUsers()
             {
                 ChatRoomKey = targetRoom.Key,
                 ChatUserKey = user.Key,
@@ -878,8 +878,8 @@ namespace JabbR_Core.Services
             // Make all users in the current room allowed
             foreach (var u in targetRoom.Users.Online())
             {
-                // Create UserRoomAllowed object to represent this relationship
-                var uIsAllowed = new UserRoomAllowed()
+                // Create ChatPrivateRoomUsers object to represent this relationship
+                var uIsAllowed = new ChatPrivateRoomUsers()
                 {
                     ChatRoomKey = targetRoom.Key,
                     ChatUserKey = u.Key,

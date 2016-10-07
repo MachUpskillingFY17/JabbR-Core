@@ -73,10 +73,10 @@ namespace JabbR_Core.Data.Models
                     .HasForeignKey(d => d.UserKey);
             });
 
-            modelBuilder.Entity<UserRoomAllowed>(entity =>
+            modelBuilder.Entity<ChatPrivateRoomUsers>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
-                    .HasName("PK_UserRoomAllowed");
+                    .HasName("PK_ChatPrivateRoomUsers");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -93,10 +93,10 @@ namespace JabbR_Core.Data.Models
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<UserRoomOwner>(entity =>
+            modelBuilder.Entity<ChatRoomOwners>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
-                    .HasName("PK_UserRoomOwner");
+                    .HasName("PK_ChatRoomOwners");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -145,10 +145,10 @@ namespace JabbR_Core.Data.Models
                     .HasForeignKey(d => d.CreatorKey);
             });
 
-            modelBuilder.Entity<UserRoom>(entity =>
+            modelBuilder.Entity<ChatRoomUsers>(entity =>
             {
                 entity.HasKey(e => new { e.ChatUserKey, e.ChatRoomKey })
-                    .HasName("PK_UserRoom");
+                    .HasName("PK_ChatRoomUsers");
 
                 entity.Property(e => e.ChatUserKey).HasColumnName("ChatUser_Key");
 
@@ -269,10 +269,10 @@ namespace JabbR_Core.Data.Models
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<ChatClient> ChatClients { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
-        public DbSet<UserRoomAllowed> UserRoomAllowed { get; set; }
-        public DbSet<UserRoomOwner> UserRoomOwner { get; set; }
+        public DbSet<ChatPrivateRoomUsers> ChatPrivateRoomUsers { get; set; }
+        public DbSet<ChatRoomOwners> ChatRoomOwners { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
-        public DbSet<UserRoom> UserRoom { get; set; }
+        public DbSet<ChatRoomUsers> ChatRoomUsers { get; set; }
         public DbSet<ChatUserIdentity> ChatUserIdentities { get; set; }
         public DbSet<ChatUser> ChatUsers { get; set; }
         public DbSet<MigrationHistory> MigrationHistory { get; set; }
