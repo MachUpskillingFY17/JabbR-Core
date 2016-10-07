@@ -22,20 +22,18 @@ namespace JabbR_Core.Controllers
         private IMembershipService _membershipService;
         private readonly InMemoryRepository _repository;
         
-        
-
         public AccountController()//IOptions<ApplicationSettings> settings,
-                            // IMembershipService membershipService,
-                         //    IJabbrRepository repository,
-                       //      IAuthenticationService authService,
-                          //   IChatNotificationService notificationService,
-                          //   IUserAuthenticator authenticator,
-                          //   InMemoryRepository memory)
-                           ///  IEmailService emailService)
+                                  // IMembershipService membershipService,
+                                  //    IJabbrRepository repository,
+                                  //      IAuthenticationService authService,
+                                  //   IChatNotificationService notificationService,
+                                  //   IUserAuthenticator authenticator,
+                                  //   InMemoryRepository memory)
+                                  //  IEmailService emailService)
         {
            // _settings = settings.Value;
-          //  _repository = memory;
-        //    _authService = authService;
+           //  _repository = memory;
+           //    _authService = authService;
            // _membershipService = membershipService;
            _repository = new InMemoryRepository();
         
@@ -118,11 +116,9 @@ namespace JabbR_Core.Controllers
 
              return View["login", GetLoginViewModel(applicationSettings, repository, authService)];*/
             return View("login");
-
         }
 
         [HttpPost]
-
         public IActionResult Logout()
         {
             /* if (!IsAuthenticated)
@@ -137,7 +133,6 @@ namespace JabbR_Core.Controllers
             return response;*/
             return Login();
         }
-
 
         [HttpGet]
         public IActionResult Register()
@@ -240,9 +235,8 @@ namespace JabbR_Core.Controllers
             return View("register");
         }
 
-
-        /*   [HttpPost]
-           public IActionResult Unlink()
+      /*[HttpPost]
+        public IActionResult Unlink()
            {
              /*  if (!HasValidCsrfTokenOrSecHeader)
                {
@@ -319,7 +313,6 @@ namespace JabbR_Core.Controllers
             return GetProfileView(/*_authService,*/ user);
         }
 
-
         [HttpPost]
         public IActionResult ChangePassword(string oldPassword, string password, string confirmPassword)
         {/*
@@ -371,9 +364,7 @@ namespace JabbR_Core.Controllers
                }*/
 
             return GetProfileView(/*_authService, */user);
-
         }
-
 
         [HttpPost]
         public IActionResult ChangeUsername(string username, string confirmUsername)
@@ -418,9 +409,7 @@ namespace JabbR_Core.Controllers
               }*/
 
             return GetProfileView(/*_authService,*/ user);
-
         }
-
 
         [HttpGet]
         public IActionResult RequestResetPassword()
@@ -500,7 +489,6 @@ namespace JabbR_Core.Controllers
             return View("requestresetpasswordsuccess");
         }
 
-
         [HttpGet]
         public IActionResult ResetPassword(string id)
         {
@@ -534,7 +522,6 @@ namespace JabbR_Core.Controllers
              }*/
             return View("resetpassword");
         }
-
 
         [HttpPost]
         public IActionResult ResetPassword(string id, string password, string confirmPassword)
@@ -583,12 +570,7 @@ namespace JabbR_Core.Controllers
                }*/
 
             return View("resetpasswordsuccess");
-
         }
-
-
-
-
 
         private void ValidatePassword(string password, string confirmPassword)
         {
@@ -636,7 +618,5 @@ namespace JabbR_Core.Controllers
             var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.Identities : null);
             return viewModel;
         }
-
-
     }
 }
