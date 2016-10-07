@@ -621,6 +621,7 @@ namespace JabbR_Core.Hubs
         void INotificationService.CloseRoom(IEnumerable<ChatUser> users, ChatRoom room)
         {
             // notify all members of room that it is now closed
+            Clients.Caller.roomClosed(room.Name);
             foreach (var user in users)
             {
                 Clients.User(user.Id).roomClosed(room.Name);
