@@ -1,0 +1,31 @@
+﻿{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable"
+  },
+  "dependencies": {
+    "dotnet-test-xunit": "1.0.0-rc2-build10015",
+    "JabbR-Core": {
+      "target": "project"
+    },
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.0-alpha1-22314",
+    "System.Runtime.Serialization.Primitives": "4.3.0-preview1-24530-03",
+    "Microsoft.DotNet.InternalAbstractions": "1.0.1-beta-003206",
+    "xunit": "2.2.0-beta2-build3300",
+    "Microsoft.AspNet.SignalR.Client": "2.1.0-pre-140513-b35"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    ".NETFramework": {}
+    },
+    "net452": {
+      "dependencies": {
+        "Microsoft.Net": {
+          "type": "build",
+          "version": "1.0.0"
+        }
+      },
+      "imports": "portable-net451+win8"
+    }
+  }
+}

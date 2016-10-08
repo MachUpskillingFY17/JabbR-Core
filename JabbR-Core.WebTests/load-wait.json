@@ -1,0 +1,28 @@
+{
+  "type": "script",
+  "seleniumVersion": "2",
+  "formatVersion": 2,
+  "steps": [
+    {
+      "type": "get",
+      "url": "http://localhost:59395/"
+    },
+    {
+      "type": "pause",
+      "waitTime": "5000"
+    },
+    {
+      "type": "verifyElementPresent",
+      "locator": {
+        "type": "css selector",
+        "value": "section#page"
+      }
+    }
+  ],
+  "data": {
+    "configs": {},
+    "source": "none"
+  },
+  "inputs": [],
+  "timeoutSeconds": 60
+}
