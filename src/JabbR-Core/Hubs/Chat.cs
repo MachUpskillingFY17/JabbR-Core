@@ -32,7 +32,7 @@ namespace JabbR_Core.Hubs
         private readonly LobbyRoomViewModel _lobbyRoom;
 
         private readonly ILogger _logger;
-        private readonly ChatService _chatService;
+        private readonly IChatService _chatService;
         private readonly List<ChatRoom> _roomList;
         private readonly ApplicationSettings _settings;
         private readonly InMemoryRepository _repository;
@@ -49,21 +49,13 @@ namespace JabbR_Core.Hubs
             IRecentMessageCache recentMessageCache,
             IChatService chatService)
         {
-            // Repository requires dependency injection via the constructor parameters (above)
+            // Request the injected object instances
             _repository = (InMemoryRepository)repository;
-
-            Debug.WriteLine(_repository.GetHashCode());
-
-            _chatService = (ChatService)chatService;
+            _chatService = chatService;
             _recentMessageCache = (RecentMessageCache)recentMessageCache;
             _settings = settings.Value;
 
             // Not instantiated with DI, set here
-            _chatService.Settings = _settings;
-
-
-            // Try to get DI working for this, avoid the new keyword in constructor
-            //_chatService = new ChatService(null, _recentMessageCache, _repository, _settings);
 
             // Accessing _repository variables
             _roomList = _repository.RoomList;
@@ -115,20 +107,26 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            string userId = Context.User.GetUserId();
-            ChatUser user = _repository.VerifyUserId(userId);
+            /***********************************************************************/
+            // We should not be inserting a new room every time we call GetRooms(),
+            // when the repository is setup correctly this results in duplicates being 
+            // added very frequently. Leaving here for visibility (for now)
+            //
+            //string userId = Context.User.GetUserId();
+            //ChatUser user = _repository.VerifyUserId(userId);
 
-            var room = new LobbyRoomViewModel
-            {
-                Name = user.Name,
-                Count = '1',
-                //    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
-                Private = _lobbyRoom.Private,
-                Closed = _lobbyRoom.Closed,
-                Topic = _lobbyRoom.Topic
-            };
+            ////    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
+            //var room = new LobbyRoomViewModel
+            //{
+            //    Name = user.Name,
+            //    Count = '1',
+            //    Private = _lobbyRoom.Private,
+            //    Closed = _lobbyRoom.Closed,
+            //    Topic = _lobbyRoom.Topic
+            //};
+            //_lobbyRoomList.Add(_lobbyRoom);
+            /***********************************************************************/
 
-            _lobbyRoomList.Add(_lobbyRoom);
             return _lobbyRoomList;
         }
 
@@ -137,6 +135,7 @@ namespace JabbR_Core.Hubs
             return CommandManager.GetCommandsMetaData();
         }
 
+        // More specific return type? Object[]? or cast to Array?
         public object GetShortcuts()
         {
             return new[] {
@@ -146,7 +145,9 @@ namespace JabbR_Core.Hubs
             };
         }
 
-        public async void LoadRooms(string[] roomNames)
+        // Why does this have an unused parameter?
+        // string[] roomNames
+        public async void LoadRooms()
         {
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
@@ -156,8 +157,8 @@ namespace JabbR_Core.Hubs
                 {
                     continue;
                 }
+
                 RoomViewModel roomInfo = null;
-                
                 while (true)
                 {
                     try
@@ -175,7 +176,7 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        public void UpdateActivity()
+        public void UpdateActivity(bool testing = false)
         {
             string userId = Context.User.GetUserId();
 
@@ -186,7 +187,7 @@ namespace JabbR_Core.Hubs
                 UpdateActivity(user, room);
             }
 
-            CheckStatus();
+            CheckStatus(testing);
         }
 
         private void UpdateActivity(ChatUser user, ChatRoom room)
@@ -209,7 +210,7 @@ namespace JabbR_Core.Hubs
             _repository.CommitChanges();
         }
 
-        public bool Send(string content, string roomName)
+        public bool Send(string content, string roomName, bool testing = false)
         {
             var message = new ClientMessage
             {
@@ -217,13 +218,12 @@ namespace JabbR_Core.Hubs
                 Room = roomName,    // 'Lobby'
             };
 
-
-            return Send(message);
+            return Send(message, testing);
         }
 
-        public bool Send(ClientMessage clientMessage)
+        public bool Send(ClientMessage clientMessage, bool testing = false)
         {
-            CheckStatus();
+            CheckStatus(testing);
 
             //reject it if it's too long
             if (_settings.MaxMessageLength > 0 && clientMessage.Content.Length > _settings.MaxMessageLength)
@@ -300,9 +300,9 @@ namespace JabbR_Core.Hubs
             return true;
         }
 
-        private void CheckStatus()
+        private void CheckStatus(bool testing = false)
         {
-            if (OutOfSync)
+            if (!testing && OutOfSync)
             {
                 Clients.Caller.outOfSync();
             }
@@ -381,7 +381,7 @@ namespace JabbR_Core.Hubs
                 return null;
             }
 
-            return await GetRoomInfoCore(room);
+            return GetRoomInfoCore(room);
             //return new Task<RoomViewModel>(() => thing);
         }
 
@@ -404,31 +404,20 @@ namespace JabbR_Core.Hubs
 
                 _recentMessageCache.Add(room.Name, recentMessages);
             }
-            //REMOVE AND CHANGEEEEE
-            ////Get online users through the repository
-            //List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
 
-
-            // when you remove the async tag
-            //return new Task<RoomViewModel>(() => new RoomViewModel
-            //return new Task<RoomViewModel>(() => new RoomViewModel
             return new RoomViewModel
             {
                 Name = room.Name,
                 Users = from u in _repository.Users
                         select new UserViewModel(u),
-                //Owners = from u in room.Owners.Online()
-                //         select u.Name,
-                Owners = from u in room.Owners select u.Name,
+                Owners = from u in room.Owners
+                         select u.Name,
                 RecentMessages = recentMessages,
                 Topic = room.Topic ?? string.Empty,
                 Welcome = room.Welcome ?? String.Empty,
                 Closed = room.Closed
-                
             };
-            
         }
-
 
         void INotificationService.LogOn(ChatUser user, string clientId)
         {
