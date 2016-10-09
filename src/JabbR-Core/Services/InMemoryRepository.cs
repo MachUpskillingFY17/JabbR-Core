@@ -26,20 +26,24 @@ namespace JabbR_Core.Services
 
 
         private readonly ICollection<ChatUser> _users;
-        private readonly ICollection<ChatUserIdentity> _identities;
         private readonly ICollection<ChatRoom> _rooms;
+
+        // Never assigned to, always null
+        private readonly ICollection<Settings> _settings;
         private readonly ICollection<Attachment> _attachments;
         private readonly ICollection<Notification> _notifications;
-        private readonly ICollection<Settings> _settings;
+        private readonly ICollection<ChatUserIdentity> _identities;
 
-        public InMemoryRepository()
+        public InMemoryRepository(Data.Models.JabbrContext context)
         {
             _users = new SafeCollection<ChatUser>();
             _rooms = new SafeCollection<ChatRoom>();
+
             //_identities = new SafeCollection<ChatUserIdentity>();
             //_attachments = new SafeCollection<Attachment>();
             //_notifications = new SafeCollection<Notification>();
             //_settings = new SafeCollection<Settings>();
+
             var user = new ChatUser
             {
                 Id = "1",
@@ -50,7 +54,6 @@ namespace JabbR_Core.Services
                 Status = 1
             };
             _users.Add(user);
-            
 
             ChatClient = new ChatClient
             {
@@ -71,20 +74,8 @@ namespace JabbR_Core.Services
             var room = new ChatRoom { Name = "light_meow" , Users = _users};
             RoomList = new List<ChatRoom> { room };
 
-            RoomViewModel = new RoomViewModel();
-            _rooms.Add(room);
-
-            // populate RoomView
-            LobbyRoomView = new LobbyRoomViewModel
-            {
-                Name = room.Name,
-                Count = 1,
-                Topic = "jabbr"
-            };
             // Add RoomView to RoomList
             LobbyRoomList = new List<LobbyRoomViewModel> { };
-
-
         }
 
         public IQueryable<ChatRoom> Rooms { get { return _rooms.AsQueryable(); } }
@@ -110,6 +101,7 @@ namespace JabbR_Core.Services
 
         public void Add(ChatRoom room)
         {
+            RoomList.Add(room);
             _rooms.Add(room);
         }
 
