@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace JabbR_Core.Commands
 {
-    [Command("leave", "Leave_CommandInfo", "[room]", "room")]
+    [Command("leave", "Leave_CommandInfo", "room", "room")]
     public class LeaveCommand : UserCommand
     {
         public override void Execute(CommandContext context, CallerContext callerContext, ChatUser callingUser, string[] args)

@@ -314,13 +314,6 @@ namespace JabbR_Core.Services
 
             Settings = settings;
         }
-        
-        //Added to have empty constructor to get openroom to work
-        //TODO: implement
-        //Delete after cache/repository set up
-        //public ChatService()
-        //{
-        //}
 
         public ChatRoom AddRoom(ChatUser user, string name)
         {
@@ -359,6 +352,10 @@ namespace JabbR_Core.Services
             // Update repositiory
             _repository.Add(room);
             _repository.Add(owner);
+
+            //Debug.WriteLine(name);
+            //Debug.WriteLine(user.Name);
+            //Debug.WriteLine(user.Id);
 
             return room;
         }
