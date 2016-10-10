@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using JabbR_Core.Configuration;
+using JabbR_Core.Services;
 using JabbR_Core.Models;
 using Microsoft.AspNetCore.SignalR;
 //using JabbR_Core.UploadHandlers;
 //using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using JabbR_Core.Hubs;
+using System.Diagnostics;
 
 namespace JabbR_Core.Services
 {
@@ -17,7 +18,9 @@ namespace JabbR_Core.Services
         private readonly IJabbrRepository _repository;
         private readonly ICache _cache;
         private readonly IRecentMessageCache _recentMessageCache;
-        private readonly ApplicationSettings _settings;
+
+        // Public for DI, cannot be instantiated in Startup.cs
+        public ApplicationSettings Settings { get; set; }
 
         private const int NoteMaximumLength = 140;
         private const int TopicMaximumLength = 80;
@@ -309,19 +312,22 @@ namespace JabbR_Core.Services
             _cache = cache;
             _recentMessageCache = recentMessageCache;
             _repository = repository;
-            _settings = settings;
+
+            Debug.WriteLine(_repository.GetHashCode());
+
+            Settings = settings;
         }
         
         //Added to have empty constructor to get openroom to work
         //TODO: implement
         //Delete after cache/repository set up
-        public ChatService()
-        {
-        }
+        //public ChatService()
+        //{
+        //}
 
         public ChatRoom AddRoom(ChatUser user, string name)
         {
-            if (!_settings.AllowRoomCreation && !user.IsAdmin)
+            if (!Settings.AllowRoomCreation && !user.IsAdmin)
             {
                 throw new HubException(LanguageResources.RoomCreationDisabled);
             }
@@ -377,7 +383,7 @@ namespace JabbR_Core.Services
             userPreferences.TabOrder.Add(room.Name);
             user.Preferences = userPreferences;
             
-            //REMOVE _openroom
+            //TODO Add back in when cache working -- Clears the cache
             //_cache.RemoveUserInRoom(user, room);
         }
 

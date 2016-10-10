@@ -17,7 +17,7 @@ namespace JabbR_Core.Services
 
         // Mock List for LoadRooms()
        
-        public List<ChatRoom> RoomList { get; set; }
+        //public List<ChatRoom> RoomList { get; set; }
 
         // Mock List for GetRoom()
         public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
@@ -72,7 +72,8 @@ namespace JabbR_Core.Services
 
             // populate ChatRoom and RoomList
             var room = new ChatRoom { Name = "light_meow" , Users = _users};
-            RoomList = new List<ChatRoom> { room };
+            Add(room);
+            //RoomList = new List<ChatRoom> { room };
 
             // Add RoomView to RoomList
             LobbyRoomList = new List<LobbyRoomViewModel> { };
@@ -101,7 +102,7 @@ namespace JabbR_Core.Services
 
         public void Add(ChatRoom room)
         {
-            RoomList.Add(room);
+            //RoomList.Add(room);
             _rooms.Add(room);
         }
 
