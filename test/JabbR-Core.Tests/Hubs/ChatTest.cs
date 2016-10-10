@@ -1,29 +1,38 @@
 ﻿using Moq;
 using Xunit;
+using System;
 using JabbR_Core.Hubs;
 using System.Collections;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
-using JabbR_Core.Data.Models;
 using System.Security.Claims;
+using JabbR_Core.Data.Models;
 using JabbR_Core.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 using Microsoft.AspNetCore.SignalR.Hubs;
+using System.Runtime.InteropServices.ComTypes;
+
+//====================================
+// project.json nuget package
+// "moq.netcore": "4.4.0-beta8"
+//====================================
 
 namespace JabbR_Core.Tests.Hubs
 {
     public class ChatTest
     {
-        private Chat _chat;
+        private readonly Chat _chat;
 
         private ICache _cache;
         private JabbrContext _context;
         private ChatService _chatService;
-        private InMemoryRepository _repository;
+        private IJabbrRepository _repository;
         private IRecentMessageCache _recentMessageCache;
         private OptionsManager<ApplicationSettings> _settings;
         public ChatTest()
@@ -37,7 +46,7 @@ namespace JabbR_Core.Tests.Hubs
             _settings = new OptionsManager<ApplicationSettings>(new List<IConfigureOptions<ApplicationSettings>>() { });
 
             _chatService = new ChatService(_cache, _recentMessageCache, _repository);
-
+             
             // Create Mocks of the objects being passed into SignalR
             var request = new Mock<HttpRequest>();
             var connection = new Mock<IConnection>();
@@ -63,7 +72,7 @@ namespace JabbR_Core.Tests.Hubs
             var claimsIdentity = new ClaimsIdentity(claims, Constants.JabbRAuthType);
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-            Models.ChatUser user = new Models.ChatUser()
+            ChatUser user = new ChatUser()
             {
                 Name = "James",
                 Email = "james@no.com",
@@ -85,7 +94,10 @@ namespace JabbR_Core.Tests.Hubs
             _chat = chat;
         }
 
-        // Tests
+         // Join()
+
+        // GetRooms()
+        // Changes to InMemoryRepository are causing these to fail, commenting out until InMem is fixed
         [Fact]
         public void GetRoomsNotNull()
         {
@@ -296,6 +308,73 @@ namespace JabbR_Core.Tests.Hubs
             Assert.True(_chat.Send("Hey friends", "MyRoomA", testing: true));
         }
 
+        // GetCommands()
+        // Implementation empty
+
+        // GetShortcuts()
+        // Should populate with hardcoded shortcut keys
+        [Fact]
+        public void GetShortcutsNotNull()
+        {
+            Assert.NotEqual(null, _chat.GetShortcuts());
+            Console.WriteLine("\tChatTest.GetShortcutsNotNull: Complete");
+        }
+
+        // LoadRooms()
+        // Can not LoadRoom with the current implementation.
+        //[Fact]
+        //public void LoadRoomsNotNull()
+        //{
+        //    string[] roomNames =
+        //    {
+        //        "room0",
+        //        "room1",
+        //        "room2"
+        //    };
+        //    _chat.LoadRooms(roomNames);
+        //    Collection<ChatUserChatRooms> collection;
+        //}
+
+        // Send(string content, string roomName)
+        // Send(ClientMessage clientMessage)
+        // Basic test to see if any exceptions are hit
+        [Fact]
+        public void SendAcceptsCommandParams()
+        {
+            var content = "/join foo";
+            var roomName = "bar";
+            Assert.True(_chat.Send(content, roomName));
+            Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
+        }
+
+        [Fact]
+        public void SendParamsTooLongException()
+        {
+            var content = "/join foo";
+            var roomName = "bar";
+            var _settings = new ApplicationSettings();
+            //_settings.MaxMessageLength = 3;
+            Assert.Throws<HubException>(() => _chat.Send(content, roomName));
+            Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
+        }
+
+        // TryHandleCommand(string command, string room)
+        [Fact]
+        public void TryHandleCommandValid()
+        {
+            var command = "/join foo";
+            var roomName = "bar";
+            Assert.True(_chat.TryHandleCommand(command, roomName));
+        }
+
+        [Fact]
+        public void TryHandleCommandInValid()
+        {
+            var command = "join foo";
+            var roomName = "bar";
+            Assert.False(_chat.TryHandleCommand(command, roomName));
+        }
+        
         [Fact]
         public void SendMessageRoomNullException()
         {

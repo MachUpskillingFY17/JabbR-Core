@@ -73,10 +73,10 @@ namespace JabbR_Core.Data.Models
                     .HasForeignKey(d => d.UserKey);
             });
 
-            modelBuilder.Entity<ChatRoomChatUserAllowed>(entity =>
+            modelBuilder.Entity<ChatPrivateRoomUsers>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
-                    .HasName("PK_ChatRoomChatUserAllowed");
+                    .HasName("PK_ChatPrivateRoomUsers");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -93,10 +93,10 @@ namespace JabbR_Core.Data.Models
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<ChatRoomChatUserOwner>(entity =>
+            modelBuilder.Entity<ChatRoomOwners>(entity =>
             {
                 entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
-                    .HasName("PK_ChatRoomChatUserOwner");
+                    .HasName("PK_ChatRoomOwners");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -124,7 +124,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.Property(e => e.Closed).HasDefaultValueSql("0");
 
-                entity.Property(e => e.CreatorKey).HasColumnName("Creator_Key");
+                entity.Property(e => e.CreatorKey);
 
                 entity.Property(e => e.InviteCode).HasColumnType("nchar(6)");
 
@@ -145,10 +145,10 @@ namespace JabbR_Core.Data.Models
                     .HasForeignKey(d => d.CreatorKey);
             });
 
-            modelBuilder.Entity<ChatUserChatRooms>(entity =>
+            modelBuilder.Entity<ChatRoomUsers>(entity =>
             {
                 entity.HasKey(e => new { e.ChatUserKey, e.ChatRoomKey })
-                    .HasName("PK_ChatUserChatRooms");
+                    .HasName("PK_ChatRoomUsers");
 
                 entity.Property(e => e.ChatUserKey).HasColumnName("ChatUser_Key");
 
@@ -267,14 +267,14 @@ namespace JabbR_Core.Data.Models
         }
 
         public DbSet<Attachment> Attachments { get; set; }
-        public DbSet<ChatClient> Clients { get; set; }
-        public DbSet<ChatMessage> Messages { get; set; }
-        public DbSet<ChatRoomChatUserAllowed> ChatRoomsChatUsersAllowed { get; set; }
-        public DbSet<ChatRoomChatUserOwner> ChatRoomsChatUsersOwned { get; set; }
-        public DbSet<ChatRoom> Rooms { get; set; }
-        public DbSet<ChatUserChatRooms> ChatUserChatRooms { get; set; }
-        public DbSet<ChatUserIdentity> Identities { get; set; }
-        public DbSet<ChatUser> Users { get; set; }
+        public DbSet<ChatClient> ChatClients { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<ChatPrivateRoomUsers> ChatPrivateRoomUsers { get; set; }
+        public DbSet<ChatRoomOwners> ChatRoomOwners { get; set; }
+        public DbSet<ChatRoom> ChatRooms { get; set; }
+        public DbSet<ChatRoomUsers> ChatRoomUsers { get; set; }
+        public DbSet<ChatUserIdentity> ChatUserIdentities { get; set; }
+        public DbSet<ChatUser> ChatUsers { get; set; }
         public DbSet<MigrationHistory> MigrationHistory { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Settings> Settings { get; set; }

@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Linq;
-using JabbR_Core.Models;
-//using Attachment = JabbR_Core.Data.Models.Attachment;
-//using ChatClient = JabbR_Core.Data.Models.ChatClient;
-//using ChatMessage = JabbR_Core.Data.Models.ChatMessage;
-//using ChatRoom = JabbR_Core.Data.Models.ChatRoom;
-//using ChatUser = JabbR_Core.Data.Models.ChatUser;
-//using Notification = JabbR_Core.Data.Models.Notification;
-//using Settings = JabbR_Core.Data.Models.Settings;
+using JabbR_Core.Data.Models;
 
-namespace JabbR_Core.Services
+namespace JabbR_Core.Data.Repositories
 {
     public interface IJabbrRepository : IDisposable
     {
@@ -50,11 +43,17 @@ namespace JabbR_Core.Services
         void Add(ChatUserIdentity identity);
         void Add(Attachment attachment);
         void Add(Settings settings);
+        void Add(ChatRoomOwners owner);
+        void Add(ChatPrivateRoomUsers allowed);
+        void Add(ChatRoomUsers userRoom);
 
         void Remove(ChatClient client);
         void Remove(ChatRoom room);
         void Remove(ChatUser user);
         void Remove(ChatUserIdentity identity);
+        void Remove(ChatRoomOwners owner);
+        void Remove(ChatPrivateRoomUsers allowed);
+        void Remove(ChatRoomUsers userRoom);
         void CommitChanges();
 
         bool IsUserInRoom(ChatUser user, ChatRoom room);

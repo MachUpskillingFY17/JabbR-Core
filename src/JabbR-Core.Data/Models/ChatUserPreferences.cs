@@ -2,7 +2,7 @@
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace JabbR_Core.Models
+namespace JabbR_Core.Data.Models
 {
     public class ChatUserPreferences
     {
@@ -14,7 +14,7 @@ namespace JabbR_Core.Models
             if (preferences.TabOrder == null)
             {
                 preferences.TabOrder = new List<string> { "Lobby" };
-                foreach (var room in chatUser.Rooms.Select(e => e.Name).OrderBy(e => e))
+                foreach (var room in chatUser.Rooms.Select(e => e.ChatRoomKeyNavigation.Name).OrderBy(e => e))
                 {
                     preferences.TabOrder.Add(room);
                 }

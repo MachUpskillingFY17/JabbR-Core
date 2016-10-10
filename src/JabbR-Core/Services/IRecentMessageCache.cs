@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 using JabbR_Core.ViewModels;
 
 namespace JabbR_Core.Services

@@ -1,5 +1,6 @@
 ﻿using System;
-using JabbR_Core.Models;
+using JabbR_Core.Services;
+using JabbR_Core.Data.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace JabbR_Core.Commands

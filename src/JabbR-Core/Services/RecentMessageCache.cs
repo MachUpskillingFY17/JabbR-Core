@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
 using JabbR_Core.ViewModels;
 
 namespace JabbR_Core.Services
@@ -54,7 +54,7 @@ namespace JabbR_Core.Services
         public void Add(ChatMessage message)
         {
             RoomCache roomCache;
-            if (_cache.TryGetValue(message.Room.Name, out roomCache))
+            if (_cache.TryGetValue(message.RoomKeyNavigation.Name, out roomCache))
             {
                 // Only cache if there's been a store created for this room already
                 roomCache.Add(message);

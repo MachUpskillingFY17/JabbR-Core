@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Linq;
 using Newtonsoft.Json;
-using JabbR_Core.Models;
+using System.Diagnostics;
 using JabbR_Core.Services;
 using JabbR_Core.Commands;
 using JabbR_Core.ViewModels;
+using JabbR_Core.Data.Models;
 using System.Threading.Tasks;
-using System.Security.Claims;
-using System.Security.Principal;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
+using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace JabbR_Core.Hubs
 {
@@ -100,33 +99,13 @@ namespace JabbR_Core.Hubs
 
             // Pass the list of rooms & owned rooms to the logOn function.
             var rooms = _repository.Rooms.ToArray();
-            var myRooms = _repository.Rooms.Where(r => r.Owners.Contains(user));
+            var myRooms = _repository.Rooms.Where(r => r.Owners.Select(u => u.ChatUserKeyNavigation).Contains(user));
 
             Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
         }
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            /***********************************************************************/
-            // We should not be inserting a new room every time we call GetRooms(),
-            // when the repository is setup correctly this results in duplicates being 
-            // added very frequently. Leaving here for visibility (for now)
-            //
-            //string userId = Context.User.GetUserId();
-            //ChatUser user = _repository.VerifyUserId(userId);
-
-            ////    Count = r.Users.Count(u => u.Status != (int)UserStatus.Offline),
-            //var room = new LobbyRoomViewModel
-            //{
-            //    Name = user.Name,
-            //    Count = '1',
-            //    Private = _lobbyRoom.Private,
-            //    Closed = _lobbyRoom.Closed,
-            //    Topic = _lobbyRoom.Topic
-            //};
-            //_lobbyRoomList.Add(_lobbyRoom);
-            /***********************************************************************/
-
             return _lobbyRoomList;
         }
 
@@ -153,7 +132,7 @@ namespace JabbR_Core.Hubs
             // EF context with multiple concurrent queries.
             foreach (var room in _roomList)
             {
-                if (room == null || (room.Private && !_user.AllowedRooms.Contains(room)))
+                if (room == null || (room.Private && !_user.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).Contains(room)))
                 {
                     continue;
                 }
@@ -182,7 +161,7 @@ namespace JabbR_Core.Hubs
 
             ChatUser user = _repository.GetUserById(userId);
 
-            foreach (var room in user.Rooms)
+            foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation).ToList())
             {
                 UpdateActivity(user, room);
             }
@@ -244,7 +223,7 @@ namespace JabbR_Core.Hubs
             // this line breaks when we message in a new room
             ChatRoom room = _repository.VerifyUserRoom(_cache, user, clientMessage.Room);
 
-            if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
+            if (room == null || (room.Private && user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).ToList().Contains(room)))
             {
                 return false;
             }
@@ -263,7 +242,7 @@ namespace JabbR_Core.Hubs
             
             // Ensure the message is logged
             ChatMessage chatMessage = _chatService.AddMessage(user, room, id, clientMessage.Content);
-            room.Messages.Add(chatMessage);
+            room.ChatMessages.Add(chatMessage);
 
             // Save changes
             _repository.CommitChanges();
@@ -324,7 +303,7 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        private bool TryHandleCommand(string command, string room)
+        public bool TryHandleCommand(string command, string room)
         {
             string clientId = Context.ConnectionId;
             string userId = Context.User.GetUserId();
@@ -344,7 +323,7 @@ namespace JabbR_Core.Hubs
                 Closed = room.Closed
             };
 
-            var isOwner = user.OwnedRooms.Contains(room);
+            var isOwner = user.OwnedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room);
             Clients.Caller.joinRoom(roomViewModel);
 
             // Tell all clients to join this room
@@ -362,8 +341,7 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        
-        public Task<RoomViewModel> GetRoomInfo(string roomName)
+        public async Task<RoomViewModel> GetRoomInfo(string roomName)
         {
             if (string.IsNullOrEmpty(roomName))
             {
@@ -375,13 +353,13 @@ namespace JabbR_Core.Hubs
             ChatUser user = _repository.VerifyUserId(userId);
             
             ChatRoom room = _repository.GetRoomByName(roomName);
-            
-            if (room == null || (room.Private && !user.AllowedRooms.Contains(room)))
+
+            if (room == null || (room.Private && !user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room)))
             {
                 return null;
             }
 
-            return GetRoomInfoCore(room);
+            return await GetRoomInfoCore(room); 
             //return new Task<RoomViewModel>(() => thing);
         }
 
@@ -410,8 +388,9 @@ namespace JabbR_Core.Hubs
                 Name = room.Name,
                 Users = from u in _repository.Users
                         select new UserViewModel(u),
-                Owners = from u in room.Owners
-                         select u.Name,
+                //Owners = from u in room.Owners.Online()
+                //         select u.Name,
+                Owners = from u in room.Owners select u.ChatUserKeyNavigation.Name,
                 RecentMessages = recentMessages,
                 Topic = room.Topic ?? string.Empty,
                 Welcome = room.Welcome ?? String.Empty,
@@ -533,7 +512,7 @@ namespace JabbR_Core.Hubs
             var userViewModel = new UserViewModel(user);
 
             // Tell all users in rooms to change the gravatar
-            foreach (var room in user.Rooms)
+            foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).changeGravatar(userViewModel, room.Name);
             }
@@ -563,7 +542,7 @@ namespace JabbR_Core.Hubs
 
             var userModel = new UserViewModel(user);
 
-            Clients.Caller.showUsersRoomList(userModel, user.Rooms.Allowed(userId).Select(r => r.Name));
+            Clients.Caller.showUsersRoomList(userModel, user.Rooms.Select(r => r.ChatRoomKeyNavigation).Allowed(userId).Select(r => r.Name));
         }
 
         void INotificationService.ListUsers()
@@ -584,12 +563,12 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.ListAllowedUsers(ChatRoom room)
         {
-            Clients.Caller.listAllowedUsers(room.Name, room.Private, room.AllowedUsers.Select(s => s.Name));
+            Clients.Caller.listAllowedUsers(room.Name, room.Private, room.AllowedUsers.Select(s => s.ChatUserKeyNavigation.Name));
         }
 
         void INotificationService.ListOwners(ChatRoom room)
         {
-            Clients.Caller.listOwners(room.Name, room.Owners.Select(s => s.Name), room.Creator != null ? room.Creator.Name : null);
+            Clients.Caller.listOwners(room.Name, room.Owners.Select(s => s.ChatUserKeyNavigation.Name), room.CreatorKeyNavigation != null ? room.CreatorKeyNavigation.Name : null);
         }
 
         void INotificationService.LockRoom(ChatUser targetUser, ChatRoom room)
@@ -654,6 +633,7 @@ namespace JabbR_Core.Hubs
             {
                 Name = user.Name,
                 OwnedRooms = user.OwnedRooms
+                    .Select(r => r.ChatRoomKeyNavigation)
                     .Allowed(userId)
                     .Where(r => !r.Closed)
                     .Select(r => r.Name),
@@ -663,7 +643,7 @@ namespace JabbR_Core.Hubs
                 AfkNote = user.AfkNote,
                 Note = user.Note,
                 Hash = user.Hash,
-                Rooms = user.Rooms.Allowed(userId).Select(r => r.Name)
+                Rooms = user.Rooms.Select(r => r.ChatRoomKeyNavigation).Allowed(userId).Select(r => r.Name)
             });
         }
 
@@ -728,7 +708,7 @@ namespace JabbR_Core.Hubs
             Clients.User(user.Id).userNameChanged(userViewModel);
 
             // Notify all users in the rooms
-            foreach (var room in user.Rooms)
+            foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).changeUserName(oldUserName, userViewModel, room.Name);
             }
@@ -740,7 +720,7 @@ namespace JabbR_Core.Hubs
             var userViewModel = new UserViewModel(user);
 
             // Tell all users in rooms to change the note
-            foreach (var room in user.Rooms)
+            foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).changeAfk(userViewModel, room.Name);
             }
@@ -752,7 +732,7 @@ namespace JabbR_Core.Hubs
             var userViewModel = new UserViewModel(user);
 
             // Tell all users in rooms to change the note
-            foreach (var room in user.Rooms)
+            foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).changeNote(userViewModel, room.Name);
             }
@@ -769,7 +749,7 @@ namespace JabbR_Core.Hubs
             Clients.User(user.Id).flagChanged(isFlagCleared, userViewModel.Country);
 
             // Tell all users in rooms to change the flag
-            foreach (var room in user.Rooms)
+            foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).changeFlag(userViewModel, room.Name);
             }
@@ -803,7 +783,7 @@ namespace JabbR_Core.Hubs
             var userViewModel = new UserViewModel(targetUser);
 
             // Tell all users in rooms to change the admin status
-            foreach (var room in targetUser.Rooms)
+            foreach (var room in targetUser.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).addAdmin(userViewModel, room.Name);
             }
@@ -820,7 +800,7 @@ namespace JabbR_Core.Hubs
             var userViewModel = new UserViewModel(targetUser);
 
             // Tell all users in rooms to change the admin status
-            foreach (var room in targetUser.Rooms)
+            foreach (var room in targetUser.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).removeAdmin(userViewModel, room.Name);
             }
@@ -895,7 +875,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.BanUser(ChatUser targetUser, ChatUser callingUser, string reason)
         {
-            var rooms = targetUser.Rooms.Select(x => x.Name).ToArray();
+            var rooms = targetUser.Rooms.Select(x => x.ChatRoomKeyNavigation.Name).ToArray();
             var targetUserViewModel = new UserViewModel(targetUser);
             var callingUserViewModel = new UserViewModel(callingUser);
 
@@ -956,6 +936,7 @@ namespace JabbR_Core.Hubs
 
             base.Dispose(disposing);
         }
+
         private void LogOn(ChatUser user, string clientId, bool reconnecting)
         {
             if (!reconnecting)
@@ -970,9 +951,9 @@ namespace JabbR_Core.Hubs
             var rooms = new List<RoomViewModel>();
             var privateRooms = new List<LobbyRoomViewModel>();
             var userViewModel = new UserViewModel(user);
-            var ownedRooms = user.OwnedRooms.Select(r => r.Key);
+            var ownedRooms = user.OwnedRooms.Select(r => r.ChatRoomKey);
 
-            foreach (var room in user.Rooms)
+            foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 var isOwner = ownedRooms.Contains(room.Key);
 
@@ -997,7 +978,7 @@ namespace JabbR_Core.Hubs
 
             if (!reconnecting)
             {
-                foreach (var r in user.AllowedRooms)
+                foreach (var r in user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).ToList())
                 {
                     privateRooms.Add(new LobbyRoomViewModel
                     {

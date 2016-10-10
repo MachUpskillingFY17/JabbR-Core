@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Linq;
-using JabbR_Core.Models;
 using System.Reflection;
-using System.Diagnostics;
 using JabbR_Core.Services;
-using JabbR_Core.Commands;
-using Microsoft.Composition;
 using System.Collections.Generic;
+using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;
 //using Microsoft.Extensions.DependencyModel;
