@@ -71,20 +71,21 @@ namespace JabbR_Core
 
             // Create instances to register. Required for ChatService to work
             var context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            var repository = new InMemoryRepository(context);
+            //var repository = new InMemoryRepository(context);
+            var repository = new InMemoryRepository();
             var recentMessageCache = new RecentMessageCache();
             var httpContextAccessor = new HttpContextAccessor();
 
-            var chatService = new ChatService(null, recentMessageCache, repository, null);
+            //var chatService = new ChatService(null, recentMessageCache, repository, null);
 
             services.AddScoped<IJabbrRepository>(provider => repository);
-            services.AddScoped<IChatService>(provider => chatService);
+            services.AddScoped<ICache>(provider => null);
             services.AddSingleton<IRecentMessageCache>(provider => recentMessageCache);
-            services.AddSingleton<IHttpContextAccessor>(provider => httpContextAccessor);
+            services.AddScoped<IHttpContextAccessor>(provider => httpContextAccessor);
 
             // Register the provider that points to the specific instance
             //services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            //services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IChatService, ChatService>();
             //services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.Services
 {

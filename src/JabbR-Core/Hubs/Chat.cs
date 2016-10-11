@@ -33,7 +33,7 @@ namespace JabbR_Core.Hubs
         private readonly ILogger _logger;
         private readonly IChatService _chatService;
         private readonly ApplicationSettings _settings;
-        private readonly InMemoryRepository _repository;
+        private readonly IJabbrRepository _repository;
         private readonly RecentMessageCache _recentMessageCache;
         private readonly List<LobbyRoomViewModel> _lobbyRoomList;
 
@@ -48,15 +48,13 @@ namespace JabbR_Core.Hubs
             IChatService chatService)
         {
             // Request the injected object instances
-            _repository = (InMemoryRepository)repository;
+            _repository = repository;
             _chatService = chatService;
             _recentMessageCache = (RecentMessageCache)recentMessageCache;
             _settings = settings.Value;
 
             // Not instantiated with DI, set here
 
-            // Accessing _repository variables
-            _lobbyRoomList = _repository.LobbyRoomList;
         }
 
         private string UserAgent
@@ -104,7 +102,15 @@ namespace JabbR_Core.Hubs
 
         public List<LobbyRoomViewModel> GetRooms()
         {
-            return _lobbyRoomList;
+            //return _lobbyRoomList;
+
+            return _repository.Rooms.Select(r => new LobbyRoomViewModel() {
+                Name = r.Name,
+                Count = r.Users.Count,
+                Private = r.Private,
+                Closed = r.Closed,
+                Topic = r.Topic
+            }).ToList();
         }
 
         public IEnumerable<CommandMetaData> GetCommands()
@@ -124,7 +130,7 @@ namespace JabbR_Core.Hubs
 
         // Why does this have an unused parameter?
         // string[] roomNames
-        public async void LoadRooms()
+        public async void LoadRooms(string[] roomName)
         {
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
@@ -187,7 +193,7 @@ namespace JabbR_Core.Hubs
             _repository.CommitChanges();
         }
 
-        public bool Send(string content, string roomName, bool testing = false)
+        public bool Send(string content, string roomName)
         {
             var message = new ClientMessage
             {
@@ -195,12 +201,12 @@ namespace JabbR_Core.Hubs
                 Room = roomName,    // 'Lobby'
             };
 
-            return Send(message, testing);
+            return Send(message);
         }
 
-        public bool Send(ClientMessage clientMessage, bool testing = false)
+        public bool Send(ClientMessage clientMessage)
         {
-            CheckStatus(testing);
+            //CheckStatus(testing);
 
             //reject it if it's too long
             if (_settings.MaxMessageLength > 0 && clientMessage.Content.Length > _settings.MaxMessageLength)
