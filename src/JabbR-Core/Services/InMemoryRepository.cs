@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using JabbR_Core.Infrastructure;
-using JabbR_Core.Models;
 using JabbR_Core.ViewModels;
+using JabbR_Core.Data.Models;
+using JabbR_Core.Infrastructure;
+using System.Collections.Generic;
+using JabbR_Core.Data.Repositories;
 
 namespace JabbR_Core.Services
 {
@@ -17,7 +18,7 @@ namespace JabbR_Core.Services
 
         // Mock List for LoadRooms()
        
-        public List<ChatRoom> RoomList { get; set; }
+        //public List<ChatRoom> RoomList { get; set; }
 
         // Mock List for GetRoom()
         public List<LobbyRoomViewModel> LobbyRoomList { get; set; }
@@ -28,21 +29,26 @@ namespace JabbR_Core.Services
         private readonly ICollection<ChatUser> _users;
         private readonly ICollection<ChatRoom> _rooms;
 
-        // Never assigned to, always null
         private readonly ICollection<Settings> _settings;
         private readonly ICollection<Attachment> _attachments;
         private readonly ICollection<Notification> _notifications;
+        private readonly ICollection<ChatPrivateRoomUsers> _allowed;
+        private readonly ICollection<ChatRoomOwners> _owner;
+        private readonly ICollection<ChatRoomUsers> _userRooms;
         private readonly ICollection<ChatUserIdentity> _identities;
 
-        public InMemoryRepository(Data.Models.JabbrContext context)
+        public InMemoryRepository(JabbrContext context)
         {
+            /*AJS: UNCOMMENTED THIS AND COMMENTED OUT HARD CODING TO GET TESTS TO WORK*/
             _users = new SafeCollection<ChatUser>();
             _rooms = new SafeCollection<ChatRoom>();
-
-            //_identities = new SafeCollection<ChatUserIdentity>();
-            //_attachments = new SafeCollection<Attachment>();
-            //_notifications = new SafeCollection<Notification>();
-            //_settings = new SafeCollection<Settings>();
+            _identities = new SafeCollection<ChatUserIdentity>();
+            _attachments = new SafeCollection<Attachment>();
+            _notifications = new SafeCollection<Notification>();
+            _settings = new SafeCollection<Settings>();
+            _allowed = new SafeCollection<ChatPrivateRoomUsers>();
+            _owner = new SafeCollection<ChatRoomOwners>();
+            _userRooms = new SafeCollection<ChatRoomUsers>();
 
             var user = new ChatUser
             {
@@ -54,6 +60,19 @@ namespace JabbR_Core.Services
                 Status = 1
             };
             _users.Add(user);
+
+            //created a new user for testing AddOwner commands
+            var user2 = new ChatUser
+            {
+                Id = "2",
+                Name = "Jack",
+                LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
+                IsAdmin = true,
+                IsAfk = true,
+                Status = 1
+            };
+            _users.Add(user2);
+
 
             ChatClient = new ChatClient
             {
@@ -70,10 +89,15 @@ namespace JabbR_Core.Services
             // instantiate UserViewModel object from User
             UserModel = new UserViewModel(user);
 
+
             // populate ChatRoom and RoomList
             RoomList = new List<ChatRoom> { /*room*/ };
+            
+            var room = new ChatRoom { Name = "light_meow", Users = _users };
+            RoomList = new List<ChatRoom> { room };
 
             // Add RoomView to RoomList
+
             LobbyRoomList = new List<LobbyRoomViewModel> { };
         }
 
@@ -100,7 +124,7 @@ namespace JabbR_Core.Services
 
         public void Add(ChatRoom room)
         {
-            RoomList.Add(room);
+            //RoomList.Add(room);
             _rooms.Add(room);
         }
 
@@ -112,7 +136,7 @@ namespace JabbR_Core.Services
         public void Add(ChatUserIdentity identity)
         {
             _identities.Add(identity);
-            if (identity.User != null)
+            if (identity.UserKeyNavigation != null)
             {
                 //identity.User.Identities.Add(identity);
             }
@@ -126,14 +150,14 @@ namespace JabbR_Core.Services
         public void Add(ChatMessage message)
         {
             // There's no need to keep a collection of messages outside of a room
-            var room = _rooms.First(r => r == message.Room);
-            //room.Messages.Add(message);
+            var room = _rooms.First(r => r == message.RoomKeyNavigation);
+            room.ChatMessages.Add(message);
         }
 
         public void Add(ChatClient client)
         {
-            var user = _users.FirstOrDefault(u => client.User == u);
-            //user.ConnectedClients.Add(client);
+            var user = _users.FirstOrDefault(u => client.UserKeyNavigation == u);
+            user.ConnectedClients.Add(client);
         }
 
         public void Add(Notification notification)
@@ -141,9 +165,22 @@ namespace JabbR_Core.Services
             _notifications.Add(notification);
         }
 
+        public void Add(ChatRoomOwners owner)
+        {
+            _owner.Add(owner);
+        }
+        public void Add(ChatPrivateRoomUsers allowed)
+        {
+            _allowed.Add(allowed);
+        }
+        public void Add(ChatRoomUsers userRoom)
+        {
+            _userRooms.Add(userRoom); 
+        }
+
         public void Remove(ChatClient client)
         {
-            var user = _users.FirstOrDefault(u => client.User == u);
+            var user = _users.FirstOrDefault(u => client.UserKeyNavigation == u);
             //user.ConnectedClients.Remove(client);
         }
 
@@ -165,6 +202,19 @@ namespace JabbR_Core.Services
         public void Remove(Notification notification)
         {
             _notifications.Remove(notification);
+        }
+
+        public void Remove(ChatRoomOwners owner)
+        {
+            _owner.Remove(owner);
+        }
+        public void Remove(ChatPrivateRoomUsers allowed)
+        {
+            _allowed.Remove(allowed);
+        }
+        public void Remove(ChatRoomUsers userRoom)
+        {
+            _userRooms.Remove(userRoom);
         }
 
         public void CommitChanges()
@@ -203,10 +253,12 @@ namespace JabbR_Core.Services
 
         public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
         {
+            var allowedRooms = _rooms.Allowed(user.Id);
+
             return _rooms
                 .Where(r =>
                     (!r.Private) ||
-                    (r.Private && r.AllowedUsers.Contains(user)))
+                    (r.Private && allowedRooms.Contains(r)))
                 .AsQueryable();
         }
 
@@ -217,7 +269,7 @@ namespace JabbR_Core.Services
 
         public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
         {
-            return room.Messages.AsQueryable();
+            return room.ChatMessages.AsQueryable();
         }
 
         public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
@@ -252,7 +304,7 @@ namespace JabbR_Core.Services
             var identity = _identities.FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
             if (identity != null)
             {
-                return identity.User;
+                return identity.UserKeyNavigation;
             }
             return null;
         }
@@ -279,9 +331,9 @@ namespace JabbR_Core.Services
             // Ineffcient since we don't have a messages collection
 
             return (from r in _rooms
-                    let message = r.Messages.FirstOrDefault(m => m.Id == messageId)
+                    let message = r.ChatMessages.FirstOrDefault(m => m.Id == messageId)
                     where message != null
-                    from m in r.Messages
+                    from m in r.ChatMessages
                     where m.When < message.When
                     select m).AsQueryable();
         }
@@ -289,7 +341,7 @@ namespace JabbR_Core.Services
         public ChatMessage GetMessageById(string id)
         {
             return (from r in _rooms
-                    let message = r.Messages.FirstOrDefault(m => m.Id == id)
+                    let message = r.ChatMessages.FirstOrDefault(m => m.Id == id)
                     where message != null
                     select message).FirstOrDefault();
         }
@@ -297,21 +349,34 @@ namespace JabbR_Core.Services
         public bool IsUserInRoom(ChatUser user, ChatRoom room)
         {
             // REVIEW: Inefficient, bu only users for unit tests right now
-            return room.Users.Any(u => u.Name == user.Name);
+            return room.Users.Any(u => u.ChatUserKeyNavigation.Name == user.Name);
         }
 
         public void AddUserRoom(ChatUser user, ChatRoom room)
         {
-            user.Rooms.Add(room);
+            // Create new user room relationship
+            var userRoom = new ChatRoomUsers()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
 
-            room.Users.Add(user);
+            // Add relationship to both user and room
+            user.Rooms.Add(userRoom);
+            room.Users.Add(userRoom);
         }
 
         public void RemoveUserRoom(ChatUser user, ChatRoom room)
         {
-            user.Rooms.Remove(room);
+            // First find the correct relationship in the user and the room
+            var userRelation = user.Rooms.ToList().Find(rm => rm.ChatRoomKeyNavigation == room);
+            var roomRelation = room.Users.ToList().Find(rm => rm.ChatUserKeyNavigation == user);
 
-            room.Users.Remove(user);
+            // This will either find 1 or 0 results, so we can remove the first result from each list
+            user.Rooms.Remove(userRelation);
+            room.Users.Remove(roomRelation);
         }
 
         public void Reload(object entity)

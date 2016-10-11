@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatRoomChatUserAllowed
+    public partial class ChatRoomOwners
     {
         public int ChatRoomKey { get; set; }
         public int ChatUserKey { get; set; }

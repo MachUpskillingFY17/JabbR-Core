@@ -1,16 +1,17 @@
 ﻿using System;
+using JabbR_Core.Services;
+using JabbR_Core.Middleware;
+using JabbR_Core.Data.Models;
 using JabbR_Core.Localization;
 using JabbR_Core.Infrastructure;
-using JabbR_Core.Middleware;
+using Microsoft.AspNetCore.Http;
+using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using JabbR_Core.Services;
-using Microsoft.AspNetCore.Http;
-using JabbR_Core.Data.Models;
 
 namespace JabbR_Core
 {
@@ -39,6 +40,7 @@ namespace JabbR_Core
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // ***** PLEASE READ FOR DB CONTEXT SETUP ***** 
             // Use `dotnet user-secrets set key value` to save as an env variable
             // on your machine.
             //
@@ -47,9 +49,10 @@ namespace JabbR_Core
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
+            services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             //services.AddEntityFrameworkInMemoryDatabase();
-            services.AddDbContext<JabbrContext>();
+            //services.AddDbContext<JabbrContext>();
 
             // Throws a typeload exception
             //services.AddEntityFrameworkInMemoryDatabase()

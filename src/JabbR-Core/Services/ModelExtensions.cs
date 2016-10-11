@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
 
-namespace JabbR_Core.Models
+namespace JabbR_Core.Data.Models
 {
     public static class ModelExtensions
     {
@@ -14,7 +14,7 @@ namespace JabbR_Core.Models
 
         public static IList<string> GetRoomNames(this ChatUser user)
         {
-            return user.Rooms.Select(r => r.Name).ToList();
+            return user.Rooms.Select(r => r.ChatRoomKeyNavigation.Name).ToList();
         }
 
         public static void EnsureAllowed(this ChatUser user, ChatRoom room)
@@ -27,7 +27,13 @@ namespace JabbR_Core.Models
 
         public static bool IsUserAllowed(this ChatRoom room, ChatUser user)
         {
-            return room.AllowedUsers.Contains(user) || room.Owners.Contains(user) || user.IsAdmin;
+            // JC: Find the relationship between room and user
+            var allowedUser = room.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(user);
+            var ownerUser = room.Owners.Select(r => r.ChatUserKeyNavigation).ToList().Contains(user);
+
+            // Ensure relationship is in list of allowedUsers
+            // We can use .First() becasue the ChatRoomKey and ChatUserKey are primary keys and combined they will only return one unique value
+            return allowedUser || ownerUser || user.IsAdmin;
         }
 
         public static void EnsureOpen(this ChatRoom room)
