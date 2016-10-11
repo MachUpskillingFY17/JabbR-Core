@@ -32,7 +32,6 @@ namespace JabbR_Core.Hubs
 
         private readonly ILogger _logger;
         private readonly IChatService _chatService;
-        private readonly List<ChatRoom> _roomList;
         private readonly ApplicationSettings _settings;
         private readonly InMemoryRepository _repository;
         private readonly RecentMessageCache _recentMessageCache;
@@ -57,7 +56,6 @@ namespace JabbR_Core.Hubs
             // Not instantiated with DI, set here
 
             // Accessing _repository variables
-            _roomList = _repository.RoomList;
             _lobbyRoomList = _repository.LobbyRoomList;
         }
 
@@ -130,7 +128,7 @@ namespace JabbR_Core.Hubs
         {
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
-            foreach (var room in _roomList)
+            foreach (var room in _repository.Rooms)
             {
                 if (room == null || (room.Private && !_user.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).Contains(room)))
                 {
