@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-
-using JabbR_Core.Models;
+using System.Collections.Generic;
+using JabbR_Core.Data.Models;
 /*using JabbR_Core.Services;
 using SimpleAuthentication.Core;*/
 
@@ -23,9 +22,9 @@ namespace JabbR_Core.ViewModels
            // Country = ChatService.GetCountry(user.Flag);
             LastActivity = user.LastActivity;
             IsAdmin = user.IsAdmin;
-            SocialDetails = new SocialLoginViewModel(/*configuredProviders, */user.Identities);
+            SocialDetails = new SocialLoginViewModel(/*configuredProviders, */user.ChatUserIdentities);
          //   HasPassword = user.HasUserNameAndPasswordCredentials();
-            OwnedRooms = user.OwnedRooms.OrderBy(e => e.Name).ToArray();
+            OwnedRooms = user.OwnedRooms.Select(r => r.ChatRoomKeyNavigation).OrderBy(e => e.Name).ToArray(); 
         }
 
         public bool HasPassword { get; private set; }

@@ -4,7 +4,8 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using JabbR_Core.Infrastructure;
-using JabbR_Core.Models;
+using JabbR_Core.Data.Models;
+using JabbR_Core.Data.Repositories;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -20,22 +21,22 @@ namespace JabbR_Core.Controllers
        // private IJabbrRepository _repository;
        // private IAuthenticationService _authService;
         private IMembershipService _membershipService;
-        private readonly InMemoryRepository _repository;
+        private readonly IJabbrRepository _repository;
         
-        public AccountController()//IOptions<ApplicationSettings> settings,
+        public AccountController(//IOptions<ApplicationSettings> settings,
                                   // IMembershipService membershipService,
-                                  //    IJabbrRepository repository,
+                                     IJabbrRepository repository
                                   //      IAuthenticationService authService,
                                   //   IChatNotificationService notificationService,
                                   //   IUserAuthenticator authenticator,
-                                  //   InMemoryRepository memory)
-                                  //  IEmailService emailService)
+                                  //  IEmailService emailService
+                                  )
         {
-           // _settings = settings.Value;
-           //  _repository = memory;
-           //    _authService = authService;
-           // _membershipService = membershipService;
-           _repository = new InMemoryRepository();
+            // _settings = settings.Value;
+            //    _authService = authService;
+            // _membershipService = membershipService;
+
+            _repository = repository;
         
             
         }
@@ -605,8 +606,8 @@ namespace JabbR_Core.Controllers
         }
 
         private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
-                                                 IJabbrRepository repository,
-                                                 IAuthenticationService authService)
+                                                 IJabbrRepository repository
+                                                 /*IAuthenticationService authService*/)
         {
             ChatUser user = null;
 
@@ -615,7 +616,7 @@ namespace JabbR_Core.Controllers
                   user = repository.GetUserById(Principal.GetUserId());
               }*/
 
-            var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.Identities : null);
+            var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
             return viewModel;
         }
     }

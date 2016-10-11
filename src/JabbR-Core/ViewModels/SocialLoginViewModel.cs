@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using JabbR_Core.Models;
+using System.Collections.Generic;
+using JabbR_Core.Data.Models;
 //using SimpleAuthentication.Core;
 
 namespace JabbR_Core.ViewModels
