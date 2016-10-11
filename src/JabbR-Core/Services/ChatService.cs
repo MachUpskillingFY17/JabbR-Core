@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using JabbR_Core.Configuration;
-using JabbR_Core.Models;
-using Microsoft.AspNetCore.SignalR;
+using System.Diagnostics;
+using JabbR_Core.Data.Models;
+using System.Collections.Generic;
 //using JabbR_Core.UploadHandlers;
-//using Microsoft.AspNet.SignalR;
-using Newtonsoft.Json;
+using JabbR_Core.Data.Repositories;
+using Microsoft.AspNetCore.SignalR;
+using System.Text.RegularExpressions;
 
 namespace JabbR_Core.Services
 {
@@ -16,7 +15,9 @@ namespace JabbR_Core.Services
         private readonly IJabbrRepository _repository;
         private readonly ICache _cache;
         private readonly IRecentMessageCache _recentMessageCache;
-        private readonly ApplicationSettings _settings;
+
+        // Public for DI, cannot be instantiated in Startup.cs
+        public ApplicationSettings Settings { get; set; }
 
         private const int NoteMaximumLength = 140;
         private const int TopicMaximumLength = 80;
@@ -308,19 +309,15 @@ namespace JabbR_Core.Services
             _cache = cache;
             _recentMessageCache = recentMessageCache;
             _repository = repository;
-            _settings = settings;
-        }
-        
-        //Added to have empty constructor to get openroom to work
-        //TODO: implement
-        //Delete after cache/repository set up
-        public ChatService()
-        {
+
+            Debug.WriteLine(_repository.GetHashCode());
+
+            Settings = settings;
         }
 
         public ChatRoom AddRoom(ChatUser user, string name)
         {
-            if (!_settings.AllowRoomCreation && !user.IsAdmin)
+            if (!Settings.AllowRoomCreation && !user.IsAdmin)
             {
                 throw new HubException(LanguageResources.RoomCreationDisabled);
             }
@@ -338,14 +335,27 @@ namespace JabbR_Core.Services
             var room = new ChatRoom
             {
                 Name = name,
-                Creator = user
+                CreatorKeyNavigation = user
             };
 
-            room.Owners.Add(user);
+            var owner = new ChatRoomOwners()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            }; 
 
+            room.Owners.Add(owner);
+            user.OwnedRooms.Add(owner);
+
+            // Update repositiory
             _repository.Add(room);
+            _repository.Add(owner);
 
-            user.OwnedRooms.Add(room);
+            //Debug.WriteLine(name);
+            //Debug.WriteLine(user.Name);
+            //Debug.WriteLine(user.Id);
 
             return room;
         }
@@ -358,8 +368,18 @@ namespace JabbR_Core.Services
                 // First, check if the invite code is correct
                 if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
                 {
+                    // Create a ChatUserChatRoomAllowed object to represent this relationship
+                    ChatPrivateRoomUsers allowed = new ChatPrivateRoomUsers()
+                    {
+                        ChatRoomKey = room.Key,
+                        ChatUserKey = user.Key,
+                        ChatRoomKeyNavigation = room,
+                        ChatUserKeyNavigation = user
+                    };
+
                     // It is, add the user to the allowed users so that future joins will work
-                    room.AllowedUsers.Add(user);
+                    room.AllowedUsers.Add(allowed);
+                    user.AllowedRooms.Add(allowed);
                 }
                 if (!room.IsUserAllowed(user))
                 {
@@ -367,20 +387,16 @@ namespace JabbR_Core.Services
                 }
             }
 
-            
+
             // Add this user to the room
 
-            //REMOVE _openroom
-            var _repository = new InMemoryRepository();
             _repository.AddUserRoom(user, room);
 
             ChatUserPreferences userPreferences = user.Preferences;
             userPreferences.TabOrder.Add(room.Name);
             user.Preferences = userPreferences;
-
-            // Clear the cache
             
-            //REMOVE _openroom
+            //TODO Add back in when cache working -- Clears the cache
             //_cache.RemoveUserInRoom(user, room);
         }
 
@@ -418,7 +434,9 @@ namespace JabbR_Core.Services
         public void LeaveRoom(ChatUser user, ChatRoom room)
         {
             // Update the cache
-            _cache.RemoveUserInRoom(user, room);
+
+            //TODO ADD BACK IN CACHE
+            //_cache.RemoveUserInRoom(user, room);
 
             // Remove the user from this room
             _repository.RemoveUserRoom(user, room);
@@ -452,16 +470,19 @@ namespace JabbR_Core.Services
             var chatMessage = new ChatMessage
             {
                 Id = id,
-                User = user,
+                UserKeyNavigation = user,
                 Content = content,
                 When = DateTimeOffset.UtcNow,
-                Room = room,
+                RoomKeyNavigation = room,
                 HtmlEncoded = false
             };
 
             _recentMessageCache.Add(chatMessage);
 
             _repository.Add(chatMessage);
+
+            //TODO Remove
+            room.ChatMessages.Add(chatMessage);
 
             return chatMessage;
         }
@@ -489,10 +510,10 @@ namespace JabbR_Core.Services
             // We need to use the key here since messages might be a new entity
             var notification = new Notification
             {
-                User = mentionedUser,
-                Message = message,
+                UserKeyNavigation = mentionedUser,
+                MessageKeyNavigation = message,
                 Read = markAsRead,
-                Room = room
+                RoomKeyNavigation = room
             };
 
             _repository.Add(notification);
@@ -512,23 +533,51 @@ namespace JabbR_Core.Services
             // Ensure the user is owner of the target room
             EnsureOwnerOrAdmin(ownerOrCreator, targetRoom);
 
-            if (targetRoom.Owners.Contains(targetUser))
+            // JC: Create ChatRoomOwners object to describe this relationship 
+            ChatRoomOwners owner;
+
+            if (targetRoom.Owners.Select(r=> r.ChatUserKeyNavigation).ToList().Contains(targetUser))
             {
                 // If the target user is already an owner, then throw
                 throw new HubException(String.Format(LanguageResources.RoomUserAlreadyOwner, targetUser.Name, targetRoom.Name));
+            } else
+            {
+                // Populate object
+                owner = new ChatRoomOwners()
+                {
+                    ChatRoomKey = targetRoom.Key,
+                    ChatUserKey = targetUser.Key,
+                    ChatRoomKeyNavigation = targetRoom,
+                    ChatUserKeyNavigation = targetUser
+                };
             }
 
             // Make the user an owner
-            targetRoom.Owners.Add(targetUser);
-            targetUser.OwnedRooms.Add(targetRoom);
+            targetRoom.Owners.Add(owner);
+            targetUser.OwnedRooms.Add(owner);
+
+            // JC: Add owner relationship to db
+            _repository.Add(owner);
 
             if (targetRoom.Private)
             {
-                if (!targetRoom.AllowedUsers.Contains(targetUser))
+                // See if the user is already allowed in the room, otherwise make this user allowed
+                if (!targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser))
                 {
-                    // If the room is private make this user allowed
-                    targetRoom.AllowedUsers.Add(targetUser);
-                    targetUser.AllowedRooms.Add(targetRoom);
+                    // Create the allowed user relationship
+                    var allowed = new ChatPrivateRoomUsers()
+                    {
+                        ChatRoomKey = targetRoom.Key,
+                        ChatUserKey = targetUser.Key,
+                        ChatRoomKeyNavigation = targetRoom,
+                        ChatUserKeyNavigation = targetUser
+                    };
+
+                    targetRoom.AllowedUsers.Add(allowed);
+                    targetUser.AllowedRooms.Add(allowed);
+
+                    // JC: Add allowed relationship to db
+                    _repository.Add(allowed);
                 }
             }
         }
@@ -541,15 +590,25 @@ namespace JabbR_Core.Services
             // ensure acting user is owner
             EnsureOwnerOrAdmin(creator, targetRoom);
 
-            if (!targetRoom.Owners.Contains(targetUser))
+            // Find the owner relationship
+            var isOwner = targetRoom.Owners.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser);
+            if (!isOwner)
             {
                 // If the target user is not an owner, then throw
                 throw new HubException(String.Format(LanguageResources.UserNotRoomOwner, targetUser.Name, targetRoom.Name));
             }
 
+            // Get the ChatRoomOwners relationships
+            var roomRelation = targetRoom.Owners.Where(r => (targetRoom.Key == r.ChatRoomKey) && (targetUser.Key == r.ChatUserKey)).ToList();
+            var userRelation = targetRoom.Owners.Where(r => (targetRoom.Key == r.ChatRoomKey) && (targetUser.Key == r.ChatUserKey)).ToList();
+
             // Remove user as owner of room
-            targetRoom.Owners.Remove(targetUser);
-            targetUser.OwnedRooms.Remove(targetRoom);
+            // We can use .First() becasue the ChatRoomKey and ChatUserKey combined will only return one unique value
+            targetRoom.Owners.Remove(roomRelation.First());
+            targetUser.OwnedRooms.Remove(userRelation.First());
+
+            // Update the db
+            _repository.Remove(roomRelation.First());
         }
 
         public void KickUser(ChatUser callingUser, ChatUser targetUser, ChatRoom targetRoom)
@@ -572,8 +631,11 @@ namespace JabbR_Core.Services
                 throw new HubException(LanguageResources.Kick_AdminRequiredToKickAdmin);
             }
 
+            // JC: Find the owner relationship
+            var isOwner = targetRoom.Owners.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser);
+
             // If this user isn't the creator/admin AND the target user is an owner then throw
-            if (targetRoom.Creator != callingUser && targetRoom.Owners.Contains(targetUser) && !callingUser.IsAdmin)
+            if (targetRoom.CreatorKeyNavigation != callingUser && isOwner && !callingUser.IsAdmin)
             {
                 throw new HubException(LanguageResources.Kick_CreatorRequiredToKickOwner);
             }
@@ -593,7 +655,7 @@ namespace JabbR_Core.Services
             client = new ChatClient
             {
                 Id = clientId,
-                User = user,
+                UserKeyNavigation = user,
                 UserAgent = userAgent,
                 LastActivity = DateTimeOffset.UtcNow,
                 LastClientActivity = user.LastActivity
@@ -617,7 +679,7 @@ namespace JabbR_Core.Services
             }
 
             // Get the user for this client
-            ChatUser user = client.User;
+            ChatUser user = client.UserKeyNavigation;
 
             if (user != null)
             {
@@ -656,7 +718,10 @@ namespace JabbR_Core.Services
 
         private static void EnsureOwnerOrAdmin(ChatUser user, ChatRoom room)
         {
-            if (!room.Owners.Contains(user) && !user.IsAdmin)
+            // JC: Find the owner relationship
+            var isOwner = room.Owners.Select(r => r.ChatUserKeyNavigation).ToList().Contains(user);
+
+            if (!isOwner && !user.IsAdmin)
             {
                 throw new HubException(String.Format(LanguageResources.RoomOwnerRequired, room.Name));
             }
@@ -664,7 +729,11 @@ namespace JabbR_Core.Services
 
         private static void EnsureOwner(ChatUser user, ChatRoom room)
         {
-            if (!room.Owners.Contains(user))
+            // JC: Find the owner relationship
+            var isOwner = room.Owners.Select(r => r.ChatUserKeyNavigation).ToList().Contains(user);
+
+            // We can use .First() becasue the ChatRoomKey and ChatUserKey are primary keys and combined they will only return one unique value
+            if (isOwner)
             {
                 throw new HubException(String.Format(LanguageResources.RoomOwnerRequired, room.Name));
             }
@@ -672,7 +741,7 @@ namespace JabbR_Core.Services
 
         private static void EnsureCreator(ChatUser user, ChatRoom room)
         {
-            if (user != room.Creator)
+            if (user != room.CreatorKeyNavigation)
             {
                 throw new HubException(String.Format(LanguageResources.RoomCreatorRequired, room.Name));
             }
@@ -680,7 +749,7 @@ namespace JabbR_Core.Services
 
         private static void EnsureCreatorOrAdmin(ChatUser user, ChatRoom room)
         {
-            if (user != room.Creator && !user.IsAdmin)
+            if (user != room.CreatorKeyNavigation && !user.IsAdmin)
             {
                 throw new HubException(String.Format(LanguageResources.RoomCreatorRequired, room.Name));
             }
@@ -695,14 +764,31 @@ namespace JabbR_Core.Services
                 throw new HubException(String.Format(LanguageResources.RoomNotPrivate, targetRoom.Name));
             }
 
-            if (targetUser.AllowedRooms.Contains(targetRoom))
+            // Create a ChatPrivateRoomUsers object to represent this relationship
+            ChatPrivateRoomUsers userroomAllowed;
+
+            // JC: Find the allowed user relationship
+            var isAllowed = targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser);
+            if (isAllowed)
             {
                 throw new HubException(String.Format(LanguageResources.RoomUserAlreadyAllowed, targetUser.Name, targetRoom.Name));
+            } else
+            {
+                // Populate object
+                userroomAllowed = new ChatPrivateRoomUsers()
+                {
+                    ChatRoomKey = targetRoom.Key,
+                    ChatUserKey = targetUser.Key,
+                    ChatRoomKeyNavigation = targetRoom,
+                    ChatUserKeyNavigation = targetUser
+                };
             }
 
-            targetRoom.AllowedUsers.Add(targetUser);
-            targetUser.AllowedRooms.Add(targetRoom);
+            targetRoom.AllowedUsers.Add(userroomAllowed);
+            targetUser.AllowedRooms.Add(userroomAllowed);
 
+            // Update db
+            _repository.Add(userroomAllowed);
             _repository.CommitChanges();
         }
 
@@ -720,7 +806,9 @@ namespace JabbR_Core.Services
                 throw new HubException(String.Format(LanguageResources.RoomNotPrivate, targetRoom.Name));
             }
 
-            if (!targetUser.AllowedRooms.Contains(targetRoom))
+            // JC: Find the allowed user relationship
+            var isAllowed = targetUser.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).ToList().Contains(targetRoom);
+            if (!isAllowed)
             {
                 throw new HubException(String.Format(LanguageResources.RoomAccessPermissionUser, targetUser.Name, targetRoom.Name));
             }
@@ -729,16 +817,24 @@ namespace JabbR_Core.Services
             if (!user.IsAdmin && targetUser.IsAdmin)
             {
                 throw new HubException(LanguageResources.UnAllow_AdminRequired);
-            }
+            }           
 
             // If this user isn't the creator and the target user is an owner then throw
-            if (targetRoom.Creator != user && targetRoom.Owners.Contains(targetUser) && !user.IsAdmin)
+            if (targetRoom.CreatorKeyNavigation != user && targetRoom.Owners.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser) && !user.IsAdmin)
             {
                 throw new HubException(LanguageResources.UnAllow_CreatorRequiredToUnallowOwner);
             }
 
-            targetRoom.AllowedUsers.Remove(targetUser);
-            targetUser.AllowedRooms.Remove(targetRoom);
+            // First find the correct relationship in the user and the room
+            var userRelation = targetUser.AllowedRooms.ToList().Find(rm => rm.ChatRoomKeyNavigation == targetRoom);
+            var roomRelation = targetRoom.AllowedUsers.ToList().Find(rm => rm.ChatUserKeyNavigation == targetUser);
+
+            // Unallow the user
+            targetRoom.AllowedUsers.Remove(userRelation);
+            targetUser.AllowedRooms.Remove(roomRelation);
+
+            // Update db 
+            _repository.Remove(userRelation);
 
             // Make the user leave the room
             LeaveRoom(targetUser, targetRoom);
@@ -758,17 +854,39 @@ namespace JabbR_Core.Services
             // Make the room private
             targetRoom.Private = true;
 
+            // Create ChatPrivateRoomUsers object to represent this relationship
+            var isAllowed = new ChatPrivateRoomUsers()
+            {
+                ChatRoomKey = targetRoom.Key,
+                ChatUserKey = user.Key,
+                ChatRoomKeyNavigation = targetRoom,
+                ChatUserKeyNavigation = user
+            };
+
             // Add the creator to the allowed list
-            targetRoom.AllowedUsers.Add(user);
+            targetRoom.AllowedUsers.Add(isAllowed);
 
             // Add the room to the users' list
-            user.AllowedRooms.Add(targetRoom);
+            user.AllowedRooms.Add(isAllowed);
+
+            // Update db 
+            _repository.Add(isAllowed);
 
             // Make all users in the current room allowed
             foreach (var u in targetRoom.Users.Online())
             {
-                u.AllowedRooms.Add(targetRoom);
-                targetRoom.AllowedUsers.Add(u);
+                // Create ChatPrivateRoomUsers object to represent this relationship
+                var uIsAllowed = new ChatPrivateRoomUsers()
+                {
+                    ChatRoomKey = targetRoom.Key,
+                    ChatUserKey = u.Key,
+                    ChatRoomKeyNavigation = targetRoom,
+                    ChatUserKeyNavigation = u
+                };
+
+                u.AllowedRooms.Add(uIsAllowed);
+                targetRoom.AllowedUsers.Add(uIsAllowed);
+                _repository.Add(uIsAllowed);
             }
 
             _repository.CommitChanges();
@@ -939,7 +1057,7 @@ namespace JabbR_Core.Services
 
         internal static string GetUserRoomPresence(ChatUser user, ChatRoom room)
         {
-            return user.Rooms.Contains(room) ? "present" : "absent";
+            return user.Rooms.Select(u => u.ChatRoomKeyNavigation).ToList().Contains(room) ? "present" : "absent";
         }
     }
 }

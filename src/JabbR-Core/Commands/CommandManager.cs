@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Linq;
-using JabbR_Core.Models;
 using System.Reflection;
-using System.Diagnostics;
 using JabbR_Core.Services;
-using JabbR_Core.Commands;
-using Microsoft.Composition;
 using System.Collections.Generic;
+using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;
-
+//using Microsoft.Extensions.DependencyModel;
+using System.IO;
 
 namespace JabbR_Core.Commands
 {
@@ -131,37 +129,18 @@ namespace JabbR_Core.Commands
             return true;
         }
 
-        //private void MatchCommand(string commandName, out ICommand command)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
         public void MatchCommand(string commandName, out ICommand command)
         {
             if (_commandCache == null)
             {
-                //foreach (var c in _commands.Value.ToList())
-                //{
-
-                //    var typeStuff = c.GetType().GetTypeInfo().GetCustomAttributes<CommandAttribute>();
-                //    Debug.WriteLine(typeStuff);
-
-                //}
-
-                //Regex regex = new Regex("Commands.(.*?)Command");
-                var commands = from c in _commands.Value
+               var commands = from c in _commands.Value
                                let commandAttribute = c.GetType().GetTypeInfo().GetCustomAttributes<CommandAttribute>()
-                                                       //.GetCustomAttributes()
-                                                       //.OfType<CommandAttribute>()
                                                        .FirstOrDefault()
                                where commandAttribute != null
                                select new
                                {
                                    Name = commandAttribute.CommandName,
-                                   //Name = regex.Match(c.ToString()).ToString().Replace("Commands.","").Replace("Command",""),
-                                   //Name = "join",
-
+                                   
                                    Command = c
                                };
 
@@ -201,11 +180,10 @@ namespace JabbR_Core.Commands
 
         public static IList<ICommand> GetCommands()
         {
-            // Use MEF to locate the content providers in this assembly
-            //var catalog = new AssemblyCatalog(typeof(CommandManager).Assembly);
-            //var compositionContainer = new CompositionContainer(catalog);
-            //return compositionContainer.GetExportedValues<ICommand>().ToList();
-            return new List<ICommand>() { new JoinCommand(), new OpenCommand(), new CreateCommand() };
+            IEnumerable<ICommand> commandsList = typeof(CommandManager).GetTypeInfo().Assembly.GetExportedTypes()
+                .Where(o => o.GetTypeInfo().IsSubclassOf(typeof(UserCommand)))
+                .Select(t => (ICommand)Activator.CreateInstance(t));
+            return commandsList.ToList();
         }
 
         public static IEnumerable<CommandMetaData> GetCommandsMetaData()
@@ -219,7 +197,7 @@ namespace JabbR_Core.Commands
                            select new CommandMetaData
                            {
                                Name = commandAttribute.CommandName,
-                               Description = commandAttribute.Description,
+                               //Description = commandAttribute.Description,
                                Arguments = commandAttribute.Arguments,
                                Group = commandAttribute.Group,
                                ConfirmMessage = commandAttribute.ConfirmMessage

@@ -202,7 +202,7 @@
     }
 
     function getUserViewModel(user, isOwner) {
-        var lastActive = user.lastActivity.fromJsonDate();
+        var lastActive = user.LastActivity.fromJsonDate();
         return {
             name: user.Name,
             hash: user.Hash,
@@ -336,8 +336,7 @@
             });
 
             // Set the amount of rooms to load
-            roomsToLoad = filteredRooms.length;
-
+            roomsToLoad = filteredRooms.length
             populateRooms(filteredRooms);
         };
 
@@ -345,6 +344,7 @@
             // get list of available commands
             chat.server.getCommands()
                 .done(function (commands) {
+                    console.log(commands);
                     ui.setCommands(commands);
                 });
 
@@ -415,7 +415,7 @@
     chat.client.roomLoaded = function (roomInfo) {
         populateRoomFromInfo(roomInfo);
 
-        if (roomsToLoad === 1) {
+        if (roomsToLoad === 1) { 
             ui.hideSplashScreen();
         }
         else {
@@ -911,6 +911,7 @@
             ui.removeRoom(room);
         }
         else {
+
             ui.removeUser(user, room);
             ui.addNotification(utility.getLanguageResource('Chat_UserLeftRoom', user.Name, room), room);
         }
@@ -1153,13 +1154,8 @@
         updateTitle();
     });
 
-    $ui.bind(ui.events.openRoom, function (ev, room) {
+   $ui.bind(ui.events.openRoom, function (ev, room) {
         try {
-            chat.state.activeRoom = 'Lobby';
-            connection.hub.log('room: ' + room);
-            connection.hub.log('activeroom: ' + chat.state.activeRoom);
-
-            chat.state.activeRoom = 'Lobby';
             chat.server.send('/join ' + room, chat.state.activeRoom)
                     .fail(function (e) {
                         ui.setActiveRoom('Lobby');
