@@ -1,5 +1,6 @@
 ﻿using System;
-using JabbR_Core.Models;
+using System.Linq;
+using JabbR_Core.Data.Models;
 
 namespace JabbR_Core.Services
 {
@@ -14,15 +15,9 @@ namespace JabbR_Core.Services
         {
             string key = CacheKeys.GetUserInRoom(user, room);
 
-            // Cache is not implemetned.
+            // Cache is not implemetned, return null for now
             //return (bool?)cache.Get(key);
-
-            // Instead.. check if the user is currently listen in the room's users.
-            if (!room.Users.Contains(user))
-            {
-                room.Users.Add(user);
-            }
-            return room.Users.Contains(user);
+            return null;
         }
 
         public static void SetUserInRoom(this ICache cache, ChatUser user, ChatRoom room, bool value)
@@ -30,7 +25,7 @@ namespace JabbR_Core.Services
             string key = CacheKeys.GetUserInRoom(user, room);
 
             // cache very briefly.  We could set this much higher if we know that we're on a non-scaled-out server.
-            cache.Set(key, value, TimeSpan.FromSeconds(1));
+            //cache.Set(key, value, TimeSpan.FromSeconds(1));
         }
 
         public static void RemoveUserInRoom(this ICache cache, ChatUser user, ChatRoom room)
