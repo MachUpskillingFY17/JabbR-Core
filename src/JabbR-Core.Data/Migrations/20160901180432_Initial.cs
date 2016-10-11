@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace JabbRCore.Data.Migrations
+namespace JabbRCore.Migrations
 {
-    public partial class IntitialMigration : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -98,7 +98,7 @@ namespace JabbRCore.Data.Migrations
                     Key = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Closed = table.Column<bool>(nullable: false, defaultValueSql: "0"),
-                    CreatorKey = table.Column<int>(nullable: true),
+                    Creator_Key = table.Column<int>(nullable: true),
                     InviteCode = table.Column<string>(type: "nchar(6)", nullable: true),
                     LastNudged = table.Column<DateTime>(type: "datetime", nullable: true),
                     Name = table.Column<string>(maxLength: 200, nullable: false),
@@ -110,8 +110,8 @@ namespace JabbRCore.Data.Migrations
                 {
                     table.PrimaryKey("PK_ChatRooms", x => x.Key);
                     table.ForeignKey(
-                        name: "FK_ChatRooms_ChatUsers_CreatorKey",
-                        column: x => x.CreatorKey,
+                        name: "FK_ChatRooms_ChatUsers_Creator_Key",
+                        column: x => x.Creator_Key,
                         principalTable: "ChatUsers",
                         principalColumn: "Key",
                         onDelete: ReferentialAction.Restrict);
@@ -206,7 +206,7 @@ namespace JabbRCore.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatPrivateRoomUsers",
+                name: "ChatRoomChatUserAllowed",
                 columns: table => new
                 {
                     ChatRoom_Key = table.Column<int>(nullable: false),
@@ -214,15 +214,15 @@ namespace JabbRCore.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatPrivateRoomUsers", x => new { x.ChatRoom_Key, x.ChatUser_Key });
+                    table.PrimaryKey("PK_ChatRoomChatUserAllowed", x => new { x.ChatRoom_Key, x.ChatUser_Key });
                     table.ForeignKey(
-                        name: "FK_ChatPrivateRoomUsers_ChatRooms_ChatRoom_Key",
+                        name: "FK_ChatRoomChatUserAllowed_ChatRooms_ChatRoom_Key",
                         column: x => x.ChatRoom_Key,
                         principalTable: "ChatRooms",
                         principalColumn: "Key",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ChatPrivateRoomUsers_ChatUsers_ChatUser_Key",
+                        name: "FK_ChatRoomChatUserAllowed_ChatUsers_ChatUser_Key",
                         column: x => x.ChatUser_Key,
                         principalTable: "ChatUsers",
                         principalColumn: "Key",
@@ -230,7 +230,7 @@ namespace JabbRCore.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatRoomOwners",
+                name: "ChatRoomChatUserOwner",
                 columns: table => new
                 {
                     ChatRoom_Key = table.Column<int>(nullable: false),
@@ -238,15 +238,15 @@ namespace JabbRCore.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatRoomOwners", x => new { x.ChatRoom_Key, x.ChatUser_Key });
+                    table.PrimaryKey("PK_ChatRoomChatUserOwner", x => new { x.ChatRoom_Key, x.ChatUser_Key });
                     table.ForeignKey(
-                        name: "FK_ChatRoomOwners_ChatRooms_ChatRoom_Key",
+                        name: "FK_ChatRoomChatUserOwner_ChatRooms_ChatRoom_Key",
                         column: x => x.ChatRoom_Key,
                         principalTable: "ChatRooms",
                         principalColumn: "Key",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ChatRoomOwners_ChatUsers_ChatUser_Key",
+                        name: "FK_ChatRoomChatUserOwner_ChatUsers_ChatUser_Key",
                         column: x => x.ChatUser_Key,
                         principalTable: "ChatUsers",
                         principalColumn: "Key",
@@ -254,7 +254,7 @@ namespace JabbRCore.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatRoomUsers",
+                name: "ChatUserChatRooms",
                 columns: table => new
                 {
                     ChatUser_Key = table.Column<int>(nullable: false),
@@ -262,15 +262,15 @@ namespace JabbRCore.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatRoomUsers", x => new { x.ChatUser_Key, x.ChatRoom_Key });
+                    table.PrimaryKey("PK_ChatUserChatRooms", x => new { x.ChatUser_Key, x.ChatRoom_Key });
                     table.ForeignKey(
-                        name: "FK_ChatRoomUsers_ChatRooms_ChatRoom_Key",
+                        name: "FK_ChatUserChatRooms_ChatRooms_ChatRoom_Key",
                         column: x => x.ChatRoom_Key,
                         principalTable: "ChatRooms",
                         principalColumn: "Key",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ChatRoomUsers_ChatUsers_ChatUser_Key",
+                        name: "FK_ChatUserChatRooms_ChatUsers_ChatUser_Key",
                         column: x => x.ChatUser_Key,
                         principalTable: "ChatUsers",
                         principalColumn: "Key",
@@ -337,14 +337,19 @@ namespace JabbRCore.Data.Migrations
                 column: "User_Key");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatPrivateRoomUsers_ChatUser_Key",
-                table: "ChatPrivateRoomUsers",
+                name: "IX_ChatRoomChatUserAllowed_ChatUser_Key",
+                table: "ChatRoomChatUserAllowed",
                 column: "ChatUser_Key");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatRooms_CreatorKey",
+                name: "IX_ChatRoomChatUserOwner_ChatUser_Key",
+                table: "ChatRoomChatUserOwner",
+                column: "ChatUser_Key");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatRooms_Creator_Key",
                 table: "ChatRooms",
-                column: "CreatorKey");
+                column: "Creator_Key");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Name",
@@ -353,25 +358,20 @@ namespace JabbRCore.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatRoomOwners_ChatUser_Key",
-                table: "ChatRoomOwners",
-                column: "ChatUser_Key");
+                name: "IX_ChatUserChatRooms_ChatRoom_Key",
+                table: "ChatUserChatRooms",
+                column: "ChatRoom_Key");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatRoomUsers_ChatRoom_Key",
-                table: "ChatRoomUsers",
-                column: "ChatRoom_Key");
+                name: "IX_UserKey",
+                table: "ChatUserIdentities",
+                column: "UserKey");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Id",
                 table: "ChatUsers",
                 column: "Id",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserKey",
-                table: "ChatUserIdentities",
-                column: "UserKey");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MessageKey",
@@ -398,13 +398,13 @@ namespace JabbRCore.Data.Migrations
                 name: "ChatClients");
 
             migrationBuilder.DropTable(
-                name: "ChatPrivateRoomUsers");
+                name: "ChatRoomChatUserAllowed");
 
             migrationBuilder.DropTable(
-                name: "ChatRoomOwners");
+                name: "ChatRoomChatUserOwner");
 
             migrationBuilder.DropTable(
-                name: "ChatRoomUsers");
+                name: "ChatUserChatRooms");
 
             migrationBuilder.DropTable(
                 name: "ChatUserIdentities");

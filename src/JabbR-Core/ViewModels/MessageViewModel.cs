@@ -1,6 +1,6 @@
 ﻿using System;
+using JabbR_Core.Models;
 using JabbR_Core.Services;
-using JabbR_Core.Data.Models;
 
 namespace JabbR_Core.ViewModels
 {
@@ -11,8 +11,8 @@ namespace JabbR_Core.ViewModels
             Id = message.Id;
             Content = message.Content;
             HtmlContent = message.HtmlContent;
-            User = new UserViewModel(message.UserKeyNavigation);
-            UserRoomPresence = ChatService.GetUserRoomPresence(message.UserKeyNavigation, message.RoomKeyNavigation);
+            User = new UserViewModel(message.User);
+            UserRoomPresence = ChatService.GetUserRoomPresence(message.User, message.Room);
             When = message.When;
             HtmlEncoded = message.HtmlEncoded;
             MessageType = message.MessageType;

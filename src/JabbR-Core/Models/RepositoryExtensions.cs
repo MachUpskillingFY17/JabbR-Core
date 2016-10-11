@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using JabbR_Core.Data.Models;
+using JabbR_Core.Services;
 using JabbR_Core.Infrastructure;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
-using JabbR_Core.Data.Repositories;
 
-namespace JabbR_Core.Services
+namespace JabbR_Core.Models
 {
     public static class RepositoryExtensions
     {
@@ -24,11 +23,21 @@ namespace JabbR_Core.Services
             return repository.GetUserByIdentity(providerName, identity);
         }
 
+        public static IQueryable<ChatUser> Online(this IQueryable<ChatUser> source)
+        {
+            return source.Where(u => u.Status != (int)UserStatus.Offline);
+        }
+
+        public static IEnumerable<ChatUser> Online(this IEnumerable<ChatUser> source)
+        {
+            return source.Where(u => u.Status != (int)UserStatus.Offline);
+        }
+
         public static IEnumerable<ChatRoom> Allowed(this IEnumerable<ChatRoom> rooms, string userId)
         {
             return from r in rooms
                    where !r.Private ||
-                         r.Private && r.AllowedUsers.Any(u => u.ChatUserKeyNavigation.Id == userId)
+                         r.Private && r.AllowedUsers.Any(u => u.Id == userId)
                    select r;
         }
 
@@ -109,7 +118,7 @@ namespace JabbR_Core.Services
 
         public static ChatUser VerifyUser(this IJabbrRepository repository, string userName)
         {
-            userName = MembershipService.NormalizeUserName(userName);
+            //userName = MembershipService.NormalizeUserName(userName);
 
             ChatUser user = repository.GetUserByName(userName);
 
@@ -133,12 +142,12 @@ namespace JabbR_Core.Services
 
         public static IQueryable<Notification> ByRoom(this IQueryable<Notification> source, string roomName)
         {
-            return source.Where(n => n.RoomKeyNavigation.Name == roomName);
+            return source.Where(n => n.Room.Name == roomName);
         }
 
         public static IList<string> GetAllowedClientIds(this IJabbrRepository repository, ChatRoom room)
         {
-            int[] allowedUserKeys = room.AllowedUsers.Select(u => u.ChatUserKey).ToArray();
+            int[] allowedUserKeys = room.AllowedUsers.Select(u => u.Key).ToArray();
             return repository.Clients.Where(c => allowedUserKeys.Contains(c.UserKey)).Select(c => c.Id).ToList();
         }
     }

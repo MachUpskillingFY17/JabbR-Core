@@ -1,9 +1,8 @@
 ﻿using System;
 using JabbR_Core.Hubs;
-using JabbR_Core.Services;
-using JabbR_Core.Data.Models;
-using Microsoft.DotNet.Cli.Utils;
+using JabbR_Core.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.DotNet.Cli.Utils;
 
 namespace JabbR_Core.Commands
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
-using JabbR_Core.Services;
-using JabbR_Core.Data.Models;
+using JabbR_Core.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace JabbR_Core.Commands
@@ -26,7 +25,7 @@ namespace JabbR_Core.Commands
             var users = room.Users.ToList();
             context.Service.CloseRoom(callingUser, room);
 
-            context.NotificationService.CloseRoom(users.Select(u => u.ChatUserKeyNavigation).ToList(), room);
+            context.NotificationService.CloseRoom(users, room);
         }
     }
 }

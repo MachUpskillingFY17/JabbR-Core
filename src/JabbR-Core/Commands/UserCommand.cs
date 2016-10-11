@@ -1,7 +1,6 @@
-using System;
 ﻿using JabbR_Core.Hubs;
-﻿using JabbR_Core.Services;
-using JabbR_Core.Data.Models;
+using JabbR_Core.Models;
+using System;
 
 namespace JabbR_Core.Commands
 {

@@ -1,4 +1,4 @@
-﻿using JabbR_Core.Data.Models;
+﻿using JabbR_Core.Models;
 
 namespace JabbR_Core.Services
 {

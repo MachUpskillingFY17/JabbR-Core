@@ -1,11 +1,11 @@
-﻿using Xunit;
-using System;
-using System.Linq;
-using JabbR_Core.Services;
-using JabbR_Core.ViewModels;
-using System.Threading.Tasks;
+﻿using System;
 using JabbR_Core.Controllers;
+using JabbR_Core.ViewModels;
+using Xunit;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+using JabbR_Core.Services;
 using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.Tests.Controllers
@@ -46,8 +46,6 @@ namespace JabbR_Core.Tests.Controllers
         [Fact]
         public void IndexNotNull()
         {
-            System.Diagnostics.Debug.WriteLine("some string" == null);
-
             var indexView = _homeController.Index();
 
             Assert.True(_homeController.ModelState.IsValid);
