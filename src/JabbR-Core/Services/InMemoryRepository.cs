@@ -61,18 +61,6 @@ namespace JabbR_Core.Services
             };
             _users.Add(user);
 
-            //created a new user for testing AddOwner commands
-            var user2 = new ChatUser
-            {
-                Id = "2",
-                Name = "Jack",
-                LastActivity = Convert.ToDateTime("2016-08-23 00:26:35.713"),
-                IsAdmin = true,
-                IsAfk = true,
-                Status = 1
-            };
-            _users.Add(user2);
-
 
             ChatClient = new ChatClient
             {
@@ -89,12 +77,6 @@ namespace JabbR_Core.Services
             // instantiate UserViewModel object from User
             UserModel = new UserViewModel(user);
 
-
-            // populate ChatRoom and RoomList
-            RoomList = new List<ChatRoom> { /*room*/ };
-            
-            var room = new ChatRoom { Name = "light_meow", Users = _users };
-            RoomList = new List<ChatRoom> { room };
 
             // Add RoomView to RoomList
 

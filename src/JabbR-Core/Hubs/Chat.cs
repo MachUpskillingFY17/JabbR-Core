@@ -122,9 +122,7 @@ namespace JabbR_Core.Hubs
             };
         }
 
-        // Why does this have an unused parameter?
-        // string[] roomNames
-        public async void LoadRooms()
+        public async void LoadRooms(string[] roomNames)
         {
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
