@@ -61,6 +61,7 @@ namespace JabbR_Core.Services
             };
             _users.Add(user);
 
+
             ChatClient = new ChatClient
             {
                 Key = 1,
@@ -75,6 +76,9 @@ namespace JabbR_Core.Services
 
             // instantiate UserViewModel object from User
             UserModel = new UserViewModel(user);
+
+
+            // Add RoomView to RoomList
 
             LobbyRoomList = new List<LobbyRoomViewModel> { };
         }
