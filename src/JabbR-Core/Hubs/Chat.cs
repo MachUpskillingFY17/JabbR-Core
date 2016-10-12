@@ -157,7 +157,7 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        public void UpdateActivity(bool testing = false)
+        public void UpdateActivity()
         {
             string userId = Context.User.GetUserId();
 
@@ -168,7 +168,7 @@ namespace JabbR_Core.Hubs
                 UpdateActivity(user, room);
             }
 
-            CheckStatus(testing);
+            CheckStatus();
         }
 
         private void UpdateActivity(ChatUser user, ChatRoom room)
@@ -204,7 +204,9 @@ namespace JabbR_Core.Hubs
 
         public bool Send(ClientMessage clientMessage)
         {
-            //CheckStatus(testing);
+            //Commented out for resting purposes
+            // TODO: set env variable
+            //CheckStatus();
 
             //reject it if it's too long
             if (_settings.MaxMessageLength > 0 && clientMessage.Content.Length > _settings.MaxMessageLength)
@@ -281,9 +283,9 @@ namespace JabbR_Core.Hubs
             return true;
         }
 
-        private void CheckStatus(bool testing = false)
+        private void CheckStatus()
         {
-            if (!testing && OutOfSync)
+            if (OutOfSync)
             {
                 Clients.Caller.outOfSync();
             }

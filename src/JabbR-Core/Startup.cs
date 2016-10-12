@@ -71,8 +71,8 @@ namespace JabbR_Core
 
             // Create instances to register. Required for ChatService to work
             var context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            //var repository = new InMemoryRepository(context);
-            var repository = new InMemoryRepository();
+            var repository = new InMemoryRepository(context);
+            //var repository = new InMemoryRepository();
             var recentMessageCache = new RecentMessageCache();
             var httpContextAccessor = new HttpContextAccessor();
 
