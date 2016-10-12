@@ -79,6 +79,9 @@ namespace JabbR_Core
 
             //var chatService = new ChatService(null, recentMessageCache, repository, null);
 
+            // testing for repo tests
+            services.AddScoped(provider => context);
+
             services.AddScoped<IJabbrRepository>(provider => repository);
             services.AddScoped<ICache>(provider => null);
             services.AddSingleton<IRecentMessageCache>(provider => recentMessageCache);
