@@ -168,7 +168,7 @@ namespace JabbR_Core.Hubs
                 UpdateActivity(user, room);
             }
 
-            CheckStatus();
+            //CheckStatus();
         }
 
         private void UpdateActivity(ChatUser user, ChatRoom room)
