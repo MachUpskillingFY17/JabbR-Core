@@ -254,7 +254,7 @@ namespace JabbR_Core.Tests.Hubs
             _chat.Send("/leave MyRoomA", null);
 
             // Correct behaviour is returning true when not in the room, but maybe that should change
-            Assert.True(_chat.Send("Hello again", "MyRoomA"));
+            Assert.Throws<HubException>(() => _chat.Send("Hello again", "MyRoomA"));
         }
 
         [Fact]
@@ -286,6 +286,7 @@ namespace JabbR_Core.Tests.Hubs
             Assert.True(_chat.Send("/create foo", null));
 
             var content = "/join foo";
+            var roomName = "bar";
             Assert.True(_chat.Send(content, null));
             Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
         }
@@ -305,6 +306,7 @@ namespace JabbR_Core.Tests.Hubs
         [Fact]
         public void TryHandleCommandValid()
         {
+            Assert.True(_chat.Send("/create foo", null));
             var command = "/join foo";
             var roomName = "bar";
             Assert.True(_chat.TryHandleCommand(command, roomName));

@@ -285,7 +285,6 @@ namespace JabbR_Core.Tests.Services
             chatService.UpdateActivity(user, "client1", userAgent: null);
             var clients = user.ConnectedClients.ToList();
 
-
             Assert.Equal((int)UserStatus.Active, user.Status);
             Assert.Equal(1, clients.Count);
             Assert.Equal("client1", clients[0].Id);
