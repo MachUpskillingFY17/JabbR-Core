@@ -89,6 +89,7 @@ namespace JabbR_Core.Tests.Hubs
 
             // Register the real SignalR context to the TestableChat.
             chat.Context = new HubCallerContext(request.Object, connectionId);
+            chat.Groups = new GroupManager(connection.Object, "mygroup");
             
             // Instantiate Chat hub.
             _chat = chat;
