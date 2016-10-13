@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace JabbR_Core
 {
@@ -103,6 +104,11 @@ namespace JabbR_Core
                 settings.Time = DateTimeOffset.UtcNow.ToString();
                 settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
+
+            // Microsoft.AspNetCore.Identity.EntityFrameworkCore
+            services.AddIdentity<ChatUser, IdentityRole>()
+                .AddEntityFrameworkStores<JabbrContext>()
+                .AddDefaultTokenProviders();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -124,13 +130,14 @@ namespace JabbR_Core
                 app.UseFakeLogin();
             }
 
-            loggerFactory.AddConsole();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            loggerFactory.AddConsole();
+
+            app.UseIdentity();
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
             app.UseSignalR();

@@ -11,21 +11,29 @@ using JabbR_Core.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 //using JabbR_Core.Configuration;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 
 namespace JabbR_Core.Controllers
 {
     public class AccountController : Controller
     {
-        private ApplicationSettings _settings;
        // private IJabbrRepository _repository;
        // private IAuthenticationService _authService;
+        private ApplicationSettings _settings;
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
-        
-        public AccountController(//IOptions<ApplicationSettings> settings,
+
+        private readonly UserManager<ChatUser> _userManager;
+        private readonly SignInManager<ChatUser> _signInManager;
+
+        public AccountController(UserManager<ChatUser> userManager,
+                                 SignInManager<ChatUser> signInManager,
+                                 IJabbrRepository repository
+
+                                  //IOptions<ApplicationSettings> settings,
                                   // IMembershipService membershipService,
-                                     IJabbrRepository repository
                                   //      IAuthenticationService authService,
                                   //   IChatNotificationService notificationService,
                                   //   IUserAuthenticator authenticator,
@@ -37,8 +45,9 @@ namespace JabbR_Core.Controllers
             // _membershipService = membershipService;
 
             _repository = repository;
-        
-            
+            _userManager = userManager;
+            _signInManager = signInManager;
+
         }
         [HttpGet]
         public IActionResult Index()
