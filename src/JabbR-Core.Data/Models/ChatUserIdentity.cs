@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatUserIdentity : IdentityRole
+    public partial class ChatUserIdentity
     {
         public int Key { get; set; }
         public int UserKey { get; set; }
