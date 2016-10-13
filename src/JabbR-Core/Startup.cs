@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using JabbRCore.Data.InMemory;
 
 namespace JabbR_Core
 {
@@ -49,20 +51,21 @@ namespace JabbR_Core
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
+            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             //services.AddEntityFrameworkInMemoryDatabase();
             //services.AddDbContext<JabbrContext>();
 
-            // Throws a typeload exception
-            //services.AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<JabbrContext>((serviceProvider, options) =>
-            //    {
-            //        options
-            //        .UseInternalServiceProvider(serviceProvider)
-            //        .UseInMemoryDatabase();
-            //    });
+            // To get around the typeload exception because of transactions as per EF team emails.
+            services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
+            services.AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<JabbrContext>((serviceProvider, options) =>
+                {
+                    options
+                    .UseInternalServiceProvider(serviceProvider)
+                    .UseInMemoryDatabase();
+                });
 
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
