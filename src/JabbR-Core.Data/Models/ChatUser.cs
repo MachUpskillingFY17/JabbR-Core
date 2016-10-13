@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatUser
+    public partial class ChatUser : IdentityUser
     {
         public ChatUser()
         {

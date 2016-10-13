@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatUserIdentity
+    public partial class ChatUserIdentity : IdentityRole
     {
         public int Key { get; set; }
         public int UserKey { get; set; }

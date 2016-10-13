@@ -106,7 +106,7 @@ namespace JabbR_Core
             });
 
             // Microsoft.AspNetCore.Identity.EntityFrameworkCore
-            services.AddIdentity<ChatUser, IdentityRole>()
+            services.AddIdentity<ChatUser, ChatUserIdentity>()
                 .AddEntityFrameworkStores<JabbrContext>()
                 .AddDefaultTokenProviders();
         }
