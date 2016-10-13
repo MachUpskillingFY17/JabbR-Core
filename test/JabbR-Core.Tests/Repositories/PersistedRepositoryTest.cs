@@ -131,6 +131,9 @@ namespace JabbR_Core.Tests.Repositories
         public void ClearDatabase()
         {
             _context.Database.EnsureDeleted();
+
+            // Does nothing for InMemory, this matters
+            // for the behaviour of Persisted databases 
             _context.Database.EnsureCreated();
         }
 
