@@ -142,16 +142,8 @@ namespace JabbR_Core
 
             app.UseHsts(options => options.MaxAge(days: 365));
 
-            app.UseCsp();
+            app.UseCsp(options => options.DefaultSources(s => s.None()).ScriptSources(s=> s.Self()));
 
-            app.UseCsp(options => options
-      .DefaultSources(s => s.Self())
-      .ScriptSources(s => s.Self().CustomSources("scripts.nwebsec.com"))
-      .ReportUris(r => r.Uris("/report")));
-
-            -Content - Security - Policy: default- src 'none'; style - src 'self'; img - src 'self';
-            -See if nsecweb(or whatever its called) supports this or we can set the header manually
-           - consider limiting to scripts because of custom styles, images, files.
         }
     }
 }
