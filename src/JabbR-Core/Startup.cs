@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using JabbRCore.Data.InMemory;
+using NWebsec.AspNetCore.Middleware;
+using NWebsec.AspNetCore.Core;
 
 namespace JabbR_Core
 {
@@ -137,6 +139,19 @@ namespace JabbR_Core
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
             app.UseSignalR();
+
+            app.UseHsts(options => options.MaxAge(days: 365));
+
+            app.UseCsp();
+
+            app.UseCsp(options => options
+      .DefaultSources(s => s.Self())
+      .ScriptSources(s => s.Self().CustomSources("scripts.nwebsec.com"))
+      .ReportUris(r => r.Uris("/report")));
+
+            -Content - Security - Policy: default- src 'none'; style - src 'self'; img - src 'self';
+            -See if nsecweb(or whatever its called) supports this or we can set the header manually
+           - consider limiting to scripts because of custom styles, images, files.
         }
     }
 }
