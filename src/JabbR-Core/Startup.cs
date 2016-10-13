@@ -113,6 +113,12 @@ namespace JabbR_Core
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
+            //Security headers
+            app.UseHsts(options => options.MaxAge(days: 365));
+
+            //TODO: AJS FIX UNSAFEEVAL AFTER INCLUDING ANGULAR JS 
+            app.UseCsp(options => options.DefaultSources(s => s.Self()).ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com").UnsafeEval()).StyleSources(s=> s.Self().UnsafeInline()));
+
 
             if (env.IsDevelopment())
             {
@@ -140,9 +146,6 @@ namespace JabbR_Core
             app.UseStaticFiles();
             app.UseSignalR();
 
-            app.UseHsts(options => options.MaxAge(days: 365));
-
-            app.UseCsp(options => options.DefaultSources(s => s.None()).ScriptSources(s=> s.Self()));
 
         }
     }
