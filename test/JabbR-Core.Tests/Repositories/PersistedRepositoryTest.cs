@@ -7,6 +7,7 @@ using JabbR_Core.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Immutable;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace JabbR_Core.Tests.Repositories
 {
@@ -37,7 +38,6 @@ namespace JabbR_Core.Tests.Repositories
             Name = "User 3",
             LastActivity = DateTime.Now,
         };
-
 
         // Test Rooms
         ChatRoom room1 = new ChatRoom()
@@ -110,30 +110,35 @@ namespace JabbR_Core.Tests.Repositories
 
         // Test ChatPrivateRoomUsers relationship objects
         ChatPrivateRoomUsers isAllowedR1 = new ChatPrivateRoomUsers();
-
         ChatPrivateRoomUsers isAllowedR2 = new ChatPrivateRoomUsers();
-
 
         // Test ChatRoomOwners relationship object
         ChatRoomOwners isOwnerR1 = new ChatRoomOwners();
-
 
         public PersistedRepositoryTest()
         {
             // Set up the db context
             _options = new DbContextOptionsBuilder<JabbrContext>();
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            _options.UseSqlServer(connection);
-            DbContextOptions<JabbrContext> options = _options.Options;
+            _options.UseInMemoryDatabase();
+
+            var options = _options.Options;
             _context = new JabbrContext(options);
 
             // Set up the repository
             _repository = new PersistedRepository(_context);
         }
 
+        public void ClearDatabase()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+        }
+
         [Fact]
         public void AddAndRemoveUser()
         {
+            // Fighting side effects
+            ClearDatabase();
             // Try to add the user to the repository
             _repository.Add(user1);
 
@@ -152,6 +157,9 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void AddAndRemoveRoom()
         {
+            // Damn those side effects!
+            ClearDatabase();
+
             // Add a user to repository to populate the Creator_Key attribute in ChatRoom
             _repository.Add(user1);
 
@@ -178,6 +186,8 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void AddAndRemoveClient()
         {
+            ClearDatabase();
+
             // Add a user to repository to populate the UserKey attribute in ChatClient
             _repository.Add(user1);
 
@@ -204,6 +214,8 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void AddAndRemoveSettings()
         {
+            ClearDatabase();
+
             // Try to add the settings to the repository
             _repository.Add(settings1);
 
@@ -222,6 +234,9 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void AddAndRemoveTwoUsersFromOneRoom()
         {
+            // Fighting side effects
+            ClearDatabase();
+
             // Add a user to the repository
             _repository.Add(user1);
             _repository.Add(user2);
@@ -264,6 +279,9 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetOnlineUsersByRoom()
         {
+            // Fighting side effects
+            ClearDatabase();
+
             // Set user status and add two users to the repository
             user1.Status = 0;  // This evaluates to the UserStaus enum value "Active"
             _repository.Add(user1);
@@ -301,6 +319,9 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetUserByName()
         {
+            // Fighting side effects
+            ClearDatabase();
+
             // Add three users to the repo
             _repository.Add(user1);
             _repository.Add(user2);
@@ -324,6 +345,11 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetMessagesByRoomAndId()
         {
+            ClearDatabase();
+
+            // Create a new repo with the context to fight side effects         
+            _repository = new PersistedRepository(_context);
+
             // Add a user to the repository
             _repository.Add(user1);
 
@@ -379,6 +405,8 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetNotificationsByUser()
         {
+            ClearDatabase();
+
             // Add a user to the repository
             _repository.Add(user1);
             _repository.Add(user2);
@@ -447,6 +475,8 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetUserByIdentity()
         {
+            ClearDatabase();
+
             // Add a user to the repository
             user1.Identity = "Identity Name";
             _repository.Add(user1);
@@ -470,6 +500,8 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetAllowedRoomsTwoUsersTwoRooms()
         {
+            ClearDatabase();
+
             // Add a user to the repository
             _repository.Add(user1);
             _repository.Add(user2);
@@ -527,6 +559,8 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetAllowedRoomsOneUserTwoRooms()
         {
+            ClearDatabase();
+
             // Add a user to the repository
             _repository.Add(user1);
             var u1Key = _repository.Users.First().Key;
@@ -581,6 +615,8 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void AddAndRemoveRoomOwner()
         {
+            ClearDatabase();
+
             // Add a user to the repository
             _repository.Add(user1);
             var u1Key = _repository.Users.First().Key;
@@ -625,6 +661,8 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetUserByRequestResetPasswordId()
         {
+            ClearDatabase();
+
             // Set up the user and add them to the repository
             user1.RequestPasswordResetId = "12345";
             user1.RequestPasswordResetValidThrough = DateTimeOffset.Now.AddDays(1);

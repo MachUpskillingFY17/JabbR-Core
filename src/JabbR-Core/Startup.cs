@@ -74,25 +74,25 @@ namespace JabbR_Core
             services.AddSignalR();
 
             // Create instances to register. Required for ChatService to work
-            var context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            var repository = new InMemoryRepository(context);
+            //var context = new JabbrContext(new DbContextOptions<JabbrContext>());
+            //var repository = new InMemoryRepository(context);
             //var repository = new InMemoryRepository();
-            var recentMessageCache = new RecentMessageCache();
-            var httpContextAccessor = new HttpContextAccessor();
+            //var recentMessageCache = new RecentMessageCache();
+            //var httpContextAccessor = new HttpContextAccessor();
 
             //var chatService = new ChatService(null, recentMessageCache, repository, null);
 
             // testing for repo tests
-            services.AddScoped(provider => context);
+            //services.AddScoped(provider => context);
 
-            services.AddScoped<IJabbrRepository>(provider => repository);
             services.AddScoped<ICache>(provider => null);
-            services.AddSingleton<IRecentMessageCache>(provider => recentMessageCache);
-            services.AddScoped<IHttpContextAccessor>(provider => httpContextAccessor);
+            services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IJabbrRepository, InMemoryRepository>();
+            services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
 
             // Register the provider that points to the specific instance
             //services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            services.AddScoped<IChatService, ChatService>();
             //services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
