@@ -5,6 +5,7 @@ using JabbR_Core.Data.Models;
 using System.Collections.Generic;
 using JabbR_Core.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Immutable;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JabbR_Core.Tests.Repositories

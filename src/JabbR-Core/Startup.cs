@@ -52,11 +52,12 @@ namespace JabbR_Core
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
+            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
             //services.AddEntityFrameworkInMemoryDatabase();
             //services.AddDbContext<JabbrContext>();
 
-            // Throws a typeload exception
+            // To get around the typeload exception because of transactions as per EF team emails.
             services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
             services.AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<JabbrContext>((serviceProvider, options) =>
@@ -80,6 +81,9 @@ namespace JabbR_Core
             var httpContextAccessor = new HttpContextAccessor();
 
             //var chatService = new ChatService(null, recentMessageCache, repository, null);
+
+            // testing for repo tests
+            services.AddScoped(provider => context);
 
             services.AddScoped<IJabbrRepository>(provider => repository);
             services.AddScoped<ICache>(provider => null);

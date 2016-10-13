@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.SignalR;
+using System.Collections.Immutable;
 
 namespace JabbR_Core.Tests.Services
 {
@@ -283,7 +284,6 @@ namespace JabbR_Core.Tests.Services
 
             chatService.UpdateActivity(user, "client1", userAgent: null);
             var clients = user.ConnectedClients.ToList();
-
 
             Assert.Equal((int)UserStatus.Active, user.Status);
             Assert.Equal(1, clients.Count);

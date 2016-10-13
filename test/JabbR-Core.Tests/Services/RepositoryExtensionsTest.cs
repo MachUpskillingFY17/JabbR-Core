@@ -8,6 +8,7 @@ using JabbR_Core.Data.Repositories;
 using System.Security.Claims;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Immutable;
 
 namespace JabbR_Core.Tests.Services
 {

@@ -89,6 +89,7 @@ namespace JabbR_Core.Tests.Hubs
 
             // Register the real SignalR context to the TestableChat.
             chat.Context = new HubCallerContext(request.Object, connectionId);
+            chat.Groups = new GroupManager(connection.Object, "mygroup");
             
             // Instantiate Chat hub.
             _chat = chat;
@@ -123,47 +124,6 @@ namespace JabbR_Core.Tests.Hubs
         public void UpdateAcivityNoException()
         {
             _chat.UpdateActivity();
-        }
-
-        // This throws an InvalidOperationException because actions that send through
-        // SignalR hubs that are not instantiated in the SignalR pipeline are forbidden
-        // Cannot test other operations until we change this behaviour.
-        //[Fact]
-        //public void LoadRoomsInvalidOperationException()
-        //{
-        //    GetCleanRepository(); 
-
-        //    _repository.RoomList.Add(new Models.ChatRoom
-        //    {
-        //        Name = "ChatRoom One",
-        //        Topic = "One"
-        //    });
-
-        //    // Need to reinstantiate _chat so that in its constructor the _repository.RoomList
-        //    // assignment is up to date with the RoomList changes we added above.
-        //    _chat = new Chat(_repository, _settings, _recentMessageCache, _chatService);
-
-        //    Assert.Throws<InvalidOperationException>(() => _chat.LoadRooms());
-        //}
-
-
-        // Wouldn't this be better as a repository test?
-        [Fact]
-        public void AddRoomsVerification()
-        {
-            var rooms = _chat.GetRooms();
-
-            Assert.Empty(rooms);
-
-            var room = new LobbyRoomViewModel()
-            {
-                Name = "Room",
-                Topic = "JabbR"
-            };
-
-            rooms.Add(room);
-
-            Assert.Contains(room, _chat.GetRooms());
         }
 
         [Fact]
@@ -295,7 +255,7 @@ namespace JabbR_Core.Tests.Hubs
             _chat.Send("/leave MyRoomA", null);
 
             // Correct behaviour is returning true when not in the room, but maybe that should change
-            Assert.True(_chat.Send("Hello again", "MyRoomA"));
+            Assert.Throws<HubException>(() => _chat.Send("Hello again", "MyRoomA"));
         }
 
         [Fact]
@@ -320,30 +280,15 @@ namespace JabbR_Core.Tests.Hubs
             Console.WriteLine("\tChatTest.GetShortcutsNotNull: Complete");
         }
 
-        // LoadRooms()
-        // Can not LoadRoom with the current implementation.
-        //[Fact]
-        //public void LoadRoomsNotNull()
-        //{
-        //    string[] roomNames =
-        //    {
-        //        "room0",
-        //        "room1",
-        //        "room2"
-        //    };
-        //    _chat.LoadRooms(roomNames);
-        //    Collection<ChatUserChatRooms> collection;
-        //}
-
-        // Send(string content, string roomName)
-        // Send(ClientMessage clientMessage)
         // Basic test to see if any exceptions are hit
         [Fact]
         public void SendAcceptsCommandParams()
         {
+            Assert.True(_chat.Send("/create foo", null));
+
             var content = "/join foo";
             var roomName = "bar";
-            Assert.True(_chat.Send(content, roomName));
+            Assert.True(_chat.Send(content, null));
             Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
         }
 
@@ -362,6 +307,7 @@ namespace JabbR_Core.Tests.Hubs
         [Fact]
         public void TryHandleCommandValid()
         {
+            Assert.True(_chat.Send("/create foo", null));
             var command = "/join foo";
             var roomName = "bar";
             Assert.True(_chat.TryHandleCommand(command, roomName));
