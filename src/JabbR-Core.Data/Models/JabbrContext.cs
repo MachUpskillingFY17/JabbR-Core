@@ -280,7 +280,7 @@ namespace JabbR_Core.Data.Models
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatRoomUsers> ChatRoomUsers { get; set; }
         public DbSet<ChatUserIdentity> ChatUserIdentities { get; set; }
-        public DbSet<ChatUser> ChatUsers { get; set; }
+        public DbSet<ChatUser> AspNetUsers { get; set; }
         public DbSet<MigrationHistory> MigrationHistory { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Settings> Settings { get; set; }
