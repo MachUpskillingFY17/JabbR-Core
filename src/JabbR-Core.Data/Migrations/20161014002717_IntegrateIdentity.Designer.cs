@@ -8,7 +8,7 @@ using JabbR_Core.Data.Models;
 namespace JabbRCore.Data.Migrations
 {
     [DbContext(typeof(JabbrContext))]
-    [Migration("20161013233926_IntegrateIdentity")]
+    [Migration("20161014002717_IntegrateIdentity")]
     partial class IntegrateIdentity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

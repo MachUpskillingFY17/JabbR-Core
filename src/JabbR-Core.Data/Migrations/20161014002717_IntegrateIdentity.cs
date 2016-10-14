@@ -9,6 +9,15 @@ namespace JabbRCore.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ChatPrivateRoomUsers");
+
+            migrationBuilder.DropTable(
+                name: "ChatRoomOwners");
+
+            migrationBuilder.DropTable(
+                name: "ChatRoomUsers");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Attachments_ChatUsers_OwnerKey",
                 table: "Attachments");
@@ -22,20 +31,8 @@ namespace JabbRCore.Data.Migrations
                 table: "ChatMessages");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_ChatPrivateRoomUsers_ChatUsers_ChatUser_Key",
-                table: "ChatPrivateRoomUsers");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_ChatRooms_ChatUsers_CreatorKey",
                 table: "ChatRooms");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_ChatRoomOwners_ChatUsers_ChatUser_Key",
-                table: "ChatRoomOwners");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_ChatRoomUsers_ChatUsers_ChatUser_Key",
-                table: "ChatRoomUsers");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_ChatUserIdentities_ChatUsers_UserKey",
@@ -57,10 +54,6 @@ namespace JabbRCore.Data.Migrations
                 name: "PK_ChatUsers",
                 table: "ChatUsers");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_ChatRoomUsers",
-                table: "ChatRoomUsers");
-
             migrationBuilder.DropIndex(
                 name: "IX_Id",
                 table: "ChatUsers");
@@ -72,6 +65,14 @@ namespace JabbRCore.Data.Migrations
             migrationBuilder.DropIndex(
                 name: "IX_OwnerKey",
                 table: "Attachments");
+
+            migrationBuilder.DropIndex(
+                name: "IX_ChatMessages_User_Key",
+                table: "ChatMessages");
+
+            migrationBuilder.DropIndex(
+                name: "IX_ChatClients_User_Key",
+                table: "ChatClients");
 
             migrationBuilder.DropColumn(
                 name: "UserKey",
@@ -195,28 +196,10 @@ namespace JabbRCore.Data.Migrations
                 maxLength: 256,
                 nullable: true);
 
-            migrationBuilder.AlterColumn<string>(
-                name: "ChatUser_Key",
-                table: "ChatRoomUsers",
-                nullable: false,
-                oldClrType: typeof(int));
-
-            migrationBuilder.AlterColumn<string>(
-                name: "ChatUser_Key",
-                table: "ChatRoomOwners",
-                nullable: false,
-                oldClrType: typeof(int));
-
             migrationBuilder.AddColumn<string>(
                 name: "CreatorId",
                 table: "ChatRooms",
                 nullable: true);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "ChatUser_Key",
-                table: "ChatPrivateRoomUsers",
-                nullable: false,
-                oldClrType: typeof(int));
 
             migrationBuilder.AlterColumn<string>(
                 name: "User_Key",
@@ -355,6 +338,78 @@ namespace JabbRCore.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ChatRoomUsers",
+                columns: table => new
+                {
+                    ChatUser_Key = table.Column<int>(nullable: false),
+                    ChatRoom_Key = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                table.PrimaryKey("PK_ChatRoomUsers", x => new { x.ChatUser_Key, x.ChatRoom_Key });
+                table.ForeignKey(
+                    name: "FK_ChatRoomUsers_ChatRooms_ChatRoom_Key",
+                    column: x => x.ChatRoom_Key,
+                    principalTable: "ChatRooms",
+                    principalColumn: "Key",
+                    onDelete: ReferentialAction.Restrict);
+                table.ForeignKey(
+                    name: "FK_ChatRoomUsers_AspNetUsers_ChatUser_Key",
+                    column: x => x.ChatUser_Key,
+                    principalTable: "AspNetUsers",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChatPrivateRoomUsers",
+                columns: table => new
+                {
+                    ChatRoom_Key = table.Column<int>(nullable: false),
+                    ChatUser_Key = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatPrivateRoomUsers", x => new { x.ChatRoom_Key, x.ChatUser_Key });
+                    table.ForeignKey(
+                        name: "FK_ChatPrivateRoomUsers_ChatRooms_ChatRoom_Key",
+                        column: x => x.ChatRoom_Key,
+                        principalTable: "ChatRooms",
+                        principalColumn: "Key",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ChatPrivateRoomUsers_AspNetUsers_ChatUser_Key",
+                        column: x => x.ChatUser_Key,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChatRoomOwners",
+                columns: table => new
+                {
+                    ChatRoom_Key = table.Column<int>(nullable: false),
+                    ChatUser_Key = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatRoomOwners", x => new { x.ChatRoom_Key, x.ChatUser_Key });
+                    table.ForeignKey(
+                        name: "FK_ChatRoomOwners_ChatRooms_ChatRoom_Key",
+                        column: x => x.ChatRoom_Key,
+                        principalTable: "ChatRooms",
+                        principalColumn: "Key",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ChatRoomOwners_AspNetUsers_ChatUser_Key",
+                        column: x => x.ChatUser_Key,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_UserKey",
                 table: "Notifications",
@@ -364,6 +419,16 @@ namespace JabbRCore.Data.Migrations
                 name: "IX_UserKey",
                 table: "ChatUserIdentities",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_User_Key",
+                table: "ChatMessages",
+                column: "User_Key");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatClients_User_Key",
+                table: "ChatClients",
+                column: "User_Key");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -412,7 +477,7 @@ namespace JabbRCore.Data.Migrations
                 column: "RoleId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_dbo.Attachments_dbo.ChatUsers_OwnerKey",
+                name: "FK_dbo.Attachments_dbo.AspNetUsers_OwnerKey",
                 table: "Attachments",
                 column: "OwnerId",
                 principalTable: "AspNetUsers",
@@ -436,14 +501,6 @@ namespace JabbRCore.Data.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ChatPrivateRoomUsers_AspNetUsers_ChatUser_Key",
-                table: "ChatPrivateRoomUsers",
-                column: "ChatUser_Key",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_ChatRooms_AspNetUsers_CreatorId",
                 table: "ChatRooms",
                 column: "CreatorId",
@@ -452,23 +509,7 @@ namespace JabbRCore.Data.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ChatRoomOwners_AspNetUsers_ChatUser_Key",
-                table: "ChatRoomOwners",
-                column: "ChatUser_Key",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_ChatRoomUsers_AspNetUsers_ChatUser_Key",
-                table: "ChatRoomUsers",
-                column: "ChatUser_Key",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_dbo.ChatUserIdentities_dbo.ChatUsers_UserKey",
+                name: "FK_dbo.ChatUserIdentities_dbo.AspNetUsers_UserKey",
                 table: "ChatUserIdentities",
                 column: "UserId",
                 principalTable: "AspNetUsers",
@@ -476,7 +517,7 @@ namespace JabbRCore.Data.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_dbo.Notifications_dbo.ChatUsers_UserKey",
+                name: "FK_dbo.Notifications_dbo.AspNetUsers_UserKey",
                 table: "Notifications",
                 column: "UserId",
                 principalTable: "AspNetUsers",
@@ -487,7 +528,7 @@ namespace JabbRCore.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_dbo.Attachments_dbo.ChatUsers_OwnerKey",
+                name: "FK_dbo.Attachments_dbo.AspNetUsers_OwnerKey",
                 table: "Attachments");
 
             migrationBuilder.DropForeignKey(
@@ -515,11 +556,11 @@ namespace JabbRCore.Data.Migrations
                 table: "ChatRoomUsers");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_dbo.ChatUserIdentities_dbo.ChatUsers_UserKey",
+                name: "FK_dbo.ChatUserIdentities_dbo.AspNetUsers_UserKey",
                 table: "ChatUserIdentities");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_dbo.Notifications_dbo.ChatUsers_UserKey",
+                name: "FK_dbo.Notifications_dbo.AspNetUsers_UserKey",
                 table: "Notifications");
 
             migrationBuilder.DropTable(
