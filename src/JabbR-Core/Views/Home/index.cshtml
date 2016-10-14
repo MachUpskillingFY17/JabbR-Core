@@ -312,12 +312,13 @@
     <script type="text/javascript" src="~/Scripts/jquery.KeyTips.js"></script>
     <script type="text/javascript" src="~/Scripts/jquery.signalR-2.2.0-pre-140709-b104.min.js"></script>
     <script type="text/javascript" src="@Url.Content("~/signalr/hubs")"></script>
-    <script type="text/javascript">
+    <script type="text/javascript" src="~/languageresources.js"></script>
+    @*<script type="text/javascript">
       window.jabbrVersion = '@Model.Version';
       window.languageResources = {
         @Html.Raw(Model.ClientLanguageResources)
       };
-    </script>
+    </script>*@
     <script type="text/javascript" src="~/Scripts/jQuery.tmpl.min.js" ></script>
     <script type="text/javascript" src="~/Scripts/jquery.cookie.js" ></script>
     <script type="text/javascript" src="~/Scripts/jquery.autotabcomplete.js" ></script>
