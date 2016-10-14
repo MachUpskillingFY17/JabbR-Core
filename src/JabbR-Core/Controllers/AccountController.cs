@@ -25,6 +25,7 @@ namespace JabbR_Core.Controllers
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
 
+        // Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
 
