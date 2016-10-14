@@ -119,6 +119,12 @@ namespace JabbR_Core
             //TODO: AJS FIX UNSAFEEVAL AFTER INCLUDING ANGULAR JS 
             app.UseCsp(options => options.DefaultSources(s => s.Self()).ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com").UnsafeEval()).StyleSources(s=> s.Self().UnsafeInline()));
 
+            app.UseXXssProtection(option => option.EnabledWithBlockMode());
+
+            app.UseXfo(options => options.Deny());
+
+            app.UseXContentTypeOptions();
+
 
             if (env.IsDevelopment())
             {
