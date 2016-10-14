@@ -10,9 +10,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using JabbRCore.Data.InMemory;
+using NWebsec.AspNetCore.Middleware;
+using NWebsec.AspNetCore.Core;
 
 namespace JabbR_Core
 {
@@ -56,14 +60,15 @@ namespace JabbR_Core
             //services.AddEntityFrameworkInMemoryDatabase();
             //services.AddDbContext<JabbrContext>();
 
-            // Throws a typeload exception
-            //services.AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<JabbrContext>((serviceProvider, options) =>
-            //    {
-            //        options
-            //        .UseInternalServiceProvider(serviceProvider)
-            //        .UseInMemoryDatabase();
-            //    });
+            // To get around the typeload exception because of transactions as per EF team emails.
+            services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
+            services.AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<JabbrContext>((serviceProvider, options) =>
+                {
+                    options
+                    .UseInternalServiceProvider(serviceProvider)
+                    .UseInMemoryDatabase();
+                });
 
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
@@ -72,25 +77,25 @@ namespace JabbR_Core
             services.AddSignalR();
 
             // Create instances to register. Required for ChatService to work
-            var context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            var repository = new InMemoryRepository(context);
+            //var context = new JabbrContext(new DbContextOptions<JabbrContext>());
+            //var repository = new InMemoryRepository(context);
             //var repository = new InMemoryRepository();
-            var recentMessageCache = new RecentMessageCache();
-            var httpContextAccessor = new HttpContextAccessor();
+            //var recentMessageCache = new RecentMessageCache();
+            //var httpContextAccessor = new HttpContextAccessor();
 
             //var chatService = new ChatService(null, recentMessageCache, repository, null);
 
             // testing for repo tests
-            services.AddScoped(provider => context);
+            //services.AddScoped(provider => context);
 
-            services.AddScoped<IJabbrRepository>(provider => repository);
             services.AddScoped<ICache>(provider => null);
-            services.AddSingleton<IRecentMessageCache>(provider => recentMessageCache);
-            services.AddScoped<IHttpContextAccessor>(provider => httpContextAccessor);
+            services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IJabbrRepository, InMemoryRepository>();
+            services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
 
             // Register the provider that points to the specific instance
             //services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            services.AddScoped<IChatService, ChatService>();
             //services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -114,6 +119,18 @@ namespace JabbR_Core
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
+            //Security headers
+            app.UseHsts(options => options.MaxAge(days: 365));
+
+            //TODO: AJS FIX UNSAFEEVAL AFTER INCLUDING ANGULAR JS 
+            app.UseCsp(options => options.DefaultSources(s => s.Self()).ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com").UnsafeEval()).StyleSources(s=> s.Self().UnsafeInline()));
+
+            app.UseXXssProtection(option => option.EnabledWithBlockMode());
+
+            app.UseXfo(options => options.Deny());
+
+            app.UseXContentTypeOptions();
+
 
             if (env.IsDevelopment())
             {

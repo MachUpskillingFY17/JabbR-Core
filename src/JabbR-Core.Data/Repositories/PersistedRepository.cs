@@ -123,16 +123,16 @@ namespace JabbR_Core.Data.Repositories
             _db.SaveChanges();
         }
 
-        public void Remove(ChatMessage message)
-        {
-            _db.ChatMessages.Remove(message);
-            _db.SaveChanges();
-        }
-        public void Remove(Settings settings)
-        {
-            _db.Settings.Remove(settings);
-            _db.SaveChanges();
-        }
+        //public void Remove(ChatMessage message)
+        //{
+        //    _db.ChatMessages.Remove(message);
+        //    _db.SaveChanges();
+        //}
+        //public void Remove(Settings settings)
+        //{
+        //    _db.Settings.Remove(settings);
+        //    _db.SaveChanges();
+        //}
 
         public void Remove(ChatRoomOwners owner)
         {
