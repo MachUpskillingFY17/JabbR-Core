@@ -8,9 +8,10 @@ using JabbR_Core.Data.Models;
 namespace JabbRCore.Data.Migrations
 {
     [DbContext(typeof(JabbrContext))]
-    partial class JabbrContextModelSnapshot : ModelSnapshot
+    [Migration("20161013233926_IntegrateIdentity")]
+    partial class IntegrateIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.0-alpha1-22397")

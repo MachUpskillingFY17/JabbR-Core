@@ -186,7 +186,7 @@ namespace JabbR_Core.Data.Repositories
             return _db.ChatRooms
                 .Where(r =>
                        (!r.Private) ||
-                       (r.Private && r.AllowedUsers.Any(u => u.ChatUserKey == user.Key)));
+                       (r.Private && r.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
         }
 
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
@@ -194,7 +194,7 @@ namespace JabbR_Core.Data.Repositories
             return _db.Notifications.Include(n => n.RoomKeyNavigation)
                                     .Include(n => n.MessageKeyNavigation)
                                     .Include(n => n.MessageKeyNavigation.UserKeyNavigation)
-                                    .Where(n => n.UserKey == user.Key);
+                                    .Where(n => n.UserId == user.Id);
         }
 
         private IQueryable<ChatMessage> GetMessagesByRoom(string roomName)
@@ -248,7 +248,7 @@ namespace JabbR_Core.Data.Repositories
             ChatRoomUsers userroom = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -266,7 +266,7 @@ namespace JabbR_Core.Data.Repositories
         {
             // JC: First, find the ChatRoomUsers object that represents this relationship
             var chatUserChatRoom = from r in _db.ChatRoomUsers
-                                   where (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)
+                                   where (r.ChatRoomKey == room.Key) && (r.ChatUserId == user.Id)
                                    select r;
 
             // We found the correct relationship

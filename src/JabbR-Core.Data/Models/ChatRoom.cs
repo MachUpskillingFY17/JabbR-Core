@@ -18,7 +18,7 @@ namespace JabbR_Core.Data.Models
         public int Key { get; set; }
         public DateTime? LastNudged { get; set; }
         public string Name { get; set; }
-        public int? CreatorKey { get; set; }
+        public string CreatorId { get; set; }
         public bool Private { get; set; }
         public string InviteCode { get; set; }
         public bool Closed { get; set; }

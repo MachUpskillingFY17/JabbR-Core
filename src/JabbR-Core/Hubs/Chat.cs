@@ -53,6 +53,9 @@ namespace JabbR_Core.Hubs
             _recentMessageCache = (RecentMessageCache)recentMessageCache;
             _settings = settings.Value;
 
+            Debug.WriteLine(_repository.GetHashCode());
+
+
             // Not instantiated with DI, set here
 
         }

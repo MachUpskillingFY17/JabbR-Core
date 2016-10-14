@@ -1,21 +1,24 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class JabbrContext : DbContext
+    public partial class JabbrContext : IdentityDbContext<ChatUser>
     {
         public JabbrContext(DbContextOptions<JabbrContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Attachment>(entity =>
             {
                 entity.HasKey(e => e.Key)
                     .HasName("PK_dbo.Attachments");
 
-                entity.HasIndex(e => e.OwnerKey)
+                entity.HasIndex(e => e.OwnerId)
                     .HasName("IX_OwnerKey");
 
                 entity.HasIndex(e => e.RoomKey)
@@ -25,7 +28,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.OwnerKeyNavigation)
                     .WithMany(p => p.Attachments)
-                    .HasForeignKey(d => d.OwnerKey)
+                    .HasForeignKey(d => d.OwnerId)
                     .HasConstraintName("FK_dbo.Attachments_dbo.ChatUsers_OwnerKey");
 
                 entity.HasOne(d => d.RoomKeyNavigation)
@@ -43,11 +46,11 @@ namespace JabbR_Core.Data.Models
 
                 entity.Property(e => e.LastClientActivity).HasDefaultValueSql("'0001-01-01T00:00:00.000+00:00'");
 
-                entity.Property(e => e.UserKey).HasColumnName("User_Key");
+                entity.Property(e => e.UserId).HasColumnName("User_Key");
 
                 entity.HasOne(d => d.UserKeyNavigation)
                     .WithMany(p => p.ConnectedClients)
-                    .HasForeignKey(d => d.UserKey)
+                    .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -62,7 +65,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.Property(e => e.RoomKey).HasColumnName("Room_Key");
 
-                entity.Property(e => e.UserKey).HasColumnName("User_Key");
+                entity.Property(e => e.UserId).HasColumnName("User_Key");
 
                 entity.HasOne(d => d.RoomKeyNavigation)
                     .WithMany(p => p.ChatMessages)
@@ -70,17 +73,17 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.UserKeyNavigation)
                     .WithMany(p => p.ChatMessages)
-                    .HasForeignKey(d => d.UserKey);
+                    .HasForeignKey(d => d.UserId);
             });
 
             modelBuilder.Entity<ChatPrivateRoomUsers>(entity =>
             {
-                entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
+                entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserId })
                     .HasName("PK_ChatPrivateRoomUsers");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
-                entity.Property(e => e.ChatUserKey).HasColumnName("ChatUser_Key");
+                entity.Property(e => e.ChatUserId).HasColumnName("ChatUser_Key");
 
                 entity.HasOne(d => d.ChatRoomKeyNavigation)
                     .WithMany(p => p.AllowedUsers)
@@ -89,18 +92,18 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.ChatUserKeyNavigation)
                     .WithMany(p => p.AllowedRooms)
-                    .HasForeignKey(d => d.ChatUserKey)
+                    .HasForeignKey(d => d.ChatUserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<ChatRoomOwners>(entity =>
             {
-                entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserKey })
+                entity.HasKey(e => new { e.ChatRoomKey, e.ChatUserId })
                     .HasName("PK_ChatRoomOwners");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
-                entity.Property(e => e.ChatUserKey).HasColumnName("ChatUser_Key");
+                entity.Property(e => e.ChatUserId).HasColumnName("ChatUser_Key");
 
                 entity.HasOne(d => d.ChatRoomKeyNavigation)
                     .WithMany(p => p.Owners)
@@ -109,7 +112,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.ChatUserKeyNavigation)
                     .WithMany(p => p.OwnedRooms)
-                    .HasForeignKey(d => d.ChatUserKey)
+                    .HasForeignKey(d => d.ChatUserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -124,7 +127,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.Property(e => e.Closed).HasDefaultValueSql("0");
 
-                entity.Property(e => e.CreatorKey);
+                entity.Property(e => e.CreatorId);
 
                 entity.Property(e => e.InviteCode).HasColumnType("nchar(6)");
 
@@ -142,15 +145,15 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.CreatorKeyNavigation)
                     .WithMany(p => p.ChatRooms)
-                    .HasForeignKey(d => d.CreatorKey);
+                    .HasForeignKey(d => d.CreatorId);
             });
 
             modelBuilder.Entity<ChatRoomUsers>(entity =>
             {
-                entity.HasKey(e => new { e.ChatUserKey, e.ChatRoomKey })
+                entity.HasKey(e => new { e.ChatUserId, e.ChatRoomKey })
                     .HasName("PK_ChatRoomUsers");
 
-                entity.Property(e => e.ChatUserKey).HasColumnName("ChatUser_Key");
+                entity.Property(e => e.ChatUserId).HasColumnName("ChatUser_Key");
 
                 entity.Property(e => e.ChatRoomKey).HasColumnName("ChatRoom_Key");
 
@@ -161,7 +164,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.ChatUserKeyNavigation)
                     .WithMany(p => p.Rooms)
-                    .HasForeignKey(d => d.ChatUserKey)
+                    .HasForeignKey(d => d.ChatUserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -170,31 +173,34 @@ namespace JabbR_Core.Data.Models
                 entity.HasKey(e => e.Key)
                     .HasName("PK_dbo.ChatUserIdentities");
 
-                entity.HasIndex(e => e.UserKey)
+                entity.HasIndex(e => e.UserId)
                     .HasName("IX_UserKey");
 
                 entity.HasOne(d => d.UserKeyNavigation)
                     .WithMany(p => p.ChatUserIdentities)
-                    .HasForeignKey(d => d.UserKey)
+                    .HasForeignKey(d => d.UserId)
                     .HasConstraintName("FK_dbo.ChatUserIdentities_dbo.ChatUsers_UserKey");
             });
 
             modelBuilder.Entity<ChatUser>(entity =>
             {
-                entity.HasKey(e => e.Key)
-                    .HasName("PK_ChatUsers");
+                //entity.HasKey(e => e.Key)
+                //    .HasName("PK_ChatUsers");
 
-                entity.HasIndex(e => e.Id)
-                    .HasName("IX_Id")
-                    .IsUnique();
+                //entity.HasIndex(e => e.Id)
+                //    .HasName("IX_Id")
+                //    .IsUnique();
+
+                entity.HasKey(e => e.Id)
+                    .HasName("PK_Id");
 
                 entity.Property(e => e.AfkNote).HasMaxLength(200);
 
                 entity.Property(e => e.Flag).HasMaxLength(255);
 
-                entity.Property(e => e.Id)
-                    .IsRequired()
-                    .HasMaxLength(200);
+                //entity.Property(e => e.Id)
+                //    .IsRequired()
+                //    .HasMaxLength(200);
 
                 entity.Property(e => e.IsAdmin).HasDefaultValueSql("0");
 
@@ -240,7 +246,7 @@ namespace JabbR_Core.Data.Models
                 entity.HasIndex(e => e.RoomKey)
                     .HasName("IX_RoomKey");
 
-                entity.HasIndex(e => e.UserKey)
+                entity.HasIndex(e => e.UserId)
                     .HasName("IX_UserKey");
 
                 entity.HasOne(d => d.MessageKeyNavigation)
@@ -255,7 +261,7 @@ namespace JabbR_Core.Data.Models
 
                 entity.HasOne(d => d.UserKeyNavigation)
                     .WithMany(p => p.Notifications)
-                    .HasForeignKey(d => d.UserKey)
+                    .HasForeignKey(d => d.UserId)
                     .HasConstraintName("FK_dbo.Notifications_dbo.ChatUsers_UserKey");
             });
 

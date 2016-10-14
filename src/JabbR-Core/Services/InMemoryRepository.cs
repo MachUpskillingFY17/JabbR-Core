@@ -246,7 +246,7 @@ namespace JabbR_Core.Services
 
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
         {
-            return _notifications.Where(n => n.UserKey == user.Key).AsQueryable();
+            return _notifications.Where(n => n.UserId == user.Id).AsQueryable();
         }
 
         public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
@@ -340,7 +340,7 @@ namespace JabbR_Core.Services
             var userRoom = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };

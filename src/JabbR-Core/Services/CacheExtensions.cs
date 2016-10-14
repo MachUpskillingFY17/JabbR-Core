@@ -37,7 +37,7 @@ namespace JabbR_Core.Services
         {
             public static string GetUserInRoom(ChatUser user, ChatRoom room)
             {
-                return "UserInRoom" + user.Key + "_" + room.Key;
+                return "UserInRoom" + user.Id + "_" + room.Key;
             }
         }
     }
