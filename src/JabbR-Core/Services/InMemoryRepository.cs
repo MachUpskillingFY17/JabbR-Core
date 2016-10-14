@@ -87,14 +87,14 @@ namespace JabbR_Core.Services
 
         public IQueryable<ChatUser> Users { get { return _users.AsQueryable(); } }
 
-        //public IQueryable<ChatClient> Clients { get { return _users.SelectMany(u => u.ConnectedClients).AsQueryable(); } }
-        public IQueryable<ChatClient> Clients
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IQueryable<ChatClient> Clients { get { return _users.SelectMany(u => u.ConnectedClients).AsQueryable(); } }
+        //public IQueryable<ChatClient> Clients
+        //{
+        //    get
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
         public IQueryable<Settings> Settings { get { return _settings.AsQueryable(); } }
 
         
@@ -163,7 +163,7 @@ namespace JabbR_Core.Services
         public void Remove(ChatClient client)
         {
             var user = _users.FirstOrDefault(u => client.UserKeyNavigation == u);
-            //user.ConnectedClients.Remove(client);
+            user.ConnectedClients.Remove(client);
         }
 
         public void Remove(ChatRoom room)
