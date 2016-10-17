@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace JabbR_Core.Data.Models
 {
-    public partial class ChatUser
+    public partial class ChatUser : IdentityUser
     {
         public ChatUser()
         {
@@ -19,21 +21,21 @@ namespace JabbR_Core.Data.Models
             Notifications = new HashSet<Notification>();
         }
 
-        public int Key { get; set; }
-        public string Id { get; set; }
+        //public int Key { get; set; }
+        //public string Id { get; set; }
         public string Name { get; set; }
         public string Hash { get; set; }
         public DateTime LastActivity { get; set; }
         public DateTime? LastNudged { get; set; }
         public int Status { get; set; }
-        public string HashedPassword { get; set; }
-        public string Salt { get; set; }
+        //public string HashedPassword { get; set; }
+        //public string Salt { get; set; }
         public string Note { get; set; }
         public string AfkNote { get; set; }
         public bool IsAfk { get; set; }
         public string Flag { get; set; }
         public string Identity { get; set; }
-        public string Email { get; set; }
+        //public string Email { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsBanned { get; set; }
         public string RequestPasswordResetId { get; set; }
@@ -52,7 +54,7 @@ namespace JabbR_Core.Data.Models
 
         public bool HasUserNameAndPasswordCredentials()
         {
-            return !String.IsNullOrEmpty(HashedPassword) && !String.IsNullOrEmpty(Name);
+            return !String.IsNullOrEmpty(PasswordHash) && !String.IsNullOrEmpty(Name);
         }
 
         [NotMapped]

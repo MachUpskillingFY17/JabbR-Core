@@ -5,7 +5,7 @@ namespace JabbR_Core.Data.Models
 {
     public partial class ChatRoomUsers
     {
-        public int ChatUserKey { get; set; }
+        public string ChatUserId { get; set; }
         public int ChatRoomKey { get; set; }
         
         // TODO: combine all "join" tables/ classes into one table/ class with booleans to distinguish the relationships

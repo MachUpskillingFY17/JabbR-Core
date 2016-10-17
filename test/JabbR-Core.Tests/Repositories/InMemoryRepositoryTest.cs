@@ -157,7 +157,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user1);
 
             // Set the creator key then try to add the room to the repository
-            room1.CreatorKey = _repository.Users.First().Key;
+            room1.CreatorId = _repository.Users.First().Id;
             _repository.Add(room1);
 
             // Make sure repository returns the correct information
@@ -182,7 +182,8 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user1);
 
             // Create a new client
-            client1.UserKey = _repository.Users.First().Key;
+
+            client1.UserId= _repository.Users.First().Id;
             client1.UserKeyNavigation = user1;
 
             _repository.Add(client1);
@@ -220,7 +221,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user2);
 
             // Set the creator key and add the chat room to the repository
-            room1.CreatorKey = _repository.Users.First().Key;
+            room1.CreatorId = _repository.Users.First().Id;
             _repository.Add(room1);
 
             // Add relationship between user and room
@@ -258,7 +259,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user2);
 
             // Set the creator key for the chat room and add it to the repository
-            room1.CreatorKey = _repository.Users.First().Key;
+            room1.CreatorId = _repository.Users.First().Id;
             _repository.Add(room1);
 
             // Add the two users to the room
@@ -307,7 +308,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user1);
 
             // Set up a new chat room and add it to the repository
-            room1.CreatorKey = _repository.Users.First().Key;
+            room1.CreatorId = _repository.Users.First().Id;
             _repository.Add(room1);
 
             // Add relationship between user and room
@@ -316,7 +317,7 @@ namespace JabbR_Core.Tests.Repositories
             // Set up the message and add it to the repository
             message1.RoomKey = room1.Key;
             message1.RoomKeyNavigation = room1;
-            message1.UserKey = user1.Key;
+            message1.UserId = user1.Id;
             message1.UserKeyNavigation = user1;
             _repository.Add(message1);
 
@@ -332,7 +333,7 @@ namespace JabbR_Core.Tests.Repositories
             // Set up and add another message
             message2.RoomKey = room1.Key;
             message2.RoomKeyNavigation = room1;
-            message2.UserKey = user1.Key;
+            message2.UserId = user1.Id;
             message2.UserKeyNavigation = user1;
             _repository.Add(message2);
 
@@ -356,7 +357,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user2);
 
             // Set up a new chat room and add it to the repository
-            room1.CreatorKey = _repository.Users.First().Key;
+            room1.CreatorId = _repository.Users.First().Id;
             _repository.Add(room1);
 
             // Add relationship between user and room
@@ -366,7 +367,7 @@ namespace JabbR_Core.Tests.Repositories
             // Set up the message for user1 and add it to the repository
             message1.RoomKey = room1.Key;
             message1.RoomKeyNavigation = room1;
-            message1.UserKey = user1.Key;
+            message1.UserId = user1.Id;
             message1.UserKeyNavigation = user1;
             _repository.Add(message1);
 
@@ -378,7 +379,7 @@ namespace JabbR_Core.Tests.Repositories
             // Set up the message for user2 and add it to the repository
             message2.RoomKey = room1.Key;
             message2.RoomKeyNavigation = room1;
-            message2.UserKey = user2.Key;
+            message2.UserId = user2.Id;
             message2.UserKeyNavigation = user2;
             _repository.Add(message2);
 
@@ -390,13 +391,13 @@ namespace JabbR_Core.Tests.Repositories
             // Set up a new notification for user1 and add it to the repository
             notification1.MessageKey = message1.Key;
             notification1.RoomKey = room1.Key;
-            notification1.UserKey = user1.Key;
+            notification1.UserId = user1.Id;
             _repository.Add(notification1);
 
             // Set up a new notification for user2 and add it to the repository
             notification2.MessageKey = message2.Key;
             notification2.RoomKey = room1.Key;
-            notification2.UserKey = user2.Key;
+            notification2.UserId = user2.Id;
             _repository.Add(notification2);
 
             // Verify notifications were added properly
@@ -414,7 +415,7 @@ namespace JabbR_Core.Tests.Repositories
             _repository.Add(user1);
 
             // Setup a ChatUserIdentity and add it to the repository
-            identity1.UserKey = user1.Key;
+            identity1.UserId = user1.Id;
             identity1.UserKeyNavigation = user1;
             _repository.Add(identity1);
 
@@ -431,26 +432,26 @@ namespace JabbR_Core.Tests.Repositories
             // Add a user to the repository
             _repository.Add(user1);
             _repository.Add(user2);
-            var u1Key = _repository.GetUserByName("User 1").Key;
-            var u2Key = _repository.GetUserByName("User 2").Key;
+            var u1Key = _repository.GetUserByName("User 1").Id;
+            var u2Key = _repository.GetUserByName("User 2").Id;
 
             // Set up the rooms's creator key and private attributes then add them to the repository
-            room1.CreatorKey = u1Key;
+            room1.CreatorId = u1Key;
             room1.Private = true;
             _repository.Add(room1);
         
-            room2.CreatorKey = u1Key;
+            room2.CreatorId = u1Key;
             room2.Private = true;
             _repository.Add(room2);
 
             // Set up the ChatPrivateRoomUsers objects that will represent rooms user1 is allowed in
             isAllowedR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
-            isAllowedR1.ChatUserKey = u1Key;
+            isAllowedR1.ChatUserId = u1Key;
             isAllowedR1.ChatRoomKeyNavigation = room1;
             isAllowedR1.ChatUserKeyNavigation = user1;
 
             isAllowedR2.ChatRoomKey = _repository.GetRoomByName("Room 2").Key;
-            isAllowedR2.ChatUserKey = u2Key;
+            isAllowedR2.ChatUserId = u2Key;
             isAllowedR2.ChatRoomKeyNavigation = room2;
             isAllowedR2.ChatUserKeyNavigation = user2;
 
@@ -480,25 +481,25 @@ namespace JabbR_Core.Tests.Repositories
         {
             // Add a user to the repository
             _repository.Add(user1);
-            var u1Key = _repository.Users.First().Key;
+            var u1Key = _repository.Users.First().Id;
 
             // Set up the rooms's creator key and private attributes then add them to the repository
-            room1.CreatorKey = u1Key;
+            room1.CreatorId = u1Key;
             room1.Private = true;
             _repository.Add(room1);
 
-            room2.CreatorKey = u1Key;
+            room2.CreatorId = u1Key;
             room2.Private = true;
             _repository.Add(room2);
 
             // Create the ChatPrivateRoomUsers objects that will represent rooms user1 is allowed in
             isAllowedR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
-            isAllowedR1.ChatUserKey = u1Key;
+            isAllowedR1.ChatUserId = u1Key;
             isAllowedR1.ChatRoomKeyNavigation = room1;
             isAllowedR1.ChatUserKeyNavigation = user1;
 
             isAllowedR2.ChatRoomKey = _repository.GetRoomByName("Room 2").Key;
-            isAllowedR2.ChatUserKey = u1Key;
+            isAllowedR2.ChatUserId = u1Key;
             isAllowedR2.ChatRoomKeyNavigation = room2;
             isAllowedR2.ChatUserKeyNavigation = user1;
 
@@ -527,15 +528,15 @@ namespace JabbR_Core.Tests.Repositories
         {
             // Add a user to the repository
             _repository.Add(user1);
-            var u1Key = _repository.Users.First().Key;
+            var u1Key = _repository.Users.First().Id;
 
             // Set up the rooms's creator key and private attributes then add them to the repository
-            room1.CreatorKey = u1Key;
+            room1.CreatorId = u1Key;
             _repository.Add(room1);
 
             // Create the ChatRoomOwners object that will represent user1 being an owner
             isOwnerR1.ChatRoomKey = _repository.GetRoomByName("Room 1").Key;
-            isOwnerR1.ChatUserKey = u1Key;
+            isOwnerR1.ChatUserId = u1Key;
             isOwnerR1.ChatRoomKeyNavigation = room1;
             isOwnerR1.ChatUserKeyNavigation = user1;
 

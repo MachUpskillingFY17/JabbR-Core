@@ -9,13 +9,13 @@ namespace JabbR_Core.Data.Repositories
     {
         private readonly JabbrContext _db;
 
-        private static readonly Func<JabbrContext, string, ChatUser> getUserByName = (db, userName) => db.ChatUsers.FirstOrDefault(u => u.Name == userName);
-        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.ChatUsers.FirstOrDefault(u => u.Id == userId);
+        private static readonly Func<JabbrContext, string, ChatUser> getUserByName = (db, userName) => db.AspNetUsers.FirstOrDefault(u => u.Name == userName);
+        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.AspNetUsers.FirstOrDefault(u => u.Id == userId);
         private static readonly Func<JabbrContext, string, string, ChatUserIdentity> getIdentityByIdentity = (db, providerName, userIdentity) => db.ChatUserIdentities.Include(i => i.UserKeyNavigation).FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
         private static readonly Func<JabbrContext, string, ChatRoom> getRoomByName = (db, roomName) => db.ChatRooms.FirstOrDefault(r => r.Name == roomName);
         private static readonly Func<JabbrContext, string, ChatClient> getClientById = (db, clientId) => db.ChatClients.FirstOrDefault(c => c.Id == clientId);
         private static readonly Func<JabbrContext, string, ChatClient> getClientByIdWithUser = (db, clientId) => db.ChatClients.Include(c => c.UserKeyNavigation).FirstOrDefault(u => u.Id == clientId);
-        private static readonly Func<JabbrContext, string, string, DateTimeOffset, ChatUser> getUserByRequestResetPasswordId = (db, userName, requestId, now) => db.ChatUsers.FirstOrDefault(u => u.Name == userName && u.RequestPasswordResetId != null && u.RequestPasswordResetId.Equals(requestId, StringComparison.OrdinalIgnoreCase) && u.RequestPasswordResetValidThrough > now);
+        private static readonly Func<JabbrContext, string, string, DateTimeOffset, ChatUser> getUserByRequestResetPasswordId = (db, userName, requestId, now) => db.AspNetUsers.FirstOrDefault(u => u.Name == userName && u.RequestPasswordResetId != null && u.RequestPasswordResetId.Equals(requestId, StringComparison.OrdinalIgnoreCase) && u.RequestPasswordResetValidThrough > now);
 
         public PersistedRepository(JabbrContext db)
         {
@@ -29,7 +29,7 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatUser> Users
         {
-            get { return _db.ChatUsers; }
+            get { return _db.AspNetUsers; }
         }
 
         public IQueryable<ChatClient> Clients
@@ -55,7 +55,7 @@ namespace JabbR_Core.Data.Repositories
 
         public void Add(ChatUser user)
         {
-            _db.ChatUsers.Add(user);
+            _db.AspNetUsers.Add(user);
             _db.SaveChanges();
         }
 
@@ -107,7 +107,7 @@ namespace JabbR_Core.Data.Repositories
 
         public void Remove(ChatUser user)
         {
-            _db.ChatUsers.Remove(user);
+            _db.AspNetUsers.Remove(user);
             _db.SaveChanges();
         }
 
@@ -186,7 +186,7 @@ namespace JabbR_Core.Data.Repositories
             return _db.ChatRooms
                 .Where(r =>
                        (!r.Private) ||
-                       (r.Private && r.AllowedUsers.Any(u => u.ChatUserKey == user.Key)));
+                       (r.Private && r.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
         }
 
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
@@ -194,7 +194,7 @@ namespace JabbR_Core.Data.Repositories
             return _db.Notifications.Include(n => n.RoomKeyNavigation)
                                     .Include(n => n.MessageKeyNavigation)
                                     .Include(n => n.MessageKeyNavigation.UserKeyNavigation)
-                                    .Where(n => n.UserKey == user.Key);
+                                    .Where(n => n.UserId == user.Id);
         }
 
         private IQueryable<ChatMessage> GetMessagesByRoom(string roomName)
@@ -234,12 +234,12 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatUser> GetOnlineUsers()
         {
-            return _db.ChatUsers.Include(c => c.ConnectedClients).Online();
+            return _db.AspNetUsers.Include(c => c.ConnectedClients).Online();
         }
 
         public IQueryable<ChatUser> SearchUsers(string name)
         {
-            return _db.ChatUsers.Online().Where(u => u.Name.Contains(name));
+            return _db.AspNetUsers.Online().Where(u => u.Name.Contains(name));
         }
 
         public void AddUserRoom(ChatUser user, ChatRoom room)
@@ -248,7 +248,7 @@ namespace JabbR_Core.Data.Repositories
             ChatRoomUsers userroom = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -266,7 +266,7 @@ namespace JabbR_Core.Data.Repositories
         {
             // JC: First, find the ChatRoomUsers object that represents this relationship
             var chatUserChatRoom = from r in _db.ChatRoomUsers
-                                   where (r.ChatRoomKey == room.Key) && (r.ChatUserKey == user.Key)
+                                   where (r.ChatRoomKey == room.Key) && (r.ChatUserId == user.Id)
                                    select r;
 
             // We found the correct relationship
@@ -327,7 +327,7 @@ namespace JabbR_Core.Data.Repositories
 
         public ChatUser GetUserByLegacyIdentity(string userIdentity)
         {
-            return _db.ChatUsers.FirstOrDefault(u => u.Identity == userIdentity);
+            return _db.AspNetUsers.FirstOrDefault(u => u.Identity == userIdentity);
         }
 
         public ChatClient GetClientById(string clientId, bool includeUser = false)

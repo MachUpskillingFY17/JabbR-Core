@@ -9,7 +9,7 @@ namespace JabbR_Core.Data.Models
         public string Url { get; set; }
         public string Id { get; set; }
         public int RoomKey { get; set; }
-        public int OwnerKey { get; set; }
+        public string OwnerId { get; set; }
         public DateTimeOffset When { get; set; }
         public string FileName { get; set; }
         public string ContentType { get; set; }

@@ -6,7 +6,7 @@ namespace JabbR_Core.Data.Models
     public partial class Notification
     {
         public int Key { get; set; }
-        public int UserKey { get; set; }
+        public string UserId { get; set; }
         public int MessageKey { get; set; }
         public bool Read { get; set; }
         public int RoomKey { get; set; }

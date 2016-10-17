@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using JabbRCore.Data.InMemory;
 using NWebsec.AspNetCore.Middleware;
 using NWebsec.AspNetCore.Core;
@@ -53,8 +54,8 @@ namespace JabbR_Core
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
-            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
-            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             //services.AddEntityFrameworkInMemoryDatabase();
             //services.AddDbContext<JabbrContext>();
@@ -108,6 +109,11 @@ namespace JabbR_Core
                 settings.Time = DateTimeOffset.UtcNow.ToString();
                 settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
+
+            // Microsoft.AspNetCore.Identity.EntityFrameworkCore
+            services.AddIdentity<ChatUser, IdentityRole>()
+                .AddEntityFrameworkStores<JabbrContext>()
+                .AddDefaultTokenProviders();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -141,18 +147,17 @@ namespace JabbR_Core
                 app.UseFakeLogin();
             }
 
-            loggerFactory.AddConsole();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            loggerFactory.AddConsole();
+
+            app.UseIdentity();
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
             app.UseSignalR();
-
-
         }
     }
 }

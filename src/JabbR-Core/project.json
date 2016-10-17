@@ -20,7 +20,6 @@
     "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0-alpha1-22397",
     "Microsoft.EntityFrameworkCore": "1.1.0-alpha1-22397",
     "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.0-alpha1-22397",
-    "Microsoft.EntityFrameworkCore.Tools": "1.0.0-preview3-22397",
     "xunit": "2.2.0-beta2-build3300",
     "xunit.runner.console": "2.2.0-beta2-build3300",
     "System.Reflection.Extensions": "4.3.0-preview1-24530-04",
@@ -36,6 +35,7 @@
     "Microsoft.DotNet.InternalAbstractions": "1.0.1-beta-003206",
     "Moq": "4.6.38-alpha",
     "Microsoft.DotNet.Cli.Utils": "1.0.0-preview2-003121",
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0",
     "NWebsec.AspNetCore.Middleware": "1.0.0-gamma1-15"
   },
 

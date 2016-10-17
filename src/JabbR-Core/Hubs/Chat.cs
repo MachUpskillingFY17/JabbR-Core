@@ -53,6 +53,9 @@ namespace JabbR_Core.Hubs
             _recentMessageCache = (RecentMessageCache)recentMessageCache;
             _settings = settings.Value;
 
+            Debug.WriteLine(_repository.GetHashCode());
+
+
             // Not instantiated with DI, set here
 
         }
@@ -431,7 +434,7 @@ namespace JabbR_Core.Hubs
         {
             // Set some client state
             Clients.Caller.name = user.Name;
-            Clients.Caller.id = user.Id;
+            //Clients.Caller.id = user.Id;
             Clients.Caller.hash = user.Hash;
 
             // Tell the client a user was created
@@ -946,7 +949,7 @@ namespace JabbR_Core.Hubs
             if (!reconnecting)
             {
                 // Update the client state
-                Clients.Caller.id = user.Id;
+                //Clients.Caller.id = user.Id;
                 Clients.Caller.name = user.Name;
                 Clients.Caller.hash = user.Hash;
                 Clients.Caller.unreadNotifications = user.Notifications.Count(n => !n.Read);
