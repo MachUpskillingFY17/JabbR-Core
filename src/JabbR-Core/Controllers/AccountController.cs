@@ -13,14 +13,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace JabbR_Core.Controllers
 {
     public class AccountController : Controller
     {
-       // private IJabbrRepository _repository;
-       // private IAuthenticationService _authService;
+        // private IJabbrRepository _repository;
+        // private IAuthenticationService _authService;
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
@@ -64,7 +66,7 @@ namespace JabbR_Core.Controllers
 
             return GetProfileView(user);
 
-           // return View();
+            // return View();
         }
 
 
@@ -146,29 +148,64 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
+        [AllowAnonymous]
+        public IActionResult Register(string returnUrl = null)
         {
-            /*  if (IsAuthenticated)
-              {
-                  return this.AsRedirectQueryStringOrDefault("~/");
-              }*/
-
-            //  bool requirePassword = !Principal.Identity.IsAuthenticated; // found in JabbrModule
-
-            /* if (requirePassword &&
-                 !applicationSettings.AllowUserRegistration)
-             {
-                 return HttpStatusCode.NotFound;
-             }
-
-             ViewBag.requirePassword = requirePassword;*/ //ViewBag is a 
-
-            return View("register"); //why doesnt View(); work?
+            ViewData["ReturnUrl"] = returnUrl;
+            return View("register");
         }
 
         [HttpPost]
-        public IActionResult Create(string username, string email, string password, string confirmPassword)
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
+                var user = new ChatUser { UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    // Send an email with this link
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToLocal(returnUrl);
+                }
+                AddErrors(result);
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Create(RegisterViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
+                var user = new ChatUser { UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    // Send an email with this link
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToLocal(returnUrl);
+                }
+                AddErrors(result);
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+
             /*  if (!HasValidCsrfTokenOrSecHeader)
               {
                   return HttpStatusCode.Forbidden;
@@ -194,15 +231,15 @@ namespace JabbR_Core.Controllers
               string password = Request.Form.password;
               string confirmPassword = Request.Form.confirmPassword;*/
 
-            if (String.IsNullOrEmpty(username))
-            {
-                // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
-            }
+            //if (String.IsNullOrEmpty(username))
+            //{
+            //    // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
+            //}
 
-            if (String.IsNullOrEmpty(email))
-            {
-                // this.AddValidationError("email", LanguageResources.Authentication_EmailRequired);
-            }
+            //if (String.IsNullOrEmpty(email))
+            //{
+            //    // this.AddValidationError("email", LanguageResources.Authentication_EmailRequired);
+            //}
 
             /* try
              {
@@ -243,43 +280,43 @@ namespace JabbR_Core.Controllers
                  this.AddValidationError("_FORM", ex.Message);
              }*/
 
-            return View("register");
+            //return View("register");
         }
 
-      /*[HttpPost]
-        public IActionResult Unlink()
-           {
-             /*  if (!HasValidCsrfTokenOrSecHeader)
-               {
-                   return HttpStatusCode.Forbidden;
-               }
+        /*[HttpPost]
+          public IActionResult Unlink()
+             {
+               /*  if (!HasValidCsrfTokenOrSecHeader)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
 
-               if (!IsAuthenticated)
-               {
-                   return HttpStatusCode.Forbidden;
-               }
+                 if (!IsAuthenticated)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
 
-               string provider = Request.Form.provider;
-               ChatUser user = repository.GetUserById(Principal.GetUserId());
+                 string provider = Request.Form.provider;
+                 ChatUser user = repository.GetUserById(Principal.GetUserId());
 
-               if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
-               {
-                   Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
-                   return Response.AsRedirect("~/account/#identityProviders");
-               }
+                 if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
+                 {
+                     Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
+                     return Response.AsRedirect("~/account/#identityProviders");
+                 }
 
-               var identity = user.Identities.FirstOrDefault(i => i.ProviderName == provider);
+                 var identity = user.Identities.FirstOrDefault(i => i.ProviderName == provider);
 
-               if (identity != null)
-               {
-                   repository.Remove(identity);
+                 if (identity != null)
+                 {
+                     repository.Remove(identity);
 
-                   Request.AddAlertMessage("success", String.Format(LanguageResources.Account_UnlinkCompleted, provider));
-                   return Response.AsRedirect("~/account/#identityProviders");
-               }
+                     Request.AddAlertMessage("success", String.Format(LanguageResources.Account_UnlinkCompleted, provider));
+                     return Response.AsRedirect("~/account/#identityProviders");
+                 }
 
-               return HttpStatusCode.BadRequest;
-           }*/
+                 return HttpStatusCode.BadRequest;
+             }*/
 
 
         [HttpPost]
@@ -510,7 +547,7 @@ namespace JabbR_Core.Controllers
              }*/
 
             string resetPasswordToken = id; //parameters.id;
-           // string userName = _membershipService.GetUserNameFromToken(resetPasswordToken);
+                                            // string userName = _membershipService.GetUserNameFromToken(resetPasswordToken);
 
             // Is the token not valid, maybe some character change?
             /* if (userName == null)
@@ -628,6 +665,26 @@ namespace JabbR_Core.Controllers
 
             var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
             return viewModel;
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+        }
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
         }
     }
 }
