@@ -14,6 +14,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Security.Principal;
+using Microsoft.AspNetCore.Authorization;
+using System.Net;
 
 namespace JabbR_Core.Controllers
 {
@@ -24,7 +26,6 @@ namespace JabbR_Core.Controllers
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
-        private IPrincipal _principal;
 
         // Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private readonly UserManager<ChatUser> _userManager;
@@ -33,10 +34,9 @@ namespace JabbR_Core.Controllers
         public AccountController(UserManager<ChatUser> userManager,
                                  SignInManager<ChatUser> signInManager,
                                  ApplicationSettings applicationSettings,
-                                 IJabbrRepository repository,
-                                 IPrincipal principal
-                                  //IAuthenticationService authService
+                                 IJabbrRepository repository
 
+                                  //IAuthenticationService authService
                                   //IOptions<ApplicationSettings> settings,
                                   // IMembershipService membershipService,
                                   //      IAuthenticationService authService,
@@ -48,31 +48,34 @@ namespace JabbR_Core.Controllers
             // _settings = settings.Value;
             //    _authService = authService;
             // _membershipService = membershipService;
-
-            _principal = principal;
+            
             _settings = applicationSettings;
             _repository = repository;
             _userManager = userManager;
             _signInManager = signInManager;
 
         }
+
         [HttpGet]
         public IActionResult Index()
-        {/*
-             if (!IsAuthenticated)
-             {
-                 return HttpStatusCode.Forbidden;
-             }*/
+        {
+             if (!User.Identity.IsAuthenticated)
+             {                
+                // return Forbidden view 
+                // WorkAround: Crate a new Forbidden View and return
+                // WorkAround: Use [AuthorizationAttribute] and create Forbidden View and return
+                 return View(HttpStatusCode.Forbidden);
+             }
 
+            ClaimsPrincipal currentUser = this.User;
+            var id = _userManager.GetUserId(User); // Get user id:
 
-            ChatUser user = _repository.GetUserById("1");
+            ChatUser user = _repository.GetUserById(id);
 
-
-            return GetProfileView(user);
-
-            // return View();
+            //return GetProfileView(user);
+            return View("index");
         }
-
+       
 
         [HttpGet]
         public IActionResult Login()
@@ -90,50 +93,51 @@ namespace JabbR_Core.Controllers
 
         [HttpPost]
         public IActionResult Login(string username, string password)
-        {/*
-            if (!HasValidCsrfTokenOrSecHeader)
+        {
+            //if (!HasValidCsrfTokenOrSecHeader)
+            //{
+            //    return View(HttpStatusCode.Forbidden);
+            //}
+
+            // check if the user IsAuthenticated
+            if (User.Identity.IsAuthenticated)
             {
-                return HttpStatusCode.Forbidden;
+                // if so, no reason to login. Redirect to home page.
+                return this.Redirect("~/");
             }
 
-            if (IsAuthenticated)
+            var context_username = HttpContext.Request.Form["username"];    
+            var context_password = HttpContext.Request.Form["password"];
+
+            if (String.IsNullOrEmpty(context_username))
             {
-                return this.AsRedirectQueryStringOrDefault("~/");
+                this.ValidateUsername("username", LanguageResources.Authentication_NameRequired);
             }
 
-            username = Request.Form.username; //IForm Validation is Nancy
-            password = Request.Form.password;*/
-
-            if (String.IsNullOrEmpty(username))
+            if (String.IsNullOrEmpty(context_password))
             {
-                // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
+                this.ValidatePassword("password", LanguageResources.Authentication_NameRequired);
             }
 
-            if (String.IsNullOrEmpty(password))
-            {
-                // this.AddValidationError("password", LanguageResources.Authentication_PassRequired);
-            }
+            //try
+            //{ 
+            //    if (ModelValidationResult.IsValid)
+            //    {
+            //        IList<Claim> claims;
+            //        if (authenticator.TryAuthenticateUser(username, password, out claims))
+            //        {
+            //            return this.SignIn(claims);
+            //        }
+            //    }
+            // }
+            // catch
+            // {
+            //     // Swallow the exception    
+            // }
 
-            /* try
-             {
-                /* if (ModelValidationResult.IsValid)
-                 {
-                     IList<Claim> claims;
-                     if (authenticator.TryAuthenticateUser(username, password, out claims))
-                     {
-                         return this.SignIn(claims);
-                     }
-                 }
-             }
-             catch
-             {
-                 // Swallow the exception    
-             }
+            // this.AddValidationError("_FORM", LanguageResources.Authentication_GenericFailure);
 
-             this.AddValidationError("_FORM", LanguageResources.Authentication_GenericFailure);
-
-             return View["login", GetLoginViewModel(applicationSettings, repository, authService)];*/
-            return View("login");
+            return View("login", GetLoginViewModel(_settings, _repository/*, authService*/));
         }
 
         [HttpPost]
@@ -630,7 +634,9 @@ namespace JabbR_Core.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                user = _repository.GetUserById(_principal.GetUserId());
+                ClaimsPrincipal currentUser = this.User;
+                var id = _userManager.GetUserId(User); // Get user id:
+                user = _repository.GetUserById(id);
             }
 
             var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
