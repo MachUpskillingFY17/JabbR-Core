@@ -6,55 +6,54 @@
 <div class="row-fluid">
     <div class="span6 offset3">
         <div class="user-registration">
-            <form class="form-horizontal" action="@Url.Content("~/account/register")" method="post">  <!--/* + Html.RequestQuery()*/-->
-                @Html.ValidationSummary()
-                <div class="control-group">
-                    <div class="controls">
-                        <div class="input-prepend">
-                            <span class="add-on"><i class="icon-user"></i></span>
-                            <input asp-for="Name" class="form-control" format=@LanguageResources.Account_UserName/>
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                            <!-- Html.TextBox("username", "input-block-level", LanguageResources.Account_UserName) -->
+            <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+            <!-- form class="form-horizontal" action="Url.Content("~/account/register")" method="post"> -->
+                <!--/* + Html.RequestQuery()*/-->
+                <div asp-validation-summary="All" class="text-danger">
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="input-prepend">
+                                <span class="add-on"><i class="icon-user"></i></span>
+                                <input asp-for="Name" class="form-control" format=@LanguageResources.Account_UserName placeholder="Username" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <div class="input-prepend">
-                            <span class="add-on"><i class="icon-envelope"></i></span>
-                            <input asp-for="Email" class="form-control" format=@LanguageResources.Account_UserName />
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                            <!-- Html.TextBox("email", "input-block-level", LanguageResources.Account_Email) -->
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="input-prepend">
+                                <span class="add-on"><i class="icon-envelope"></i></span>
+                                <input asp-for="Email" class="form-control" format=@LanguageResources.Account_UserName placeholder="Email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-          <!--      atsignif (ViewBag.requirePassword) 
-                {-->
-                <div class="control-group">
-                    <div class="controls">
-                        <div class="input-prepend">
-                            <span class="add-on"><i class="icon-lock"></i></span>
-                            <input asp-for="Password" class="form-control" format=@LanguageResources.Account_UserName />
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                            <!-- Html.Password("password", "input-block-level", LanguageResources.Account_PassConfirm) -->
+                    <!--atsignif (ViewBag.requirePassword)
+                        {-->
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="input-prepend">
+                                <span class="add-on"><i class="icon-lock"></i></span>
+                                <input asp-for="Password" class="form-control" format=@LanguageResources.Account_UserName placeholder="Password" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <div class="input-prepend">
-                            <span class="add-on"><i class="icon-lock"></i></span>
-                            <input asp-for="ConfirmPassword" class="form-control" format=@LanguageResources.Account_UserName />
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                            <!-- Html.Password("confirmPassword", "input-block-level", LanguageResources.Account_PassConfirm) -->
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="input-prepend">
+                                <span class="add-on"><i class="icon-lock"></i></span>
+                                <input asp-for="ConfirmPassword" class="form-control" format=@LanguageResources.Account_UserName placeholder="Confirm Password" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-              <!--  } -->
-                <div class="control-group">
-                    <div class="controls">
-                        <button type="submit" class="btn">@LanguageResources.Account_Register</button>
-                        <a href="@Url.Content("~/account/login" /* + Html.RequestQuery()*/)" class="btn">@LanguageResources.Account_Cancel</a>
+                    <!--  } -->
+                    <div class="control-group">
+                        <div class="controls">
+                            <button type="submit" class="btn">@LanguageResources.Account_Register</button>
+                            <a href="@Url.Content("~/account/login" /* + Html.RequestQuery()*/)" class="btn">@LanguageResources.Account_Cancel</a>
+                        </div>
                     </div>
                 </div>
                 @Html.AntiForgeryToken()
