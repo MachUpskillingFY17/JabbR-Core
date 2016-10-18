@@ -6,7 +6,7 @@
 <div class="row-fluid">
     <div class="span6 offset3">
         <div class="user-registration">
-            <form class="form-horizontal" action="@Url.Content("~/account/create")" method="post">  <!--/* + Html.RequestQuery()*/-->
+            <form class="form-horizontal" action="@Url.Content("~/account/register")" method="post">  <!--/* + Html.RequestQuery()*/-->
                 @Html.ValidationSummary()
                 <div class="control-group">
                     <div class="controls">
@@ -36,7 +36,7 @@
                             <span class="add-on"><i class="icon-lock"></i></span>
                             <input asp-for="Password" class="form-control" format=@LanguageResources.Account_UserName />
                             <span asp-validation-for="Password" class="text-danger"></span>
-                            @Html.Password("password", "input-block-level", @LanguageResources.Account_Pass)
+                            <!-- Html.Password("password", "input-block-level", LanguageResources.Account_PassConfirm) -->
                         </div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                             <span class="add-on"><i class="icon-lock"></i></span>
                             <input asp-for="ConfirmPassword" class="form-control" format=@LanguageResources.Account_UserName />
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                            @Html.Password("confirmPassword", "input-block-level", @LanguageResources.Account_PassConfirm)
+                            <!-- Html.Password("confirmPassword", "input-block-level", LanguageResources.Account_PassConfirm) -->
                         </div>
                     </div>
                 </div>

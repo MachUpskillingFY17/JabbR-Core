@@ -30,6 +30,7 @@ namespace JabbR_Core.Controllers
         // Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
+        Microsoft.AspNetCore.Http.HttpContext context;
 
         public AccountController(UserManager<ChatUser> userManager,
                                  SignInManager<ChatUser> signInManager,
@@ -51,6 +52,7 @@ namespace JabbR_Core.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
 
+            //var signin = _signInManager.Context;
         }
         [HttpGet]
         public IActionResult Index()
@@ -182,106 +184,108 @@ namespace JabbR_Core.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        public IActionResult Create(RegisterViewModel model, string returnUrl = null)
-        {
-            ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
-            {
-                var user = new ChatUser { UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    // Send an email with this link
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToLocal(returnUrl);
-                }
-                AddErrors(result);
-            }
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create(RegisterViewModel model, string returnUrl = null)
+        //{
+        //    ViewData["ReturnUrl"] = returnUrl;
+        //    if (ModelState.IsValid)
+        //    {
+        //        var user = new ChatUser { Name = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
+        //        var result = await _userManager.CreateAsync(user, model.Password);
+        //        if (result.Succeeded)
+        //        {
+        //            // Send an email with this link
+        //            //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        //            //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+        //            //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+        //            //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+        //            await _signInManager.SignInAsync(user, isPersistent: false);
+        //            return RedirectToLocal(returnUrl);
+        //        }
+        //        AddErrors(result);
+        //    }
 
-            // If we got this far, something failed, redisplay form
-            return View(model);
+        //    // If we got this far, something failed, redisplay form
+        //    return View(model);
 
-            /*  if (!HasValidCsrfTokenOrSecHeader)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
+        //    /*  if (!HasValidCsrfTokenOrSecHeader)
+        //      {
+        //          return HttpStatusCode.Forbidden;
+        //      }
 
-              bool requirePassword = !Principal.Identity.IsAuthenticated;
+        //      bool requirePassword = !Principal.Identity.IsAuthenticated;
 
-              if (requirePassword &&
-                  !applicationSettings.AllowUserRegistration)
-              {
-                  return HttpStatusCode.NotFound;
-              }
+        //      if (requirePassword &&
+        //          !applicationSettings.AllowUserRegistration)
+        //      {
+        //          return HttpStatusCode.NotFound;
+        //      }
 
-              if (IsAuthenticated)
-              {
-                  return this.AsRedirectQueryStringOrDefault("~/");
-              }
+        //      if (IsAuthenticated)
+        //      {
+        //          return this.AsRedirectQueryStringOrDefault("~/");
+        //      }
 
-              ViewBag.requirePassword = requirePassword;
+        //      ViewBag.requirePassword = requirePassword;
 
-              string username = Request.Form.username;
-              string email = Request.Form.email;
-              string password = Request.Form.password;
-              string confirmPassword = Request.Form.confirmPassword;*/
+        //      string username = Request.Form.username;
+        //      string email = Request.Form.email;
+        //      string password = Request.Form.password;
+        //      string confirmPassword = Request.Form.confirmPassword;*/
 
-            //if (String.IsNullOrEmpty(username))
-            //{
-            //    // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
-            //}
+        //    //if (String.IsNullOrEmpty(username))
+        //    //{
+        //    //    // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
+        //    //}
 
-            //if (String.IsNullOrEmpty(email))
-            //{
-            //    // this.AddValidationError("email", LanguageResources.Authentication_EmailRequired);
-            //}
+        //    //if (String.IsNullOrEmpty(email))
+        //    //{
+        //    //    // this.AddValidationError("email", LanguageResources.Authentication_EmailRequired);
+        //    //}
 
-            /* try
-             {
-                 if (requirePassword)
-                 {
-                     ValidatePassword(password, confirmPassword);
-                 }
+        //    /* try
+        //     {
+        //         if (requirePassword)
+        //         {
+        //             ValidatePassword(password, confirmPassword);
+        //         }
 
-                 if (ModelValidationResult.IsValid)
-                 {
-                     if (requirePassword)
-                     {
-                         ChatUser user = membershipService.AddUser(username, email, password);
+        //         if (ModelValidationResult.IsValid)
+        //         {
+        //             if (requirePassword)
+        //             {
+        //                 ChatUser user = membershipService.AddUser(username, email, password);
 
-                         return this.SignIn(user);
-                     }
-                     else
-                     {
-                         // Add the required claims to this identity
-                         var identity = Principal.Identity as ClaimsIdentity;
+        //                 return this.SignIn(user);
+        //             }
+        //             else
+        //             {
+        //                 // Add the required claims to this identity
+        //                 var identity = Principal.Identity as ClaimsIdentity;
 
-                         if (!Principal.HasClaim(ClaimTypes.Name))
-                         {
-                             identity.AddClaim(new Claim(ClaimTypes.Name, username));
-                         }
+        //                 if (!Principal.HasClaim(ClaimTypes.Name))
+        //                 {
+        //                     identity.AddClaim(new Claim(ClaimTypes.Name, username));
+        //                 }
 
-                         if (!Principal.HasClaim(ClaimTypes.Email))
-                         {
-                             identity.AddClaim(new Claim(ClaimTypes.Email, email));
-                         }
+        //                 if (!Principal.HasClaim(ClaimTypes.Email))
+        //                 {
+        //                     identity.AddClaim(new Claim(ClaimTypes.Email, email));
+        //                 }
 
-                         return this.SignIn(Principal.Claims);
-                     }
-                 }
-             }
-             catch (Exception ex)
-             {
-                 this.AddValidationError("_FORM", ex.Message);
-             }*/
+        //                 return this.SignIn(Principal.Claims);
+        //             }
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         this.AddValidationError("_FORM", ex.Message);
+        //     }*/
 
-            //return View("register");
-        }
+        //    //return View("register");
+        //}
 
         /*[HttpPost]
           public IActionResult Unlink()
