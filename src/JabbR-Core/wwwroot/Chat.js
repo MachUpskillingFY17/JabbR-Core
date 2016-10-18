@@ -344,7 +344,6 @@
             // get list of available commands
             chat.server.getCommands()
                 .done(function (commands) {
-                    console.log(commands);
                     ui.setCommands(commands);
                 });
 

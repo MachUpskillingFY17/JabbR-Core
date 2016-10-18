@@ -55,6 +55,7 @@ namespace JabbR_Core
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
             //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
             services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             //services.AddEntityFrameworkInMemoryDatabase();
@@ -70,34 +71,14 @@ namespace JabbR_Core
                     .UseInMemoryDatabase();
                 });
 
-            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
-            //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
-
             services.AddMvc();
             services.AddSignalR();
-
-            // Create instances to register. Required for ChatService to work
-            //var context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            //var repository = new InMemoryRepository(context);
-            //var repository = new InMemoryRepository();
-            //var recentMessageCache = new RecentMessageCache();
-            //var httpContextAccessor = new HttpContextAccessor();
-
-            //var chatService = new ChatService(null, recentMessageCache, repository, null);
-
-            // testing for repo tests
-            //services.AddScoped(provider => context);
 
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IJabbrRepository, InMemoryRepository>();
             services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
-
-            // Register the provider that points to the specific instance
-            //services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            //services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
-            //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // Establish default settings from appsettings.json
             services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));

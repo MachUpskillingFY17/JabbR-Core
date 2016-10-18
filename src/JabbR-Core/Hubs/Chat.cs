@@ -34,13 +34,9 @@ namespace JabbR_Core.Hubs
         private readonly IChatService _chatService;
         private readonly ApplicationSettings _settings;
         private readonly IJabbrRepository _repository;
-        private readonly RecentMessageCache _recentMessageCache;
+        private readonly IRecentMessageCache _recentMessageCache;
         private readonly List<LobbyRoomViewModel> _lobbyRoomList;
 
-        // Old Chat constructor parameters.
-        //InMemoryRepository repository,
-        //ILogger logger,
-        //IChatService service
         public Chat(
             IJabbrRepository repository, 
             IOptions<ApplicationSettings> settings, 
@@ -50,14 +46,8 @@ namespace JabbR_Core.Hubs
             // Request the injected object instances
             _repository = repository;
             _chatService = chatService;
-            _recentMessageCache = (RecentMessageCache)recentMessageCache;
+            _recentMessageCache = recentMessageCache;
             _settings = settings.Value;
-
-            Debug.WriteLine(_repository.GetHashCode());
-
-
-            // Not instantiated with DI, set here
-
         }
 
         private string UserAgent
@@ -377,11 +367,12 @@ namespace JabbR_Core.Hubs
             // If we haven't cached enough messages just populate it now
             if (recentMessages.Count == 0)
             {
-                var messages = _repository.GetMessagesByRoom(room)
+                var messages =  _repository.GetMessagesByRoom(room)
                     .Take(50)
                     .OrderBy(o => o.When)
                     .ToList();
-
+                    //.ToListAsync();
+                
                 // Reverse them since we want to get them in chronological order
                 messages.Reverse();
 
