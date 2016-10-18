@@ -78,7 +78,9 @@ namespace JabbR_Core
 
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
-            services.AddScoped<IJabbrRepository, InMemoryRepository>();
+
+            services.AddScoped<IJabbrRepository, PersistedRepository>();
+
             services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
 

@@ -88,9 +88,11 @@ namespace JabbR_Core.Hubs
 
             // Pass the list of rooms & owned rooms to the logOn function.
             var rooms = _repository.Rooms.ToArray();
-            var myRooms = _repository.Rooms.Where(r => r.Owners.Select(u => u.ChatUserKeyNavigation).Contains(user));
 
-            Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
+            // Don't have any rooms at this point, so OwnedRooms isn't instantiated.
+            //var myRooms = user.OwnedRooms.ToArray();
+
+            Clients.Caller.logOn(rooms, new object[] { }, new { TabOrder = new List<string>() });
         }
 
         public List<LobbyRoomViewModel> GetRooms()
