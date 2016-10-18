@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using JabbRCore.Data.InMemory;
 using NWebsec.AspNetCore.Middleware;
 using NWebsec.AspNetCore.Core;
+using JabbR_Core.Hubs;
+using Microsoft.Extensions.Options;
 
 namespace JabbR_Core
 {
@@ -95,6 +97,16 @@ namespace JabbR_Core
             services.AddIdentity<ChatUser, IdentityRole>()
                 .AddEntityFrameworkStores<JabbrContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddTransient<Chat>(provider => 
+            {
+                var repository = provider.GetService<IJabbrRepository>();
+                var settings = provider.GetService<IOptions<ApplicationSettings>>();
+                var recentMessageCache = provider.GetService<IRecentMessageCache>();
+                var chatService = provider.GetService<IChatService>();
+
+                return new Chat(repository, settings, recentMessageCache, chatService);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
