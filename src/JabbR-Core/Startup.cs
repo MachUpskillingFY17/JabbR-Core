@@ -98,8 +98,12 @@ namespace JabbR_Core
                 .AddEntityFrameworkStores<JabbrContext>()
                 .AddDefaultTokenProviders();
 
+            // This code has no effects right now, Chat hubs aren't called via DI
+            // in SignalR, so at the moment we can't control the same objects being 
+            // passed to hubs and ChatService
             services.AddTransient<Chat>(provider => 
             {
+                // This is never hit
                 var repository = provider.GetService<IJabbrRepository>();
                 var settings = provider.GetService<IOptions<ApplicationSettings>>();
                 var recentMessageCache = provider.GetService<IRecentMessageCache>();
@@ -117,17 +121,12 @@ namespace JabbR_Core
 
             //TODO: AJS FIX UNSAFEEVAL AFTER INCLUDING ANGULAR JS 
             app.UseCsp(options => options.DefaultSources(s => s.Self()).ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com").UnsafeEval()).StyleSources(s=> s.Self().UnsafeInline()));
-
             app.UseXXssProtection(option => option.EnabledWithBlockMode());
-
             app.UseXfo(options => options.Deny());
-
             app.UseXContentTypeOptions();
-
 
             if (env.IsDevelopment())
             {
-
                 app.UseCookieAuthentication(new CookieAuthenticationOptions()
                 {
                     AuthenticationScheme = Constants.JabbRAuthType,

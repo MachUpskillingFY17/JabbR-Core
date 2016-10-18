@@ -287,7 +287,6 @@ namespace JabbR_Core.Tests.Hubs
             Assert.True(_chat.Send("/create foo", null));
 
             var content = "/join foo";
-            var roomName = "bar";
             Assert.True(_chat.Send(content, null));
             Console.WriteLine("\tChatTest.SendAcceptsParams: Complete");
         }

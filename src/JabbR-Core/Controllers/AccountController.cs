@@ -19,10 +19,14 @@ namespace JabbR_Core.Controllers
 {
     public class AccountController : Controller
     {
-       // private IJabbrRepository _repository;
-       // private IAuthenticationService _authService;
+
+        // private IJabbrRepository _repository;
+        // private IAuthenticationService _authService;
+
+        // Never assigned to, always null 
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
+
         private readonly IJabbrRepository _repository;
 
         // Microsoft.AspNetCore.Identity.EntityFrameworkCore
