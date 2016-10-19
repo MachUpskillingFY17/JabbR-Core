@@ -10,7 +10,7 @@ namespace JabbR_Core.Data.Repositories
         private readonly JabbrContext _db;
 
         private static readonly Func<JabbrContext, string, ChatUser> getUserByName = (db, userName) => db.AspNetUsers.FirstOrDefault(u => u.Name == userName);
-        //private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.AspNetUsers.FirstOrDefault(u => u.Id == userId);
+        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.AspNetUsers.FirstOrDefault(u => u.Id == userId);
         private static readonly Func<JabbrContext, string, string, ChatUserIdentity> getIdentityByIdentity = (db, providerName, userIdentity) => db.ChatUserIdentities.Include(i => i.UserKeyNavigation).FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
         private static readonly Func<JabbrContext, string, ChatRoom> getRoomByName = (db, roomName) => db.ChatRooms.FirstOrDefault(r => r.Name == roomName);
         private static readonly Func<JabbrContext, string, ChatClient> getClientById = (db, clientId) => db.ChatClients.FirstOrDefault(c => c.Id == clientId);
