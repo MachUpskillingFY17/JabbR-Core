@@ -82,7 +82,7 @@ namespace JabbR_Core.Controllers
             var id = _userManager.GetUserId(currentUser); // id = "identity"
             
             // Injection context is null
-            // var id2 = _context.HttpContext.User.GetUserId();
+            var id2 = _context.HttpContext.User.GetUserId();
             
 
             // Fake user Jane is not in the _repository
@@ -127,12 +127,14 @@ namespace JabbR_Core.Controllers
 
             if (String.IsNullOrEmpty(context_username))
             {
-                this.ValidateUsername("username", LanguageResources.Authentication_NameRequired);
+                //modelstate.addmodelerror
+                //this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
             }
 
             if (String.IsNullOrEmpty(context_password))
             {
-                this.ValidatePassword("password", LanguageResources.Authentication_NameRequired);
+                //modelstate.addmodelerror
+                //this.AddValidationError("password", LanguageResources.Authentication_NameRequired);
             }
 
             try
@@ -142,6 +144,7 @@ namespace JabbR_Core.Controllers
                     IList<Claim> claims;
                     //if (authenticator.TryAuthenticateUser(username, password, out claims))
                     //{
+                    //    _signInManager.SignInAsync()
                     //    return this.SignIn(claims);
                     //}
                 }
