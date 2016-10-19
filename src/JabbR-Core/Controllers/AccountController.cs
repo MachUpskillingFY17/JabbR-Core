@@ -16,16 +16,17 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace JabbR_Core.Controllers
 {
     public class AccountController : Controller
     {
-        // private IJabbrRepository _repository;
         // private IAuthenticationService _authService;
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
+        private IHttpContextAccessor _context;
 
         // Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private readonly UserManager<ChatUser> _userManager;
@@ -34,21 +35,23 @@ namespace JabbR_Core.Controllers
         public AccountController(UserManager<ChatUser> userManager,
                                  SignInManager<ChatUser> signInManager,
                                  ApplicationSettings applicationSettings,
+                                 IHttpContextAccessor context,
                                  IJabbrRepository repository
 
-                                  //IAuthenticationService authService
-                                  //IOptions<ApplicationSettings> settings,
+                                  // IAuthenticationService authService
+                                  // IOptions<ApplicationSettings> settings,
                                   // IMembershipService membershipService,
-                                  //      IAuthenticationService authService,
-                                  //   IChatNotificationService notificationService,
-                                  //   IUserAuthenticator authenticator,
-                                  //  IEmailService emailService
+                                  // IAuthenticationService authService,
+                                  // IChatNotificationService notificationService,
+                                  // IUserAuthenticator authenticator,
+                                  // IEmailService emailService
                                   )
         {
             // _settings = settings.Value;
-            //    _authService = authService;
+            // _authService = authService;
             // _membershipService = membershipService;
-            
+
+            _context = context;
             _settings = applicationSettings;
             _repository = repository;
             _userManager = userManager;
@@ -67,7 +70,7 @@ namespace JabbR_Core.Controllers
                 // WorkAround: Use [AuthorizationAttribute] and create Forbidden View and return
                  return View(HttpStatusCode.Forbidden);
              }
-
+            
             //var claims = new List<Claim>();
             //claims.Add(new Claim(ClaimTypes.Name, "Jane"));
             //claims.Add(new Claim(ClaimTypes.AuthenticationMethod, "provider"));
@@ -76,12 +79,15 @@ namespace JabbR_Core.Controllers
             //claims.Add(new Claim(JabbRClaimTypes.Identifier, "1"));
 
             ClaimsPrincipal currentUser = this.User;
-            var id = _userManager.GetUserId(currentUser); // Get user id
-            // id = "identity"
+            var id = _userManager.GetUserId(currentUser); // id = "identity"
+            
+            // Injection context is null
+            // var id2 = _context.HttpContext.User.GetUserId();
+            
 
-            // Fake user Jane is not in the _repository 
+            // Fake user Jane is not in the _repository
             ChatUser user = _repository.GetUserById(id);
-
+            
             //return GetProfileView(user);
             return View("index");
         }
@@ -115,7 +121,8 @@ namespace JabbR_Core.Controllers
                 return this.Redirect("~/");
             }
 
-            var context_username = HttpContext.Request.Form["username"];    
+            // probably not needed.. check if text fields pass in params
+            var context_username = HttpContext.Request.Form["username"];
             var context_password = HttpContext.Request.Form["password"];
 
             if (String.IsNullOrEmpty(context_username))
