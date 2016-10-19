@@ -11,3 +11,12 @@ dotnet publish --configuration Release  --framework netcoreapp1.0 --runtime  win
 
 ECHO Creating ubuntu.14.04-x64
 dotnet publish --configuration Release  --framework netcoreapp1.0 --runtime  ubuntu.14.04-x64 --output bin/Release/Publish/ubuntu.14.04-x64
+
+ECHO Creating osx.10.12-x64
+dotnet publish --configuration Release  --framework netcoreapp1.0 --runtime  osx.10.12-x64 --output bin/Release/Publish/osx.10.12-x64
+
+ECHO Creating rhel.7.2-x64
+dotnet publish --configuration Release  --framework netcoreapp1.0 --runtime  rhel.7.2-x64 --output bin/Release/Publish/rhel.7.2-x64
+
+ECHO Creating debian.8-x64
+dotnet publish --configuration Release  --framework netcoreapp1.0 --runtime  debian.8-x64 --output bin/Release/Publish/debian.8-x64
