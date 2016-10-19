@@ -90,7 +90,7 @@ namespace JabbR_Core
 
             services.AddTransient(provider =>
             {
-                // This is never hit
+                // This is hit when Chat is passed explicitly to ServicesHubActivator
                 var repository = provider.GetService<IJabbrRepository>();
                 var settings = provider.GetService<IOptions<ApplicationSettings>>();
                 var recentMessageCache = provider.GetService<IRecentMessageCache>();
