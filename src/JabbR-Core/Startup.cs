@@ -17,6 +17,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using JabbRCore.Data.InMemory;
 using NWebsec.AspNetCore.Middleware;
 using NWebsec.AspNetCore.Core;
+using JabbR_Core.Hubs;
+using Microsoft.AspNetCore.SignalR.Hubs;
+using Microsoft.Extensions.Options;
 
 namespace JabbR_Core
 {
@@ -76,28 +79,26 @@ namespace JabbR_Core
             services.AddMvc();
             services.AddSignalR();
 
-            // Create instances to register. Required for ChatService to work
-            //var context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            //var repository = new InMemoryRepository(context);
-            //var repository = new InMemoryRepository();
-            //var recentMessageCache = new RecentMessageCache();
-            //var httpContextAccessor = new HttpContextAccessor();
-
-            //var chatService = new ChatService(null, recentMessageCache, repository, null);
-
-            // testing for repo tests
-            //services.AddScoped(provider => context);
-
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IJabbrRepository, InMemoryRepository>();
             services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
 
-            // Register the provider that points to the specific instance
-            //services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            //services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
-            //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            // Allow SignalR to request hub services through the DI container
+            services.AddSingleton<IHubActivator, ServicesHubActivator>();
+
+            services.AddTransient(provider =>
+            {
+                // This is never hit
+                var repository = provider.GetService<IJabbrRepository>();
+                var settings = provider.GetService<IOptions<ApplicationSettings>>();
+                var recentMessageCache = provider.GetService<IRecentMessageCache>();
+                var chatService = provider.GetService<IChatService>();
+
+                return new Chat(repository, settings, recentMessageCache, chatService);
+            });
+
 
             // Establish default settings from appsettings.json
             services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));

@@ -17,8 +17,7 @@ using Microsoft.EntityFrameworkCore;
 namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
-    {
-              
+    {         
         // Never assigned to, always null
         private readonly ICache _cache;
         private readonly ChatUser _user;
