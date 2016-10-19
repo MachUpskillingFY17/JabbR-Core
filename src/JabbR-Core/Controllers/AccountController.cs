@@ -57,6 +57,7 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult Index()
         {
              if (!User.Identity.IsAuthenticated)
@@ -67,17 +68,26 @@ namespace JabbR_Core.Controllers
                  return View(HttpStatusCode.Forbidden);
              }
 
-            ClaimsPrincipal currentUser = this.User;
-            var id = _userManager.GetUserId(User); // Get user id:
+            //var claims = new List<Claim>();
+            //claims.Add(new Claim(ClaimTypes.Name, "Jane"));
+            //claims.Add(new Claim(ClaimTypes.AuthenticationMethod, "provider"));
+            //claims.Add(new Claim(ClaimTypes.NameIdentifier, "identity"));
+            //claims.Add(new Claim(ClaimTypes.Email, "jane@no.com"));
+            //claims.Add(new Claim(JabbRClaimTypes.Identifier, "1"));
 
+            ClaimsPrincipal currentUser = this.User;
+            var id = _userManager.GetUserId(currentUser); // Get user id
+            // id = "identity"
+
+            // Fake user Jane is not in the _repository 
             ChatUser user = _repository.GetUserById(id);
 
             //return GetProfileView(user);
             return View("index");
         }
        
-
         [HttpGet]
+        [Authorize]
         public IActionResult Login()
         {
             // check if the user IsAuthenticated
@@ -89,7 +99,6 @@ namespace JabbR_Core.Controllers
 
             return View("login", GetLoginViewModel(_settings, _repository/*, authService*/));
         }
-
 
         [HttpPost]
         public IActionResult Login(string username, string password)
@@ -119,21 +128,21 @@ namespace JabbR_Core.Controllers
                 this.ValidatePassword("password", LanguageResources.Authentication_NameRequired);
             }
 
-            //try
-            //{ 
-            //    if (ModelValidationResult.IsValid)
-            //    {
-            //        IList<Claim> claims;
-            //        if (authenticator.TryAuthenticateUser(username, password, out claims))
-            //        {
-            //            return this.SignIn(claims);
-            //        }
-            //    }
-            // }
-            // catch
-            // {
-            //     // Swallow the exception    
-            // }
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    IList<Claim> claims;
+                    //if (authenticator.TryAuthenticateUser(username, password, out claims))
+                    //{
+                    //    return this.SignIn(claims);
+                    //}
+                }
+            }
+            catch
+            {
+                // Swallow the exception    
+            }
 
             // this.AddValidationError("_FORM", LanguageResources.Authentication_GenericFailure);
 
