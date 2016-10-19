@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace JabbR_Core.Controllers
 {
@@ -165,6 +166,11 @@ namespace JabbR_Core.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
+                /*if (!HasValidCsrfTokenOrSecHeader)
+                {
+                    return HttpStatusCode.Forbidden;
+                }*/
+
                 var user = new ChatUser { UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
@@ -187,29 +193,8 @@ namespace JabbR_Core.Controllers
         //[HttpPost]
         //[AllowAnonymous]
         //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create(RegisterViewModel model, string returnUrl = null)
+        //public async Task<IActionResult> Create()
         //{
-        //    ViewData["ReturnUrl"] = returnUrl;
-        //    if (ModelState.IsValid)
-        //    {
-        //        var user = new ChatUser { Name = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
-        //        var result = await _userManager.CreateAsync(user, model.Password);
-        //        if (result.Succeeded)
-        //        {
-        //            // Send an email with this link
-        //            //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        //            //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-        //            //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-        //            //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-        //            await _signInManager.SignInAsync(user, isPersistent: false);
-        //            return RedirectToLocal(returnUrl);
-        //        }
-        //        AddErrors(result);
-        //    }
-
-        //    // If we got this far, something failed, redisplay form
-        //    return View(model);
-
         //    /*  if (!HasValidCsrfTokenOrSecHeader)
         //      {
         //          return HttpStatusCode.Forbidden;
