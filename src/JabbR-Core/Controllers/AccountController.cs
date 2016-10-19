@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Net;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace JabbR_Core.Controllers
 {
@@ -35,9 +36,8 @@ namespace JabbR_Core.Controllers
 
         public AccountController(UserManager<ChatUser> userManager,
                                  SignInManager<ChatUser> signInManager,
-                                 IJabbrRepository repository
-
-                                  //IOptions<ApplicationSettings> settings,
+                                 IJabbrRepository repository,
+                                 IOptions<ApplicationSettings> settings
                                   // IMembershipService membershipService,
                                   //      IAuthenticationService authService,
                                   //   IChatNotificationService notificationService,
@@ -150,14 +150,29 @@ namespace JabbR_Core.Controllers
             return Login();
         }
 
+        // Because Jane is already authenticated, this method will never send us to the register page
+        // Uncomment when Jane isn't a pre-authenticated user
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
         {
+            //if (User.Identity.IsAuthenticated)
+            //{
+            //    return Redirect("~/");
+            //}
+
+            //if (!_settings.AllowUserRegistration)
+            //{
+            //    return View(HttpStatusCode.NotFound);
+            //}
+
             ViewData["ReturnUrl"] = returnUrl;
+
             return View("register");
         }
 
+        // Because Jane is already authenticated, this will never send us to the register page
+        // Uncomment when Jane isn't a pre-authenticated user
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -166,111 +181,46 @@ namespace JabbR_Core.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                /*if (!HasValidCsrfTokenOrSecHeader)
-                {
-                    return HttpStatusCode.Forbidden;
-                }*/
+                //if (!HasValidCsrfTokenOrSecHeader)
+                //{
+                //    return View(HttpStatusCode.Forbidden);
+                //}
 
-                var user = new ChatUser { UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    // Send an email with this link
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToLocal(returnUrl);
-                }
-                AddErrors(result);
+                //if (!_settings.AllowUserRegistration)
+                //{
+                //    return View(HttpStatusCode.NotFound);
+                //}
+
+                //if (User.Identity.IsAuthenticated)
+                //{
+                //    return Redirect("~/");
+                //}
+
+                //try
+                //{
+                      var user = new ChatUser { Name = model.Name, UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
+                      var result = await _userManager.CreateAsync(user, model.Password);
+                      if (result.Succeeded)
+                      {
+                          // Send an email with this link
+                          //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                          //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                          //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                          //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                          await _signInManager.SignInAsync(user, isPersistent: false);
+                          return RedirectToLocal(returnUrl);
+                      }
+                      AddErrors(result);
+                //}
+                //catch (Exception ex)
+                //{
+                //    ModelState.AddModelError(string.Empty, ex.Message); 
+                //}
             }
 
             // If we got this far, something failed, redisplay form
             return View(model);
         }
-
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create()
-        //{
-        //    /*  if (!HasValidCsrfTokenOrSecHeader)
-        //      {
-        //          return HttpStatusCode.Forbidden;
-        //      }
-
-        //      bool requirePassword = !Principal.Identity.IsAuthenticated;
-
-        //      if (requirePassword &&
-        //          !applicationSettings.AllowUserRegistration)
-        //      {
-        //          return HttpStatusCode.NotFound;
-        //      }
-
-        //      if (IsAuthenticated)
-        //      {
-        //          return this.AsRedirectQueryStringOrDefault("~/");
-        //      }
-
-        //      ViewBag.requirePassword = requirePassword;
-
-        //      string username = Request.Form.username;
-        //      string email = Request.Form.email;
-        //      string password = Request.Form.password;
-        //      string confirmPassword = Request.Form.confirmPassword;*/
-
-        //    //if (String.IsNullOrEmpty(username))
-        //    //{
-        //    //    // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
-        //    //}
-
-        //    //if (String.IsNullOrEmpty(email))
-        //    //{
-        //    //    // this.AddValidationError("email", LanguageResources.Authentication_EmailRequired);
-        //    //}
-
-        //    /* try
-        //     {
-        //         if (requirePassword)
-        //         {
-        //             ValidatePassword(password, confirmPassword);
-        //         }
-
-        //         if (ModelValidationResult.IsValid)
-        //         {
-        //             if (requirePassword)
-        //             {
-        //                 ChatUser user = membershipService.AddUser(username, email, password);
-
-        //                 return this.SignIn(user);
-        //             }
-        //             else
-        //             {
-        //                 // Add the required claims to this identity
-        //                 var identity = Principal.Identity as ClaimsIdentity;
-
-        //                 if (!Principal.HasClaim(ClaimTypes.Name))
-        //                 {
-        //                     identity.AddClaim(new Claim(ClaimTypes.Name, username));
-        //                 }
-
-        //                 if (!Principal.HasClaim(ClaimTypes.Email))
-        //                 {
-        //                     identity.AddClaim(new Claim(ClaimTypes.Email, email));
-        //                 }
-
-        //                 return this.SignIn(Principal.Claims);
-        //             }
-        //         }
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         this.AddValidationError("_FORM", ex.Message);
-        //     }*/
-
-        //    //return View("register");
-        //}
 
         /*[HttpPost]
           public IActionResult Unlink()
