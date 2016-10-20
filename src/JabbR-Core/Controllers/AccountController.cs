@@ -64,32 +64,19 @@ namespace JabbR_Core.Controllers
         public IActionResult Index()
         {
              if (!User.Identity.IsAuthenticated)
-             {                
-                // return Forbidden view 
-                // WorkAround: Crate a new Forbidden View and return
-                // WorkAround: Use [AuthorizationAttribute] and create Forbidden View and return
-                 return View(HttpStatusCode.Forbidden);
+             {
+                // return Forbidden view
+                Response.StatusCode = 403; // HttpStatusCode.Forbidden
+                return View("forbidden");
              }
             
-            //var claims = new List<Claim>();
-            //claims.Add(new Claim(ClaimTypes.Name, "Jane"));
-            //claims.Add(new Claim(ClaimTypes.AuthenticationMethod, "provider"));
-            //claims.Add(new Claim(ClaimTypes.NameIdentifier, "identity"));
-            //claims.Add(new Claim(ClaimTypes.Email, "jane@no.com"));
-            //claims.Add(new Claim(JabbRClaimTypes.Identifier, "1"));
-
-            ClaimsPrincipal currentUser = this.User;
-            var id = _userManager.GetUserId(currentUser); // id = "identity"
+            // HttpContextAccessor DI works when Singelton (Scoped injects null)
+            var id = _context.HttpContext.User.GetUserId();
             
-            // Injection context is null
-            var id2 = _context.HttpContext.User.GetUserId();
-            
-
             // Fake user Jane is not in the _repository
             ChatUser user = _repository.GetUserById(id);
             
-            //return GetProfileView(user);
-            return View("index");
+            return GetProfileView(user);
         }
        
         [HttpGet]
@@ -97,7 +84,7 @@ namespace JabbR_Core.Controllers
         public IActionResult Login()
         {
             // check if the user IsAuthenticated
-            if (User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 // if so, no reason to login. Redirect to home page.
                 return this.Redirect("~/");
@@ -107,11 +94,14 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Login(string username, string password)
         {
             //if (!HasValidCsrfTokenOrSecHeader)
             //{
-            //    return View(HttpStatusCode.Forbidden);
+            //      // return Forbidden view
+            //      Response.StatusCode = 403; // HttpStatusCode.Forbidden
+            //      return View("forbidden");
             //}
 
             // check if the user IsAuthenticated
@@ -121,17 +111,13 @@ namespace JabbR_Core.Controllers
                 return this.Redirect("~/");
             }
 
-            // probably not needed.. check if text fields pass in params
-            var context_username = HttpContext.Request.Form["username"];
-            var context_password = HttpContext.Request.Form["password"];
-
-            if (String.IsNullOrEmpty(context_username))
+            if (String.IsNullOrEmpty(username))
             {
                 //modelstate.addmodelerror
                 //this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
             }
 
-            if (String.IsNullOrEmpty(context_password))
+            if (String.IsNullOrEmpty(password))
             {
                 //modelstate.addmodelerror
                 //this.AddValidationError("password", LanguageResources.Authentication_NameRequired);

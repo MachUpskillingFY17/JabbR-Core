@@ -92,8 +92,8 @@ namespace JabbR_Core
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<ApplicationSettings>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
 
             // Register the provider that points to the specific instance
