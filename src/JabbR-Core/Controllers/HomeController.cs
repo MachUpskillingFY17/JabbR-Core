@@ -1,5 +1,6 @@
 ﻿using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
 

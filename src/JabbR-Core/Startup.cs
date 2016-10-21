@@ -134,20 +134,20 @@ namespace JabbR_Core
             app.UseXContentTypeOptions();
 
 
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
 
-                app.UseCookieAuthentication(new CookieAuthenticationOptions()
-                {
-                    AuthenticationScheme = Constants.JabbRAuthType,
-                    LoginPath = new PathString("/Account/Unauthorized/"),
-                    AccessDeniedPath = new PathString("/Account/Forbidden/"),
-                    AutomaticAuthenticate = true,
-                    AutomaticChallenge = true,
-                    CookieName = "jabbr.id"
-                });
-                app.UseFakeLogin();
-            }
+            //    app.UseCookieAuthentication(new CookieAuthenticationOptions()
+            //    {
+            //        AuthenticationScheme = Constants.JabbRAuthType,
+            //        LoginPath = new PathString("/Account/Unauthorized/"),
+            //        AccessDeniedPath = new PathString("/Account/Forbidden/"),
+            //        AutomaticAuthenticate = true,
+            //        AutomaticChallenge = true,
+            //        CookieName = "jabbr.id"
+            //    });
+            //    app.UseFakeLogin();
+            //}
 
             if (env.IsDevelopment())
             {
