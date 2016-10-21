@@ -48,7 +48,6 @@ namespace JabbR_Core.Controllers
             _repository = repository;
             _userManager = userManager;
             _signInManager = signInManager;
-
         }
 
         [HttpGet]
@@ -65,7 +64,6 @@ namespace JabbR_Core.Controllers
             // HttpContextAccessor DI works when Singelton (Scoped injects null)
             var id = _context.HttpContext.User.GetUserId();
             
-            // Fake user Jane is not in the _repository
             ChatUser user = _repository.GetUserById(id);
             
             return GetProfileView(user);
@@ -78,8 +76,7 @@ namespace JabbR_Core.Controllers
         public IActionResult Login()
         {
             // check if the user IsAuthenticated
-            // if (User.Identity.IsAuthenticated) <-- correct
-            if (!User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
                 // if so, no reason to login. Redirect to home page.
                 return this.Redirect("~/");
@@ -96,8 +93,7 @@ namespace JabbR_Core.Controllers
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             // check if the user IsAuthenticated
-            //if (User.Identity.IsAuthenticated) <-- correct
-            if (!User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
                 // if so, no reason to login. Redirect to home page.
                 return this.Redirect("~/");
@@ -106,13 +102,15 @@ namespace JabbR_Core.Controllers
             if (ModelState.IsValid)
             {
                 /////////////////////////////////////////
-                // TESTING PURPOSES: REGISTERING USER (Only needed to run once to store in db) Ensure result_create = success! (then comment this out for future testing)
+                // TESTING PURPOSES: REGISTERING USER 
+                // (Only needed to run once to store in db) Ensure result_create = success! (then comment this out for future testing)
                 //var user = new ChatUser { UserName = model.Username, LastActivity = DateTime.UtcNow};
                 //var result_create = await _userManager.CreateAsync(user, model.Password);
                 /////////////////////////////////////////
 
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                // 3rd paramater (isPersisted:) holds cookie after browser is closed
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
