@@ -1,0 +1,31 @@
+﻿@using JabbR_Core
+@using JabbR_Core.ViewModels
+@model ChangeUsernameViewModel
+
+<form class="form-horizontal" action="@Url.Content("~/account/changeusername")#changeUsername" method="POST">
+    @Html.ValidationSummary()
+    <div class="control-group">
+        <label class="control-label" for="username">@LanguageResources.Account_UserName</label>
+        <div class="controls">
+            <input asp-for="username"  class="form-control" format=@LanguageResources.Account_UserName placeholder="Username" />
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="confirmUsername">@LanguageResources.Account_UserNameConfirm</label>
+        <div class="controls">
+            <input asp-for="confirmUsername" class="form-control" format=@LanguageResources.Account_UserName placeholder="Confirm Username" />
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="password">@LanguageResources.Account_Pass</label>
+        <div class="controls">
+            <input asp-for="password" class="form-control" format=@LanguageResources.Account_Pass placeholder="Password" />
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <input type="submit" class="btn" value="@LanguageResources.Account_ChangeUserName" />
+        </div>
+    </div>
+    @Html.AntiForgeryToken()
+</form>

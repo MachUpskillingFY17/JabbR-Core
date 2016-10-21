@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using JabbR_Core.Data.Models;
-/*using JabbR_Core.Services;
-using SimpleAuthentication.Core;*/
+using JabbR_Core.Services;
+/*using SimpleAuthentication.Core;*/
 
 namespace JabbR_Core.ViewModels
 {
@@ -42,5 +42,7 @@ namespace JabbR_Core.ViewModels
         public SocialLoginViewModel SocialDetails { get; private set; }
 
         public ICollection<ChatRoom> OwnedRooms { get; private set; }
+
+        public ChangeUsernameViewModel ChatUsernameViewModel { get; set; }
     }
 }
