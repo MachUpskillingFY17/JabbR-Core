@@ -388,14 +388,9 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult ChangeUsername(ChangeUsernameViewModel model)
         {
-            
-
-            /* if (!HasValidCsrfTokenOrSecHeader)
-             {
-                 return HttpStatusCode.Forbidden;
-             }*/
 
             if (!User.Identity.IsAuthenticated)
             {
@@ -403,19 +398,21 @@ namespace JabbR_Core.Controllers
             }
 
             ChatUser user = _repository.GetUserById("1");
-            string oldUsername = user.Name;
+            string oldUsername = user.UserName;
 
             try
             {
                 if (ModelState.IsValid)
                 {
                     user.UserName = model.username;
+                    user.Name = model.username;
                     _repository.CommitChanges();
 
                   //  _notificationService.OnUserNameChanged(user, oldUsername, model.username);
 
                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
                 }
+               
             }
             catch (Exception ex)
             {
@@ -620,7 +617,7 @@ namespace JabbR_Core.Controllers
 
         private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user)
         {
-            return View("index", new ProfilePageViewModel(user/*, authService.GetProviders()*/));
+            return View("index", new ProfilePageViewModel(user));
         }
 
         private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
