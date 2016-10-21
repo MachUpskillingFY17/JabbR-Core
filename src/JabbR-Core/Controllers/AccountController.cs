@@ -1,23 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using JabbR_Core.Infrastructure;
-using JabbR_Core.Data.Models;
-using JabbR_Core.Data.Repositories;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-//using JabbR_Core.Configuration;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Security.Principal;
-using Microsoft.AspNetCore.Authorization;
-using System.Net;
-using Microsoft.AspNetCore.Http;
+using JabbR_Core.Data.Models;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using JabbR_Core.Infrastructure;
+using JabbR_Core.Data.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JabbR_Core.Controllers
 {
@@ -112,16 +103,6 @@ namespace JabbR_Core.Controllers
                 return this.Redirect("~/");
             }
 
-            if (String.IsNullOrEmpty(model.Username))
-            {
-                ModelState.AddModelError("username", LanguageResources.Authentication_NameRequired);
-            }
-
-            if (String.IsNullOrEmpty(model.Password))
-            {
-                ModelState.AddModelError("password", LanguageResources.AuthenticationPasswordRequired);
-            }
-
             if (ModelState.IsValid)
             {
                 /////////////////////////////////////////
@@ -132,7 +113,7 @@ namespace JabbR_Core.Controllers
 
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     // user logged in

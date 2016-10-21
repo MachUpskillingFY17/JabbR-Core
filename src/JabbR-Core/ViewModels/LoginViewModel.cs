@@ -8,6 +8,10 @@ namespace JabbR_Core.ViewModels
 {
     public class LoginViewModel
     {
+        public LoginViewModel()
+        {
+        }
+
         public LoginViewModel(ApplicationSettings settings,/* IEnumerable<IAuthenticationProvider> configuredProviders, */IEnumerable<ChatUserIdentity> userIdentities)
         {
             SocialDetails = new SocialLoginViewModel(/*configuredProviders,*/ userIdentities);
