@@ -17,36 +17,43 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Net;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace JabbR_Core.Controllers
 {
     public class AccountController : Controller
     {
-       // private IJabbrRepository _repository;
-       // private IAuthenticationService _authService;
+        //Microsoft.AspNetCore.Identity.EntityFrameworkCore
+        private readonly UserManager<ChatUser> _userManager;
+        private readonly SignInManager<ChatUser> _signInManager;
+
+        // private IAuthenticationService _authService;
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
-
-        // Microsoft.AspNetCore.Identity.EntityFrameworkCore
-        private readonly UserManager<ChatUser> _userManager;
-        private readonly SignInManager<ChatUser> _signInManager;
-        private readonly IChatNotificationService _notificationService;
+        private IHttpContextAccessor _context;
         public AccountController(UserManager<ChatUser> userManager,
-                                 SignInManager<ChatUser> signInManager,
-                                 IJabbrRepository repository                                 
+            SignInManager<ChatUser> signInManager,
+            ApplicationSettings applicationSettings,
+            IHttpContextAccessor context,
+            IJabbrRepository repository
 
-                                  //IOptions<ApplicationSettings> settings,
-                                  // IMembershipService membershipService
-                                  //      IAuthenticationService authService,
-                                  //   IChatNotificationService notificationService
-                                  //   IUserAuthenticator authenticator,
-                                  //  IEmailService emailService
+                                  // IOptions<ApplicationSettings> settings,
+                                  // IMembershipService membershipService,
+                                  // IAuthenticationService authService
+                                  // IChatNotificationService notificationService,
+                                  // IUserAuthenticator authenticator,
+                                  // IEmailService emailService
                                   )
         {
-             //_settings = settings.Value;
-            //    _authService = authService;
-           // _notificationService = notificationService;
+             
+
+            // _settings = settings.Value;
+            // _authService = authService;
+            // _membershipService = membershipService;
+
+            _context = context;
+            _settings = applicationSettings;
             _repository = repository;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -397,8 +404,11 @@ namespace JabbR_Core.Controllers
                 return View(HttpStatusCode.Forbidden);
             }
 
-            ChatUser user = _repository.GetUserById("1");
-            string oldUsername = user.UserName;
+            // HttpContextAccessor DI works when Singelton (Scoped injects null)
+            var id = _context.HttpContext.User.GetUserId();
+
+            ChatUser user = _repository.GetUserById(id);
+            string oldUsername = user.Name; //user.UserName
 
             try
             {
