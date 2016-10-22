@@ -30,6 +30,51 @@ To set a user secret, you need to use `dotnet user-secrets set <key> <value>`, l
 $ dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 ```
 
+Alternatively, if you want to use [LocalDB, an alternative built in database](https://blogs.msdn.microsoft.com/sqlexpress/2011/07/12/introducing-localdb-an-improved-sql-express/), you 
+can run the same command as above, but with a simpler connection string like so
+
+```bash
+$ dotnet user-secrets set "connectionString" "Server=(localdb)\\mssqllocaldb;Database=aspnet-application;Trusted_Connection=True;MultipleActiveResultSets=true"
+```
+
+## How to access your stored user secrets
+
+In your `Startup.cs` file, you can access the Configuration API easily by creating an `IConfigurationRoot` object instance.
+This is created for you in the Visual Studio template project for a .NET Core Web Application, as below. 
+Whatever key you defined for your key-value pair when you used `dotnet user-secrets set <key> <value>` is what you will
+use to access that value in your code.
+
+```csharp
+private IConfigurationRoot _configuration;
+
+public Startup(IHostingEnvironment env)
+{
+    // This code is templated for you upon creation of a new project in Visual Studio
+    // File > New Project > .NET Core > .NET Core Web Application > Pick any of Empty, Web API, or Web Application
+    var builder = new ConfigurationBuilder()
+        .SetBasePath(env.ContentRootPath)
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+
+    if (env.IsDevelopment())
+    {
+        builder.AddUserSecrets();
+    }
+
+    builder.AddEnvironmentVariables();
+
+    _configuration = builder.Build();
+}
+
+public void ConfigureServices(IServiceCollection services)
+{
+    // Here you are accessing the environment variable you stored under the key "connectionString"
+    string connection = _configuration["connectionString"];
+
+    // And then you can use that value to register other services, like your database.
+    services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
+```
+
 The above command will set the key `connectionString` to an environment variable containing the given database connection string.
 We've used the structure of a connection string hosted on Azure, but **you will have to use your own**
 
