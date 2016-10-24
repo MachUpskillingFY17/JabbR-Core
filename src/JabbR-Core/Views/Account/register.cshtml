@@ -12,7 +12,7 @@
                     <div class="controls">
                         <div class="input-prepend">
                             <span class="add-on"><i class="icon-user"></i></span>
-                            <input asp-for="Name" class="form-control" format=@LanguageResources.Account_UserName placeholder="Username"/>
+                            <input asp-for="Name" class="form-control" placeholder="Username"/>
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
                     </div>
@@ -21,7 +21,7 @@
                     <div class="controls">
                         <div class="input-prepend">
                             <span class="add-on"><i class="icon-envelope"></i></span>
-                            <input asp-for="Email" class="form-control" format=@LanguageResources.Account_UserName placeholder="Email" />
+                            <input asp-for="Email" class="form-control" placeholder="Email" />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                     </div>
@@ -30,7 +30,7 @@
                     <div class="controls">
                         <div class="input-prepend">
                             <span class="add-on"><i class="icon-lock"></i></span>
-                            <input asp-for="Password" class="form-control" format=@LanguageResources.Account_UserName placeholder="Password" />
+                            <input asp-for="Password" class="form-control" placeholder="Password" />
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
                     </div>
@@ -39,20 +39,23 @@
                     <div class="controls">
                         <div class="input-prepend">
                             <span class="add-on"><i class="icon-lock"></i></span>
-                            <input asp-for="ConfirmPassword" class="form-control" format=@LanguageResources.Account_UserName placeholder="Confirm Password" />
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" />
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
                 <div class="control-group">
                     <div class="controls">
-                        <button type="submit" class="btn">@LanguageResources.Account_Register</button>
-                        <a href="@Url.Content("~/account/login" /* + Html.RequestQuery()*/)" class="btn">@LanguageResources.Account_Cancel</a>
+                        <button type="submit" class="btn">Register</button>
+                        <a href="@Url.Content("~/account/login" /* + Html.RequestQuery()*/)" class="btn">Cancel</a>
                     </div>
                 </div>
-                <div asp-validation-summary="All" class="text-danger"></div> 
-                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="text-danger"></div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

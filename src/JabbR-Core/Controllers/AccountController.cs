@@ -174,6 +174,7 @@ namespace JabbR_Core.Controllers
         // Because Jane is already authenticated, this will never send us to the register page
         // Uncomment when Jane isn't a pre-authenticated user
         [HttpPost]
+        [Authorize]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
@@ -181,11 +182,6 @@ namespace JabbR_Core.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                //if (!HasValidCsrfTokenOrSecHeader)
-                //{
-                //    return View(HttpStatusCode.Forbidden);
-                //}
-
                 //if (!_settings.AllowUserRegistration)
                 //{
                 //    return View(HttpStatusCode.NotFound);
