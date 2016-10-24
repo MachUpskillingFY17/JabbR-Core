@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using JabbRCore.Data.InMemory;
 using NWebsec.AspNetCore.Middleware;
 using NWebsec.AspNetCore.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace JabbR_Core
 {
@@ -73,7 +74,10 @@ namespace JabbR_Core
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(new RequireHttpsAttribute());
+            });
             services.AddSignalR();
 
             // Create instances to register. Required for ChatService to work
@@ -91,7 +95,7 @@ namespace JabbR_Core
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
 
             // Register the provider that points to the specific instance
@@ -155,6 +159,12 @@ namespace JabbR_Core
             loggerFactory.AddConsole();
 
             app.UseIdentity();
+            app.UseFacebookAuthentication(new FacebookOptions()
+            {
+                AppId = _configuration["Authentication:Facebook:AppId"],
+                AppSecret = _configuration["Authentication:Facebook:AppSecret"]
+            });
+
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
             app.UseSignalR();
