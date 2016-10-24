@@ -6,8 +6,7 @@
 <div class="row-fluid">
     <div class="span6 offset3">
         <div class="user-registration">
-            <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-                <!--/* + Html.RequestQuery()*/-->
+            <form asp-controller="Account" asp-action="Register" method="post" class="form-horizontal">
                 <div class="control-group">
                     <div class="controls">
                         <div class="input-prepend">
@@ -47,7 +46,7 @@
                 <div class="control-group">
                     <div class="controls">
                         <button type="submit" class="btn">Register</button>
-                        <a href="@Url.Content("~/account/login" /* + Html.RequestQuery()*/)" class="btn">Cancel</a>
+                        <a asp-controller="Account" asp-action="Login" class="btn">Cancel</a>
                     </div>
                 </div>
                 <div asp-validation-summary="All" class="text-danger"></div>
