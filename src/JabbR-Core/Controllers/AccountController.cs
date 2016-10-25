@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Net;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Jabbr_Core.ViewModels;
 
 namespace JabbR_Core.Controllers
 {
@@ -394,23 +395,23 @@ namespace JabbR_Core.Controllers
             return GetProfileView(/*_authService,*/ user);
         }
 
-        [HttpGet]
-        public IActionResult RequestResetPassword()
-        {
-            /*  if (IsAuthenticated)
-              {
-                  return Response.AsRedirect("~/account/#changePassword");
-              }
+        //[HttpGet]
+        //public IActionResult RequestResetPassword()
+        //{
+        //    /*  if (IsAuthenticated)
+        //      {
+        //          return Response.AsRedirect("~/account/#changePassword");
+        //      }
 
-              if (!Principal.Identity.IsAuthenticated &&
-                  !applicationSettings.AllowUserResetPassword ||
-                  string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
-              {
-                  return HttpStatusCode.NotFound;
-              }*/
+        //      if (!Principal.Identity.IsAuthenticated &&
+        //          !applicationSettings.AllowUserResetPassword ||
+        //          string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
+        //      {
+        //          return HttpStatusCode.NotFound;
+        //      }*/
 
-            return View();
-        }
+        //    return View();
+        //}
 
         [HttpPost]
         public IActionResult RequestResetPassword(string username)
@@ -472,88 +473,88 @@ namespace JabbR_Core.Controllers
             return View("requestresetpasswordsuccess");
         }
 
-        [HttpGet]
-        public IActionResult ResetPassword(string id)
-        {
-            /* if (!applicationSettings.AllowUserResetPassword ||
-                 string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
-             {
-                 return HttpStatusCode.NotFound;
-             }*/
+        //[HttpGet]
+        //public IActionResult ResetPassword(string id)
+        //{
+        //    /* if (!applicationSettings.AllowUserResetPassword ||
+        //         string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
+        //     {
+        //         return HttpStatusCode.NotFound;
+        //     }*/
 
-            string resetPasswordToken = id; //parameters.id;
-                                            // string userName = _membershipService.GetUserNameFromToken(resetPasswordToken);
+        //    string resetPasswordToken = id; //parameters.id;
+        //                                    // string userName = _membershipService.GetUserNameFromToken(resetPasswordToken);
 
-            // Is the token not valid, maybe some character change?
-            /* if (userName == null)
-             {
-                 return View["resetpassworderror", LanguageResources.Account_ResetInvalidToken];
-             }
-             else
-             {
-                 ChatUser user = repository.GetUserByRequestResetPasswordId(userName, resetPasswordToken);
+        //    // Is the token not valid, maybe some character change?
+        //    /* if (userName == null)
+        //     {
+        //         return View["resetpassworderror", LanguageResources.Account_ResetInvalidToken];
+        //     }
+        //     else
+        //     {
+        //         ChatUser user = repository.GetUserByRequestResetPasswordId(userName, resetPasswordToken);
 
-                 // Is the token expired?
-                 if (user == null)
-                 {
-                     return View["resetpassworderror", LanguageResources.Account_ResetExpiredToken];
-                 }
-                 else
-                 {
-                     return View["resetpassword", user.RequestPasswordResetId];
-                 }
-             }*/
-            return View("resetpassword");
-        }
+        //         // Is the token expired?
+        //         if (user == null)
+        //         {
+        //             return View["resetpassworderror", LanguageResources.Account_ResetExpiredToken];
+        //         }
+        //         else
+        //         {
+        //             return View["resetpassword", user.RequestPasswordResetId];
+        //         }
+        //     }*/
+        //    return View("resetpassword");
+        //}
 
-        [HttpPost]
-        public IActionResult ResetPassword(string id, string password, string confirmPassword)
-        {
-            /*  if (!HasValidCsrfTokenOrSecHeader)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
+        //[HttpPost]
+        //public IActionResult ResetPassword(string id, string password, string confirmPassword)
+        //{
+        //    /*  if (!HasValidCsrfTokenOrSecHeader)
+        //      {
+        //          return HttpStatusCode.Forbidden;
+        //      }
 
-              if (!applicationSettings.AllowUserResetPassword ||
-                  string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
-              {
-                  return HttpStatusCode.NotFound;
-              }*/
+        //      if (!applicationSettings.AllowUserResetPassword ||
+        //          string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
+        //      {
+        //          return HttpStatusCode.NotFound;
+        //      }*/
 
-            string resetPasswordToken = id; // parameters.id;
-            string newPassword = password; // Request.Form.password;
-            string confirmNewPassword = confirmPassword; // Request.Form.confirmPassword;
+        //    string resetPasswordToken = id; // parameters.id;
+        //    string newPassword = password; // Request.Form.password;
+        //    string confirmNewPassword = confirmPassword; // Request.Form.confirmPassword;
 
-            ValidatePassword(newPassword, confirmNewPassword);
+        //    ValidatePassword(newPassword, confirmNewPassword);
 
-            /*   try
-               {
-                   if (ModelValidationResult.IsValid)
-                   {
-                       string userName = membershipService.GetUserNameFromToken(resetPasswordToken);
-                       ChatUser user = repository.GetUserByRequestResetPasswordId(userName, resetPasswordToken);
+        //    /*   try
+        //       {
+        //           if (ModelValidationResult.IsValid)
+        //           {
+        //               string userName = membershipService.GetUserNameFromToken(resetPasswordToken);
+        //               ChatUser user = repository.GetUserByRequestResetPasswordId(userName, resetPasswordToken);
 
-                       // Is the token expired?
-                       if (user == null)
-                       {
-                           return View["resetpassworderror", LanguageResources.Account_ResetExpiredToken];
-                       }
-                       else
-                       {
-                           membershipService.ResetUserPassword(user, newPassword);
-                           repository.CommitChanges();
+        //               // Is the token expired?
+        //               if (user == null)
+        //               {
+        //                   return View["resetpassworderror", LanguageResources.Account_ResetExpiredToken];
+        //               }
+        //               else
+        //               {
+        //                   membershipService.ResetUserPassword(user, newPassword);
+        //                   repository.CommitChanges();
 
-                           return View["resetpasswordsuccess"];
-                       }
-                   }
-               }
-               catch (Exception ex)
+        //                   return View["resetpasswordsuccess"];
+        //               }
+        //           }
+        //       }
+        //       catch (Exception ex)
 
-                   this.AddValidationError("_FORM", ex.Message);
-               }*/
+        //           this.AddValidationError("_FORM", ex.Message);
+        //       }*/
 
-            return View("resetpasswordsuccess");
-        }
+        //    return View("resetpasswordsuccess");
+        //}
 
         private void ValidatePassword(string password, string confirmPassword)
         {
@@ -567,7 +568,7 @@ namespace JabbR_Core.Controllers
                 //this.AddValidationError("confirmPassword", LanguageResources.Authentication_PassNonMatching);
             }
         }
-
+        
         private void ValidateUsername(string username, string confirmUsername)
         {
             if (String.IsNullOrEmpty(username))
@@ -620,6 +621,95 @@ namespace JabbR_Core.Controllers
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
+        }
+        // GET: /Account/ForgotPassword
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        //
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByNameAsync(model.Email);
+                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    return View("ForgotPasswordConfirmation");
+                }
+
+                // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
+                // Send an email with this link
+                //var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                //var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                //await _emailSender.SendEmailAsync(model.Email, "Reset Password",
+                //   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+                //return View("ForgotPasswordConfirmation");
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        //
+        // GET: /Account/ForgotPasswordConfirmation
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        //
+        // GET: /Account/ResetPassword
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string code = null)
+        {
+            return code == null ? View("Error") : View();
+        }
+
+        //
+        // POST: /Account/ResetPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = await _userManager.FindByNameAsync(model.Email);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+            }
+            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
+            if (result.Succeeded)
+            {
+                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+            }
+            AddErrors(result);
+            return View();
+        }
+
+        //
+        // GET: /Account/ResetPasswordConfirmation
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
         }
     }
 }
