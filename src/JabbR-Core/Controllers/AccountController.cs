@@ -643,7 +643,7 @@ namespace JabbR_Core.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ChatUser { Name = model.Email, UserName = model.Email, Email = model.Email, LastActivity = DateTime.UtcNow };
+                var user = new ChatUser { Name = model.Name, UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {

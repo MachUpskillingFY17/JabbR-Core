@@ -1,9 +1,8 @@
 ﻿@model JabbR_Core.ViewModels.ExternalLoginConfirmationViewModel
 @{
-    ViewData["Title"] = "Register";
+    Layout = "_layout.cshtml";
 }
 
-<h2>@ViewData["Title"].</h2>
 <h3>Associate your @ViewData["LoginProvider"] account.</h3>
 
 <form asp-controller="Account" asp-action="ExternalLoginConfirmation" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
@@ -13,21 +12,34 @@
 
     <p class="text-info">
         You've successfully authenticated with <strong>@ViewData["LoginProvider"]</strong>.
-        Please enter an email address for this site below and click the Register button to finish
+        Please enter a username and email address for this site below and click the Register button to finish
         logging in.
     </p>
-    <div class="form-group">
-        <label asp-for="Email" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
+    <div class="control-group">
+        <div class="controls">
+            <div class="input-prepend">
+                <span class="add-on"><i class="icon-user"></i></span>
+                <input asp-for="Name" class="form-control" placeholder="Username" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
         </div>
     </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-default">Register</button>
+    <div class="control-group">
+        <div class="controls">
+            <div class="input-prepend">
+                <span class="add-on"><i class="icon-envelope"></i></span>
+                <input asp-for="Email" class="form-control" placeholder="Email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
         </div>
     </div>
+    <div class="control-group">
+        <div class="controls">
+            <button type="submit" class="btn">Register</button>
+            <a asp-controller="Account" asp-action="Login" class="btn">Cancel</a>
+        </div>
+    </div>
+    <div asp-validation-summary="All" class="text-danger"></div>
 </form>
 
 @section Scripts {
