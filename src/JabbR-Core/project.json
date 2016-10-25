@@ -35,7 +35,8 @@
     "System.Linq": "4.3.0-preview1-24530-04",
     "Microsoft.DotNet.InternalAbstractions": "1.0.1-beta-003206",
     "Moq": "4.6.38-alpha",
-    "Microsoft.DotNet.Cli.Utils": "1.0.0-preview2-003121"
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-preview2-003121",
+    "Microsoft.Extensions.Configuration.CommandLine":  "1.0.0" 
   },
 
   "tools": {
