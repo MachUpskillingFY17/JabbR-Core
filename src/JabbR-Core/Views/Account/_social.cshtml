@@ -1,22 +1,39 @@
-﻿@using JabbR_Core.ViewModels;
-@model SocialLoginViewModel
+﻿@using JabbR_Core.ViewModels
+@using Microsoft.AspNetCore.Http
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http.Authentication
 
-    <div class="control-group">
-        <div class="controls">
-            <form class="form-horizontal" action="@Url.Content("~/account/social")#social" method="POST">
-                @foreach (var provider in Model.ConfiguredProviders)
-                {
-                    <ul class="inline">
-                        @if (!Model.IsAlreadyLinked(provider))
-                        {
-                            <li><a class="btn btn-provider" href="@Url.Content("~/authentication/redirect/" + provider.ToLower() /*+ Html.RequestQuery()*/)"><i class="icon-@provider.ToLower()"></i> @provider</a></li>
-                        }
-                        else
-                        {
-                            <li><div class="provider"><i class="icon-@provider.ToLower()"></i> @provider</div><button type="submit" class="btn-unlink" name="provider" value="@provider.ToLower()" title="@LanguageResources.Account_UnlinkIdentityProvider"><i class="icon-unlink"></i></button></li>
-                        }
-                    </ul>
-                }
-            </form>
-        </div>
+@model SocialLoginViewModel
+@inject SignInManager<ChatUser> SignInManager
+
+
+<div class="control-group">
+    <div class="controls">
+        @{
+            var loginProviders = SignInManager.GetExternalAuthenticationSchemes().ToList();
+            if (loginProviders.Count == 0)
+            {
+                <div>
+                    <p>
+                        There are no external authentication services configured. See <a href="http://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
+                        for details on setting up this ASP.NET application to support logging in via external services.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                    <div>
+                        <p>
+                            @foreach (var provider in loginProviders)
+                            {
+                                <button type="submit" class="btn btn-default" name="provider" value="@provider.AuthenticationScheme" title="Log in using your @provider.DisplayName account">@provider.AuthenticationScheme</button>
+                            }
+                        </p>
+                    </div>
+                </form>
+            }
+        }
     </div>
+</div>
