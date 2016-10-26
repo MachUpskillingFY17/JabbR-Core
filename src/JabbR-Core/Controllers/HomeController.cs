@@ -11,7 +11,6 @@ namespace JabbR_Core.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-
         private ApplicationSettings _settings;
 
         public HomeController(IOptions<ApplicationSettings> settings)
