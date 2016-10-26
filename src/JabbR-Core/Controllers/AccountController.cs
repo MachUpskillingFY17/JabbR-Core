@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using System.Net;
+using Microsoft.AspNetCore.Http;
+
 
 namespace JabbR_Core.Controllers
 {
@@ -30,9 +32,11 @@ namespace JabbR_Core.Controllers
         // Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
+        private IHttpContextAccessor _context;
 
         public AccountController(UserManager<ChatUser> userManager,
                                  SignInManager<ChatUser> signInManager,
+                                 IHttpContextAccessor context,
                                  IJabbrRepository repository
 
                                   //IOptions<ApplicationSettings> settings,
@@ -47,6 +51,7 @@ namespace JabbR_Core.Controllers
             //    _authService = authService;
             // _membershipService = membershipService;
 
+            _context = context;
             _repository = repository;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -340,7 +345,11 @@ namespace JabbR_Core.Controllers
             //Check if user filled out form corrrectly
             if (ModelState.IsValid)
             {
-                var actualUser = await _userManager.FindByNameAsync(User.Identity.Name);
+                // HttpContextAccessor DI works when Singelton (Scoped injects null)
+                var id = _context.HttpContext.User.GetUserId();
+                ChatUser actualUser = _repository.GetUserById(id);
+
+                //var actualUser = await _userManager.FindByNameAsync(User.Identity.Name);
                 if (actualUser == null)
                 {
                     return View("Error");

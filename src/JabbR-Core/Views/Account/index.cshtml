@@ -139,9 +139,6 @@
                         </div>
                         <div class="account-details tab-pane hide" id="changePassword">
                             @Html.Partial("_changepassword", userModel.UserPasswordViewModel)
-
-
-                            //TODO REPLACE
                         </div>
                         <div class="account-details tab-pane hide" id="identityProviders">
                             @*@Html.Partial("_social", @userModel.SocialDetails)*@
@@ -153,20 +150,7 @@
     </section>
     <script src="@Url.Content("~/Scripts/jquery-2.0.3.min.js")"></script>
     <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
-    <script type="text/javascript">
-        (function ($) {
-            // set the selected tab based on the hash
-            var currentSection = document.location.hash || "#profile";
-            $('a[href="' + currentSection + '"]').tab('show');
+    <script src="@Url.Content("~/Scripts/accounttabs.js")">    </script>
 
-            // always set the hash when we change tabs
-            $('a[data-toggle="tab"]').on('shown', function (e) {
-                document.location.hash = e.target.hash;
-            });
-
-            // make sure errors look pretty and bootstrap-y
-            $('input.error').closest('.control-group').addClass('error');
-        }(jQuery));
-    </script>
 </body>
 </html>
