@@ -1,132 +1,145 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using JabbR_Core.Infrastructure;
-using JabbR_Core.Data.Models;
-using JabbR_Core.Data.Repositories;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
+using JabbR_Core.Data.Models;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-//using JabbR_Core.Configuration;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
+using JabbR_Core.Infrastructure;
+using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace JabbR_Core.Controllers
 {
     public class AccountController : Controller
     {
-       // private IJabbrRepository _repository;
-       // private IAuthenticationService _authService;
-        private ApplicationSettings _settings;
-        private IMembershipService _membershipService;
-        private readonly IJabbrRepository _repository;
-
         // Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
 
-        public AccountController(UserManager<ChatUser> userManager,
-                                 SignInManager<ChatUser> signInManager,
-                                 IJabbrRepository repository
+        // private IAuthenticationService _authService;
+        private ApplicationSettings _settings;
+        private IMembershipService _membershipService;
+        private readonly IJabbrRepository _repository;
+        private IHttpContextAccessor _context;
 
-                                  //IOptions<ApplicationSettings> settings,
-                                  // IMembershipService membershipService,
-                                  //      IAuthenticationService authService,
-                                  //   IChatNotificationService notificationService,
-                                  //   IUserAuthenticator authenticator,
-                                  //  IEmailService emailService
-                                  )
+        public AccountController(
+            UserManager<ChatUser> userManager,
+            SignInManager<ChatUser> signInManager,
+            ApplicationSettings applicationSettings,
+            IHttpContextAccessor context,
+            IJabbrRepository repository
+
+            // IOptions<ApplicationSettings> settings,
+            // IMembershipService membershipService,
+            // IAuthenticationService authService
+            // IChatNotificationService notificationService,
+            // IUserAuthenticator authenticator,
+            // IEmailService emailService
+            )
         {
             // _settings = settings.Value;
-            //    _authService = authService;
+            // _authService = authService;
             // _membershipService = membershipService;
 
+            _context = context;
+            _settings = applicationSettings;
             _repository = repository;
             _userManager = userManager;
             _signInManager = signInManager;
-
         }
+
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Index()
-        {/*
-             if (!IsAuthenticated)
+        {
+             if (!User.Identity.IsAuthenticated)
              {
-                 return HttpStatusCode.Forbidden;
-             }*/
-
-
-            ChatUser user = _repository.GetUserById("1");
-
-
+                // return Forbidden view
+                Response.StatusCode = 403; // HttpStatusCode.Forbidden
+                return View("forbidden");
+             }
+            
+            // HttpContextAccessor DI works when Singelton (Scoped injects null)
+            var id = _context.HttpContext.User.GetUserId();
+            
+            ChatUser user = _repository.GetUserById(id);
+            
             return GetProfileView(user);
-
-           // return View();
         }
 
-
+        //
+        // GET: /Account/Login
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
-            /*  if (IsAuthenticated)
-              {
-                  return this.AsRedirectQueryStringOrDefault("~/");
-              }
-
-              return View("login"/*, GetLoginViewModel(applicationSettings, repository, authService));*/
-            return View("login");
+            // check if the user IsAuthenticated
+            if (User.Identity.IsAuthenticated)
+            {
+                // if so, no reason to login. Redirect to home page.
+                return this.Redirect("~/");
+            }
+            return View(GetLoginViewModel(_settings, _repository/*, authService*/));
         }
 
-
+        //
+        // POST: /Account/Login
         [HttpPost]
-        public IActionResult Login(string username, string password)
-        {/*
-            if (!HasValidCsrfTokenOrSecHeader)
+        [Authorize]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            // check if the user IsAuthenticated
+            if (User.Identity.IsAuthenticated)
             {
-                return HttpStatusCode.Forbidden;
+                // if so, no reason to login. Redirect to home page.
+                return this.Redirect("~/");
             }
 
-            if (IsAuthenticated)
+            if (ModelState.IsValid)
             {
-                return this.AsRedirectQueryStringOrDefault("~/");
+                /////////////////////////////////////////
+                // TESTING PURPOSES: REGISTERING USER 
+                // (Only needed to run once to store in db) Ensure result_create = success! (then comment this out for future testing)
+                //var user = new ChatUser { UserName = model.Username, LastActivity = DateTime.UtcNow};
+                //var result_create = await _userManager.CreateAsync(user, model.Password);
+                /////////////////////////////////////////
+
+                // This doesn't count login failures towards account lockout
+                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                // 3rd paramater (isPersisted:) holds cookie after browser is closed
+                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
+                if (result.Succeeded)
+                {
+                    // user logged in
+                    // Redirect to home page - Lobby
+                    return this.Redirect("~/");
+                }
+                if (result.RequiresTwoFactor)
+                {
+                    // TODO: Future implemntation
+                    // return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                }
+                if (result.IsLockedOut)
+                {
+                    // user account locked out
+                    // TODO: Fiture implemtation of Lockout View
+                    // return View("Lockout");
+                    return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                }
+                else
+                {
+                    // If we got this far, something failed, redisplay form
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                }
             }
 
-            username = Request.Form.username; //IForm Validation is Nancy
-            password = Request.Form.password;*/
-
-            if (String.IsNullOrEmpty(username))
-            {
-                // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
-            }
-
-            if (String.IsNullOrEmpty(password))
-            {
-                // this.AddValidationError("password", LanguageResources.Authentication_PassRequired);
-            }
-
-            /* try
-             {
-                /* if (ModelValidationResult.IsValid)
-                 {
-                     IList<Claim> claims;
-                     if (authenticator.TryAuthenticateUser(username, password, out claims))
-                     {
-                         return this.SignIn(claims);
-                     }
-                 }
-             }
-             catch
-             {
-                 // Swallow the exception    
-             }
-
-             this.AddValidationError("_FORM", LanguageResources.Authentication_GenericFailure);
-
-             return View["login", GetLoginViewModel(applicationSettings, repository, authService)];*/
-            return View("login");
+            // If we got this far, something failed, redisplay form
+            return View(GetLoginViewModel(_settings, _repository/*, authService*/));
         }
 
         [HttpPost]
@@ -246,40 +259,40 @@ namespace JabbR_Core.Controllers
             return View("register");
         }
 
-      /*[HttpPost]
-        public IActionResult Unlink()
-           {
-             /*  if (!HasValidCsrfTokenOrSecHeader)
-               {
-                   return HttpStatusCode.Forbidden;
-               }
+        /*[HttpPost]
+          public IActionResult Unlink()
+             {
+               /*  if (!HasValidCsrfTokenOrSecHeader)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
 
-               if (!IsAuthenticated)
-               {
-                   return HttpStatusCode.Forbidden;
-               }
+                 if (!IsAuthenticated)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
 
-               string provider = Request.Form.provider;
-               ChatUser user = repository.GetUserById(Principal.GetUserId());
+                 string provider = Request.Form.provider;
+                 ChatUser user = repository.GetUserById(Principal.GetUserId());
 
-               if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
-               {
-                   Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
-                   return Response.AsRedirect("~/account/#identityProviders");
-               }
+                 if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
+                 {
+                     Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
+                     return Response.AsRedirect("~/account/#identityProviders");
+                 }
 
-               var identity = user.Identities.FirstOrDefault(i => i.ProviderName == provider);
+                 var identity = user.Identities.FirstOrDefault(i => i.ProviderName == provider);
 
-               if (identity != null)
-               {
-                   repository.Remove(identity);
+                 if (identity != null)
+                 {
+                     repository.Remove(identity);
 
-                   Request.AddAlertMessage("success", String.Format(LanguageResources.Account_UnlinkCompleted, provider));
-                   return Response.AsRedirect("~/account/#identityProviders");
-               }
+                     Request.AddAlertMessage("success", String.Format(LanguageResources.Account_UnlinkCompleted, provider));
+                     return Response.AsRedirect("~/account/#identityProviders");
+                 }
 
-               return HttpStatusCode.BadRequest;
-           }*/
+                 return HttpStatusCode.BadRequest;
+             }*/
 
 
         [HttpPost]
@@ -510,7 +523,7 @@ namespace JabbR_Core.Controllers
              }*/
 
             string resetPasswordToken = id; //parameters.id;
-           // string userName = _membershipService.GetUserNameFromToken(resetPasswordToken);
+                                            // string userName = _membershipService.GetUserNameFromToken(resetPasswordToken);
 
             // Is the token not valid, maybe some character change?
             /* if (userName == null)
@@ -612,7 +625,7 @@ namespace JabbR_Core.Controllers
 
         private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user)
         {
-            return View("index", new ProfilePageViewModel(user/*, authService.GetProviders()*/));
+            return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
         }
 
         private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
@@ -621,10 +634,11 @@ namespace JabbR_Core.Controllers
         {
             ChatUser user = null;
 
-            /*  if (IsAuthenticated)
-              {
-                  user = repository.GetUserById(Principal.GetUserId());
-              }*/
+            if (User.Identity.IsAuthenticated)
+            {
+                var id = _context.HttpContext.User.GetUserId();
+                user = _repository.GetUserById(id);
+            }
 
             var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
             return viewModel;
