@@ -8,20 +8,26 @@ using Microsoft.AspNetCore.Http;
 using JabbR_Core.Infrastructure;
 using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using System.Net;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace JabbR_Core.Controllers
 {
     public class AccountController : Controller
     {
-        // Microsoft.AspNetCore.Identity.EntityFrameworkCore
-        private readonly UserManager<ChatUser> _userManager;
-        private readonly SignInManager<ChatUser> _signInManager;
-
+        // private IJabbrRepository _repository;
         // private IAuthenticationService _authService;
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
+
+        // Microsoft.AspNetCore.Identity.EntityFrameworkCore
+        private readonly UserManager<ChatUser> _userManager;
+        private readonly SignInManager<ChatUser> _signInManager;
+        Microsoft.AspNetCore.Http.HttpContext context;
         private IHttpContextAccessor _context;
 
         public AccountController(
@@ -54,18 +60,18 @@ namespace JabbR_Core.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-             if (!User.Identity.IsAuthenticated)
-             {
+            if (!User.Identity.IsAuthenticated)
+            {
                 // return Forbidden view
                 Response.StatusCode = 403; // HttpStatusCode.Forbidden
                 return View("forbidden");
-             }
-            
+            }
+
             // HttpContextAccessor DI works when Singelton (Scoped injects null)
             var id = _context.HttpContext.User.GetUserId();
-            
+
             ChatUser user = _repository.GetUserById(id);
-            
+
             return GetProfileView(user);
         }
 
@@ -87,7 +93,6 @@ namespace JabbR_Core.Controllers
         //
         // POST: /Account/Login
         [HttpPost]
-        [Authorize]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -158,105 +163,71 @@ namespace JabbR_Core.Controllers
             return Login();
         }
 
+        // Because Jane is already authenticated, this method will never send us to the register page
+        // Uncomment when Jane isn't a pre-authenticated user
         [HttpGet]
-        public IActionResult Register()
+        [AllowAnonymous]
+        public IActionResult Register(string returnUrl = null)
         {
-            /*  if (IsAuthenticated)
-              {
-                  return this.AsRedirectQueryStringOrDefault("~/");
-              }*/
-
-            //  bool requirePassword = !Principal.Identity.IsAuthenticated; // found in JabbrModule
-
-            /* if (requirePassword &&
-                 !applicationSettings.AllowUserRegistration)
-             {
-                 return HttpStatusCode.NotFound;
-             }
-
-             ViewBag.requirePassword = requirePassword;*/ //ViewBag is a 
-
-            return View("register"); //why doesnt View(); work?
-        }
-
-        [HttpPost]
-        public IActionResult Create(string username, string email, string password, string confirmPassword)
-        {
-            /*  if (!HasValidCsrfTokenOrSecHeader)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
-
-              bool requirePassword = !Principal.Identity.IsAuthenticated;
-
-              if (requirePassword &&
-                  !applicationSettings.AllowUserRegistration)
-              {
-                  return HttpStatusCode.NotFound;
-              }
-
-              if (IsAuthenticated)
-              {
-                  return this.AsRedirectQueryStringOrDefault("~/");
-              }
-
-              ViewBag.requirePassword = requirePassword;
-
-              string username = Request.Form.username;
-              string email = Request.Form.email;
-              string password = Request.Form.password;
-              string confirmPassword = Request.Form.confirmPassword;*/
-
-            if (String.IsNullOrEmpty(username))
+            if (User.Identity.IsAuthenticated)
             {
-                // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
+                return Redirect("~/");
             }
 
-            if (String.IsNullOrEmpty(email))
+            if (!_settings.AllowUserRegistration)
             {
-                // this.AddValidationError("email", LanguageResources.Authentication_EmailRequired);
+                return View(HttpStatusCode.NotFound);
             }
 
-            /* try
-             {
-                 if (requirePassword)
-                 {
-                     ValidatePassword(password, confirmPassword);
-                 }
-
-                 if (ModelValidationResult.IsValid)
-                 {
-                     if (requirePassword)
-                     {
-                         ChatUser user = membershipService.AddUser(username, email, password);
-
-                         return this.SignIn(user);
-                     }
-                     else
-                     {
-                         // Add the required claims to this identity
-                         var identity = Principal.Identity as ClaimsIdentity;
-
-                         if (!Principal.HasClaim(ClaimTypes.Name))
-                         {
-                             identity.AddClaim(new Claim(ClaimTypes.Name, username));
-                         }
-
-                         if (!Principal.HasClaim(ClaimTypes.Email))
-                         {
-                             identity.AddClaim(new Claim(ClaimTypes.Email, email));
-                         }
-
-                         return this.SignIn(Principal.Claims);
-                     }
-                 }
-             }
-             catch (Exception ex)
-             {
-                 this.AddValidationError("_FORM", ex.Message);
-             }*/
+            ViewData["ReturnUrl"] = returnUrl;
 
             return View("register");
+        }
+
+        // Because Jane is already authenticated, this will never send us to the register page
+        // Uncomment when Jane isn't a pre-authenticated user
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
+                if (!_settings.AllowUserRegistration)
+                {
+                    return View(HttpStatusCode.NotFound);
+                }
+
+                if (User.Identity.IsAuthenticated)
+                {
+                    return Redirect("~/");
+                }
+
+                try
+                {
+                    var user = new ChatUser { Name = model.Name, UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    // Send an email with this link
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToLocal(returnUrl);
+                }
+                AddErrors(result);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
         }
 
         /*[HttpPost]
@@ -275,6 +246,25 @@ namespace JabbR_Core.Controllers
                  string provider = Request.Form.provider;
                  ChatUser user = repository.GetUserById(Principal.GetUserId());
 
+<<<<<<< HEAD
+=======
+        /*[HttpPost]
+          public IActionResult Unlink()
+             {
+               /*  if (!HasValidCsrfTokenOrSecHeader)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
+
+                 if (!IsAuthenticated)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
+
+                 string provider = Request.Form.provider;
+                 ChatUser user = repository.GetUserById(Principal.GetUserId());
+
+>>>>>>> AccountControllerIntegration
                  if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
                  {
                      Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
@@ -642,6 +632,26 @@ namespace JabbR_Core.Controllers
 
             var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
             return viewModel;
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+        }
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
         }
     }
 }
