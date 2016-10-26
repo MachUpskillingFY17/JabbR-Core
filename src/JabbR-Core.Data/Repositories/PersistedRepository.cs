@@ -189,6 +189,15 @@ namespace JabbR_Core.Data.Repositories
                        (r.Private && r.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
         }
 
+        public IQueryable<ChatRoom> GetOwnedRooms(ChatUser user)
+        {
+            var rooms = _db.ChatRoomOwners
+                .Where(r => r.ChatUserId == user.Id)
+                .Select(r => r.ChatRoomKeyNavigation);
+
+            return rooms;
+        }
+
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
         {
             return _db.Notifications.Include(n => n.RoomKeyNavigation)

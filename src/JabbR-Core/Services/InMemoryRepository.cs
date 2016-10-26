@@ -244,6 +244,16 @@ namespace JabbR_Core.Services
                 .AsQueryable();
         }
 
+        public IQueryable<ChatRoom> GetOwnedRooms(ChatUser user)
+        {
+            var rooms = _owner
+                .Where(r => r.ChatUserId == user.Id)
+                .Select(r => r.ChatRoomKeyNavigation)
+                .AsQueryable();
+
+            return rooms;
+        }
+
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
         {
             return _notifications.Where(n => n.UserId == user.Id).AsQueryable();
