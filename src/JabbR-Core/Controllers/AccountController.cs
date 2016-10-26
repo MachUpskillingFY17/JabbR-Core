@@ -1,20 +1,20 @@
 ﻿using System;
+using System.Net;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
 using JabbR_Core.Data.Models;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using JabbR_Core.Infrastructure;
-using JabbR_Core.Data.Repositories;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
-using System.Net;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Security.Claims;
 using System.Collections.Generic;
+using JabbR_Core.Data.Repositories;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace JabbR_Core.Controllers
 {
@@ -150,19 +150,14 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
-        public IActionResult Logout()
-        {
-            /* if (!IsAuthenticated)
-             {
-                 return HttpStatusCode.Forbidden;
-             }
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LogOff()
+        {           
+            await _signInManager.SignOutAsync();
 
-            var response=Response.AsJson(new { success = true });
-
-            this.SignOut();
-
-            return response;*/
-            return Login();
+            // redirect to AccountLogin since you are no longer authenticated
+            return this.Redirect("~/account/login");
         }
 
         // Because Jane is already authenticated, this method will never send us to the register page
