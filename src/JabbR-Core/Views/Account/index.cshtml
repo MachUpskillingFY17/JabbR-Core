@@ -138,39 +138,13 @@
                             </form>
                         </div>
                         <div class="account-details tab-pane hide" id="changePassword">
-                            <form class="form-horizontal" action="@passwordUrl#changePassword" method="POST">
-                                @Html.ValidationSummary()
-                            <!--    if (userModel.HasPassword)
-                                {-->
-                                    <div class="control-group">
-                                        <label class="control-label" for="oldPassword">@LanguageResources.Account_CurrentPass</label>
-                                        <div class="controls">
-                                            @Html.Password("oldPassword", "input-xlarge", LanguageResources.Account_CurrentPass)
-                                        </div>
-                                    </div>
-                              <!--}-->  
-                                <div class="control-group">
-                                    <label class="control-label" for="password">@LanguageResources.Account_Pass</label>
-                                    <div class="controls">
-                                        @Html.Password("password", "input-xlarge", LanguageResources.Account_Pass)
-                                    </div>
-                                </div>
-                                <div class="control-group">
-                                    <label class="control-label" for="confirmPassword">@LanguageResources.Account_PassConfirm</label>
-                                    <div class="controls">
-                                        @Html.Password("confirmPassword", "input-xlarge", LanguageResources.Account_PassConfirm)
-                                    </div>
-                                </div>
-                                <div class="control-group">
-                                    <div class="controls">
-                                        <input type="submit" class="btn" value="@LanguageResources.Account_ChangePass" />
-                                    </div>
-                                </div>
-                                @Html.AntiForgeryToken()
-                            </form>
+                            @Html.Partial("_changepassword", userModel.UserPasswordViewModel)
+
+
+                            //TODO REPLACE
                         </div>
                         <div class="account-details tab-pane hide" id="identityProviders">
-                            @Html.Partial("_social", @userModel.SocialDetails)
+                            @*@Html.Partial("_social", @userModel.SocialDetails)*@
                         </div>
                     </div>
                 </div>

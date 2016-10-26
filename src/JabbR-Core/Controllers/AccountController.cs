@@ -13,7 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+using System.Net;
 
 namespace JabbR_Core.Controllers
 {
@@ -325,34 +327,48 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
-        public IActionResult ChangePassword(string oldPassword, string password, string confirmPassword)
-        {/*
-                if (!HasValidCsrfTokenOrSecHeader)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                if (!applicationSettings.AllowUserRegistration)
-                {
-                    return HttpStatusCode.NotFound;
-                }
-
-                if (!IsAuthenticated)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                string oldPassword = Request.Form.oldPassword;
-                string password = Request.Form.password;
-                string confirmPassword = Request.Form.confirmPassword;*/
-
-            if (String.IsNullOrEmpty(oldPassword))
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)//string oldPassword, string password, string confirmPassword)
+        {
+            // check if the user IsAuthenticated
+            if (!User.Identity.IsAuthenticated)
             {
-                //this.AddValidationError("oldPassword", LanguageResources.Authentication_OldPasswordRequired);
+                // Don't allow if not authenticated
+                return View(HttpStatusCode.Forbidden);
+               
+            }
+            //Check if user filled out form corrrectly
+            if (ModelState.IsValid)
+            {
+                var actualUser = await _userManager.FindByNameAsync(User.Identity.Name);
+                if (actualUser == null)
+                {
+                    return View("Error");
+                }
+
+                string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
+                var result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction(nameof(AccountController.Index), "Account");
+                }
+
             }
 
-            ValidatePassword(password, confirmPassword);
 
+                /*
+                
+                    if (!applicationSettings.AllowUserRegistration)
+                    {
+                        return HttpStatusCode.NotFound;
+                    }
+
+                    if (!IsAuthenticated)
+                    {
+                        return HttpStatusCode.Forbidden;
+                    }
+
+            
             ChatUser user = _repository.GetUserById("1");
 
             /*   try
@@ -374,7 +390,11 @@ namespace JabbR_Core.Controllers
                    return Response.AsRedirect("~/account/#changePassword");
                }*/
 
-            return GetProfileView(/*_authService, */user);
+
+            //If we got this far something's wrong
+            ModelState.AddModelError(string.Empty, "Error changing password.");
+            return View(model);
+            //return GetProfileView(/*_authService, */user);
         }
 
         [HttpPost]
