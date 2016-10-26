@@ -73,6 +73,7 @@ namespace JabbR_Core
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
+            services.AddAuthorization();
             services.AddMvc();
             services.AddSignalR();
 
@@ -91,7 +92,8 @@ namespace JabbR_Core
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<ApplicationSettings>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
 
             // Register the provider that points to the specific instance
@@ -144,7 +146,7 @@ namespace JabbR_Core
                     AutomaticChallenge = true,
                     CookieName = "jabbr.id"
                 });
-                app.UseFakeLogin();
+                //app.UseFakeLogin();
             }
 
             if (env.IsDevelopment())
