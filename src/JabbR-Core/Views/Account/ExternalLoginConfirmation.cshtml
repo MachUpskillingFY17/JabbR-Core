@@ -3,40 +3,36 @@
     Layout = "_layout.cshtml";
 }
 
-<h3>Associate your @ViewData["LoginProvider"] account.</h3>
-
 <form asp-controller="Account" asp-action="ExternalLoginConfirmation" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-    <h4>Association Form</h4>
-    <hr />
-    <div asp-validation-summary="All" class="text-danger"></div>
-
-    <p class="text-info">
-        You've successfully authenticated with <strong>@ViewData["LoginProvider"]</strong>.
-        Please enter a username and email address for this site below and click the Register button to finish
-        logging in.
-    </p>
-    <div class="control-group">
-        <div class="controls">
-            <div class="input-prepend">
-                <span class="add-on"><i class="icon-user"></i></span>
-                <input asp-for="Name" class="form-control" placeholder="Username" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+    <div class="text-center">
+        <p class="text-info">
+            You've successfully authenticated with <strong>@ViewData["LoginProvider"]</strong>.
+            Please enter a username and email address for this site below and click the Register button to finish
+            logging in.
+        </p>
+        <div class="control-group">
+            <div class="controls">
+                <div class="input-prepend">
+                    <span class="add-on"><i class="icon-user"></i></span>
+                    <input asp-for="Name" class="form-control" placeholder="Username" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="control-group">
-        <div class="controls">
-            <div class="input-prepend">
-                <span class="add-on"><i class="icon-envelope"></i></span>
-                <input asp-for="Email" class="form-control" placeholder="Email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+        <div class="control-group">
+            <div class="controls">
+                <div class="input-prepend">
+                    <span class="add-on"><i class="icon-envelope"></i></span>
+                    <input asp-for="Email" class="form-control" placeholder="Email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="control-group">
-        <div class="controls">
-            <button type="submit" class="btn">Register</button>
-            <a asp-controller="Account" asp-action="Login" class="btn">Cancel</a>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">Register</button>
+                <a asp-controller="Account" asp-action="Login" class="btn">Cancel</a>
+            </div>
         </div>
     </div>
     <div asp-validation-summary="All" class="text-danger"></div>
