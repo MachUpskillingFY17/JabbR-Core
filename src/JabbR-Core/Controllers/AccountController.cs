@@ -29,16 +29,19 @@ namespace JabbR_Core.Controllers
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
+        private readonly IEmailSender _emailSender;
 
         // Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
         Microsoft.AspNetCore.Http.HttpContext context;
-
+        
+        
         public AccountController(UserManager<ChatUser> userManager,
                                  SignInManager<ChatUser> signInManager,
                                  IJabbrRepository repository,
-                                 IOptions<ApplicationSettings> settings
+                                 IOptions<ApplicationSettings> settings,
+                                 IEmailSender emailsender
                                   // IMembershipService membershipService,
                                   //      IAuthenticationService authService,
                                   //   IChatNotificationService notificationService,
@@ -53,6 +56,7 @@ namespace JabbR_Core.Controllers
             _repository = repository;
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailSender = emailsender;
 
             //var signin = _signInManager.Context;
         }
@@ -648,11 +652,11 @@ namespace JabbR_Core.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
                 // Send an email with this link
-                //var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                //var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                //await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                //   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-                //return View("ForgotPasswordConfirmation");
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                await _emailSender.SendEmailAsync(model.Email, "Reset Password",
+                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+                return View("ForgotPasswordConfirmation");
             }
 
             // If we got this far, something failed, redisplay form
