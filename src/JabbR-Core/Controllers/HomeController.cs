@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.Controllers
 {
+
     public class HomeController : Controller
     {
 
