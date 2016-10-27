@@ -396,10 +396,12 @@ namespace JabbR_Core.Hubs
                 _recentMessageCache.Add(room.Name, recentMessages);
             }
 
+            List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
+
             return new RoomViewModel
             {
                 Name = room.Name,
-                Users = from u in _repository.Users
+                Users = from u in onlineUsers
                         select new UserViewModel(u),
                 Owners = _repository.GetRoomOwners(room).Online().Select(n => n.Name),
                 RecentMessages = recentMessages,
