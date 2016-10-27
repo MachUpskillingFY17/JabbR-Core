@@ -157,7 +157,7 @@ namespace JabbR_Core.Data.Repositories
 
         public void Dispose()
         {
-            _db.Dispose();
+           // _db.Dispose();
         }
 
         public ChatUser GetUserById(string userId)

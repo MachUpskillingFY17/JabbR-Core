@@ -53,9 +53,10 @@ namespace JabbR_Core
             // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
-           // string connection = _configuration["connectionString"];
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
+            string connection = _configuration["connectionString"];
+            //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+          //  services.AddDbContext<JabbrContext>(options => options.UseInMemoryDatabase() /*(.UseSqlServer(connection)*/);
+
 
             //services.AddEntityFrameworkInMemoryDatabase();
             //services.AddDbContext<JabbrContext>();
@@ -73,6 +74,7 @@ namespace JabbR_Core
             //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
+            services.AddAuthorization();
             services.AddMvc();
             services.AddSignalR();
 
@@ -90,8 +92,9 @@ namespace JabbR_Core
 
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
-            services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IJabbrRepository, PersistedRepository>();
+            services.AddScoped<ApplicationSettings>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
             //services.AddScoped<IMembershipService, MembershipService>();
 
@@ -145,7 +148,7 @@ namespace JabbR_Core
                     AutomaticChallenge = true,
                     CookieName = "jabbr.id"
                 });
-                app.UseFakeLogin();
+                //app.UseFakeLogin();
             }
 
             if (env.IsDevelopment())

@@ -18,15 +18,14 @@ namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
     {
-              
         // Never assigned to, always null
         private readonly ICache _cache;
         private readonly ChatUser _user;
         private readonly List<string> _chatRooms;
-        
+
         // Never used
         private readonly ChatRoom _room;
-        private readonly UserViewModel _userViewModel;  
+        private readonly UserViewModel _userViewModel;
         private readonly RoomViewModel _roomViewModel;
         private readonly LobbyRoomViewModel _lobbyRoom;
 
@@ -42,8 +41,8 @@ namespace JabbR_Core.Hubs
         //ILogger logger,
         //IChatService service
         public Chat(
-            IJabbrRepository repository, 
-            IOptions<ApplicationSettings> settings, 
+            IJabbrRepository repository,
+            IOptions<ApplicationSettings> settings,
             IRecentMessageCache recentMessageCache,
             IChatService chatService)
         {
@@ -84,7 +83,7 @@ namespace JabbR_Core.Hubs
 
             // Try to get the user from the client state
             ChatUser user = _repository.GetUserById(userId);
-            
+
             //remove
             Clients.Caller.userNameChanged(user);
 
@@ -98,16 +97,23 @@ namespace JabbR_Core.Hubs
 
             // Pass the list of rooms & owned rooms to the logOn function.
             var rooms = _repository.Rooms.ToArray();
-            var myRooms = _repository.Rooms.Where(r => r.Owners.Select(u => u.ChatUserKeyNavigation).Contains(user));
+            //var myRooms = user.OwnedRooms.Select(o=>o.ChatRoomKeyNavigation).ToArray();
+            //var myRooms = _repository.Rooms.Where(r => r.Owners.Select(u => u.ChatUserKeyNavigation).Contains(user)).ToArray();
+            //var myRooms = _repository.Rooms.Where(r => r.Owners.Where(u => u.ChatUserId == user.Id)).ToArray();
+            var ownedRooms = (from eachRoom in _repository.Rooms
+                             join room in user.OwnedRooms on eachRoom.Key equals room.ChatRoomKey
+                             select eachRoom).ToList();
 
-            Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
+
+            Clients.Caller.logOn(rooms, ownedRooms, new { TabOrder = new List<string>() });
         }
 
         public List<LobbyRoomViewModel> GetRooms()
         {
             //return _lobbyRoomList;
 
-            return _repository.Rooms.Select(r => new LobbyRoomViewModel() {
+            return _repository.Rooms.Select(r => new LobbyRoomViewModel()
+            {
                 Name = r.Name,
                 Count = r.Users.Count,
                 Private = r.Private,
@@ -246,7 +252,7 @@ namespace JabbR_Core.Hubs
 
             // Create a true unique id and save the message to the db
             string id = Guid.NewGuid().ToString("d");
-            
+
             // Ensure the message is logged
             ChatMessage chatMessage = _chatService.AddMessage(user, room, id, clientMessage.Content);
             room.ChatMessages.Add(chatMessage);
@@ -320,7 +326,7 @@ namespace JabbR_Core.Hubs
         }
         void INotificationService.JoinRoom(ChatUser user, ChatRoom room)
         {
-            
+
             var userViewModel = new UserViewModel(user);
             var roomViewModel = new RoomViewModel
             {
@@ -356,9 +362,9 @@ namespace JabbR_Core.Hubs
             }
 
             string userId = Context.User.GetUserId();
-            
+
             ChatUser user = _repository.VerifyUserId(userId);
-            
+
             ChatRoom room = _repository.GetRoomByName(roomName);
 
             if (room == null || (room.Private && !user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room)))
@@ -366,7 +372,7 @@ namespace JabbR_Core.Hubs
                 return null;
             }
 
-            return await GetRoomInfoCore(room); 
+            return await GetRoomInfoCore(room);
             //return new Task<RoomViewModel>(() => thing);
         }
 
@@ -691,7 +697,7 @@ namespace JabbR_Core.Hubs
         private void LeaveRoom(ChatUser user, ChatRoom room)
         {
             var userViewModel = new UserViewModel(user);
-            
+
             //TODO Remove explicit hub call
             Clients.Caller.leave(userViewModel, room.Name);
 
