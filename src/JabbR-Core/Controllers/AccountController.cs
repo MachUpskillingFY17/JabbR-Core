@@ -23,6 +23,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Security.Claims;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace JabbR_Core.Controllers
 {
