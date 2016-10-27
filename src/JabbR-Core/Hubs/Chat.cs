@@ -20,7 +20,6 @@ namespace JabbR_Core.Hubs
     {
         // Never assigned to, always null
         private readonly ICache _cache;
-        private readonly ChatUser _user;
         private readonly List<string> _chatRooms;
 
         // Never used
@@ -96,8 +95,10 @@ namespace JabbR_Core.Hubs
             Clients.Caller.userNameChanged(user);
 
             // Pass the list of rooms & owned rooms to the logOn function.
-            var rooms = _repository.Rooms.ToArray();
-            var myRooms = _repository.GetOwnedRooms(user).ToList();
+            //var rooms = _repository.Rooms.ToArray();
+            //var myRooms = _repository.GetOwnedRooms(user).ToArray();
+            List<ChatRoom> rooms = new List<ChatRoom>();
+            List<ChatRoom> myRooms = new List<ChatRoom>();
 
             Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
         }
@@ -133,11 +134,15 @@ namespace JabbR_Core.Hubs
 
         public async void LoadRooms(string[] roomNames)
         {
+            string userId = Context.User.GetUserId();
+            ChatUser user = _repository.VerifyUserId(userId);
+
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
-            foreach (var room in _repository.Rooms)
+            var rooms = _repository.Rooms.ToList();
+            foreach (var room in rooms)
             {
-                if (room == null || (room.Private && !_user.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).Contains(room)))
+                if (room == null || (room.Private && !user.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).Contains(room)))
                 {
                     continue;
                 }
@@ -154,7 +159,8 @@ namespace JabbR_Core.Hubs
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(ex);
+                        // Logger is null
+                        //_logger.Log(ex);
                     }
                 }
             }
@@ -395,9 +401,7 @@ namespace JabbR_Core.Hubs
                 Name = room.Name,
                 Users = from u in _repository.Users
                         select new UserViewModel(u),
-                //Owners = from u in room.Owners.Online()
-                //         select u.Name,
-                Owners = from u in room.Owners select u.ChatUserKeyNavigation.Name,
+                Owners = _repository.GetRoomOwners(room).Online().Select(n => n.Name),
                 RecentMessages = recentMessages,
                 Topic = room.Topic ?? string.Empty,
                 Welcome = room.Welcome ?? String.Empty,
@@ -938,7 +942,8 @@ namespace JabbR_Core.Hubs
         {
             if (disposing)
             {
-                _repository.Dispose();
+                // Let the DI Container handle disposing the repo
+                //_repository.Dispose();
             }
 
             base.Dispose(disposing);

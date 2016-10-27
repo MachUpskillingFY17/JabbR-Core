@@ -157,7 +157,7 @@ namespace JabbR_Core.Data.Repositories
 
         public void Dispose()
         {
-           // _db.Dispose();
+            //_db.Dispose();
         }
 
         public ChatUser GetUserById(string userId)
@@ -198,6 +198,15 @@ namespace JabbR_Core.Data.Repositories
             return rooms;
         }
 
+        public IQueryable<ChatUser> GetRoomOwners(ChatRoom room)
+        {
+            var owners = _db.ChatRoomOwners
+                .Where(r => r.ChatRoomKey == room.Key)
+                .Select(r => r.ChatUserKeyNavigation);
+
+            return owners;
+        }
+
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
         {
             return _db.Notifications.Include(n => n.RoomKeyNavigation)
@@ -213,9 +222,10 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
         {
-            return _db.ChatMessages.Include(m => m.UserKeyNavigation)
-                               .Include(m => m.RoomKeyNavigation)
-                               .Where(m => m.RoomKey == room.Key);
+            //return _db.ChatMessages.Include(m => m.UserKeyNavigation)
+            //                   .Include(m => m.RoomKeyNavigation)
+            //                   .Where(m => m.RoomKey == room.Key);
+            return _db.ChatMessages.Where(m => m.RoomKey == room.Key);
         }
 
         public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
