@@ -352,14 +352,15 @@ namespace JabbR_Core.Controllers
                 //var actualUser = await _userManager.FindByNameAsync(User.Identity.Name);
                 if (actualUser == null)
                 {
-                    return View("Error");
+                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
                 }
 
                 string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
                 var result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
+                _signInManager.PasswordSignInAsync
                 if (result.Succeeded)
                 {
-                    return RedirectToAction(nameof(AccountController.Index), "Account");
+                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordSuccess });
                 }
 
             }
@@ -402,7 +403,7 @@ namespace JabbR_Core.Controllers
 
             //If we got this far something's wrong
             ModelState.AddModelError(string.Empty, "Error changing password.");
-            return View(model);
+            return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordError });
             //return GetProfileView(/*_authService, */user);
         }
 
