@@ -57,6 +57,7 @@ namespace JabbR_Core
             string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=True";
             services.AddDbContext<JabbrContext>(options => /*options.UseInMemoryDatabase()*/ options.UseSqlServer(connection));
 
+
             //services.AddEntityFrameworkInMemoryDatabase();
             //services.AddDbContext<JabbrContext>();
 
@@ -95,6 +96,7 @@ namespace JabbR_Core
             services.AddScoped<ApplicationSettings>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
+            //services.AddScoped<IMembershipService, MembershipService>();
 
             // Register the provider that points to the specific instance
             //services.AddScoped<IJabbrRepository, InMemoryRepository>();
