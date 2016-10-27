@@ -25,6 +25,8 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Security.Claims;
 using System.Collections.Generic;
+using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace JabbR_Core.Controllers
 {
@@ -73,8 +75,16 @@ namespace JabbR_Core.Controllers
         [HttpGet]
 
         [AllowAnonymous]
-        public IActionResult Index()
+        public async Task<IActionResult> Index(ManageMessageId? message = null)
         {
+            ViewData["StatusMessage"] =
+                   message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+                   : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
+                   : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
+                   : message == ManageMessageId.Error ? "An error has occurred."
+                   : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
+                   : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+                   : "";
             if (!User.Identity.IsAuthenticated)
             {
                 // return Forbidden view
@@ -349,9 +359,8 @@ namespace JabbR_Core.Controllers
                     return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
                 }
 
-                string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
+                //string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
                 var result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
-                _signInManager.PasswordSignInAsync
                 if (result.Succeeded)
                 {
                     return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordSuccess });
@@ -360,44 +369,46 @@ namespace JabbR_Core.Controllers
             }
 
 
-                /*
-                
-                    if (!applicationSettings.AllowUserRegistration)
-                    {
-                        return HttpStatusCode.NotFound;
-                    }
+            /*
 
-                    if (!IsAuthenticated)
-                    {
-                        return HttpStatusCode.Forbidden;
-                    }
+                if (!applicationSettings.AllowUserRegistration)
+                {
+                    return HttpStatusCode.NotFound;
+                }
 
-            
-            ChatUser user = _repository.GetUserById("1");
+                if (!IsAuthenticated)
+                {
+                    return HttpStatusCode.Forbidden;
+                }
 
-            /*   try
-               {
-                   if (ModelValidationResult.IsValid)
-                   {
-                       membershipService.ChangeUserPassword(user, oldPassword, password);
-                       repository.CommitChanges();
-                   }
-               }
-               catch (Exception ex)
-               {
-                   this.AddValidationError("_FORM", ex.Message);
-               }
 
+        ChatUser user = _repository.GetUserById("1");
+
+        /*   try
+           {
                if (ModelValidationResult.IsValid)
                {
-                   Request.AddAlertMessage("success", LanguageResources.Authentication_PassChangeSuccess);
-                   return Response.AsRedirect("~/account/#changePassword");
-               }*/
+                   membershipService.ChangeUserPassword(user, oldPassword, password);
+                   repository.CommitChanges();
+               }
+           }
+           catch (Exception ex)
+           {
+               this.AddValidationError("_FORM", ex.Message);
+           }
+
+           if (ModelValidationResult.IsValid)
+           {
+               Request.AddAlertMessage("success", LanguageResources.Authentication_PassChangeSuccess);
+               return Response.AsRedirect("~/account/#changePassword");
+           }*/
 
 
             //If we got this far something's wrong
-            ModelState.AddModelError(string.Empty, "Error changing password.");
-            return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordError });
+            var errors = AddErrors(result);
+            return RedirectToAction(nameof(Index), new { Message = ManageMessageId.CustomMessage });//, errors });
+
+            //ModelState.AddModelError(string.Empty, "Error changing password.");
             //return GetProfileView(/*_authService, */user);
         }
 
@@ -665,18 +676,38 @@ namespace JabbR_Core.Controllers
             }
         }
 
-        private void AddErrors(IdentityResult result)
+        private String AddErrors(IdentityResult result)
         {
+            var sb = new StringBuilder();
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                sb.Append(error.Description);
+                sb.Append("<br />");
+                //As of now we're not using full views only partials, so we'd lose modelstate
+                //on redirect to the Index view to show the errors, since we have to return the
+                //Index view in order to see any of the partials like ChangePassword
+                //ModelState.AddModelError(string.Empty, error.Description);
             }
+
+            return sb.ToString();
+            //foreach (var error in result.Errors)
+            //{
+            //    ModelState.AddModelError(string.Empty, error.Description);
+            //}
         }
 
         public enum ManageMessageId
         {
+            AddPhoneSuccess,
+            AddLoginSuccess,
+            ChangePasswordSuccess,
+            SetTwoFactorSuccess,
+            SetPasswordSuccess,
+            RemoveLoginSuccess,
+            RemovePhoneSuccess,
+            CustomMessage,
+            Error,
             ChangeUsernameSuccess,
-            Error
         }
             
     }
