@@ -125,9 +125,12 @@
                                 <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_self"><i class="icon-cog"></i></a></li>
                             }
                             <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
-                            <li><form asp-area="" asp-controller="Account" asp-action="Logoff" method="post" id="logoutForm">
-                                <a id="logoutLink" class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-arrow-right"></i></a>
-                            </form></li>
+                            <li><a id="logoutLink" class="logout" title="@LanguageResources.Client_SignOut">
+                                    <form asp-controller="Account" asp-action="Logoff" method="post" id="logoutForm">
+                                        <i class="icon-arrow-right"></i>
+                                    </form>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

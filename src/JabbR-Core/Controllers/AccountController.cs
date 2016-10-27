@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace JabbR_Core.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         // private IJabbrRepository _repository;
@@ -66,7 +67,8 @@ namespace JabbR_Core.Controllers
             {
                 // return Forbidden view
                 Response.StatusCode = 403; // HttpStatusCode.Forbidden
-                return View("forbidden");
+                //return this.Redirect("~/Account/Forbidden/");
+                return this.Redirect("~/Account/Login/");
             }
 
             // HttpContextAccessor DI works when Singelton (Scoped injects null)
@@ -75,6 +77,12 @@ namespace JabbR_Core.Controllers
             ChatUser user = _repository.GetUserById(id);
 
             return GetProfileView(user);
+        }
+
+        [AllowAnonymous]
+        public IActionResult Forbidden()
+        {
+            return View();
         }
 
         //
@@ -150,7 +158,6 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOff()
         {           
@@ -244,8 +251,6 @@ namespace JabbR_Core.Controllers
                  string provider = Request.Form.provider;
                  ChatUser user = repository.GetUserById(Principal.GetUserId());
 
-<<<<<<< HEAD
-=======
         /*[HttpPost]
           public IActionResult Unlink()
              {
@@ -262,7 +267,6 @@ namespace JabbR_Core.Controllers
                  string provider = Request.Form.provider;
                  ChatUser user = repository.GetUserById(Principal.GetUserId());
 
->>>>>>> AccountControllerIntegration
                  if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
                  {
                      Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
