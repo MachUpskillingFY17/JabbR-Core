@@ -84,7 +84,7 @@ namespace JabbR_Core.Hubs
             ChatUser user = _repository.GetUserById(userId);
 
             //remove
-            Clients.Caller.userNameChanged(user);
+            //Clients.Caller.userNameChanged(user);
 
             // This function is being manually called here to establish
             // your identity to SignalR and update the UI to match. In 
@@ -92,11 +92,11 @@ namespace JabbR_Core.Hubs
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
             // Delete this in the future (when auth is setup properly)
-            Clients.Caller.userNameChanged(user);
+            //Clients.Caller.userNameChanged(user);
 
             // Pass the list of rooms & owned rooms to the logOn function.
             //var rooms = _repository.Rooms.ToArray();
-            //var myRooms = _repository.GetOwnedRooms(user).ToArray();
+            //var myRooms = _repository.GetOwnedRooms(user).ToList();
             List<ChatRoom> rooms = new List<ChatRoom>();
             List<ChatRoom> myRooms = new List<ChatRoom>();
 
