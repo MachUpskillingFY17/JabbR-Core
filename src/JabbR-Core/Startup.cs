@@ -103,6 +103,8 @@ namespace JabbR_Core
                 settings.Time = DateTimeOffset.UtcNow.ToString();
                 settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
