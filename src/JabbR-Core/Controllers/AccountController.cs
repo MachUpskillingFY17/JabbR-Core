@@ -1,4 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
+using JabbR_Core.Infrastructure;
+using JabbR_Core.Data.Models;
+using JabbR_Core.Data.Repositories;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
 using JabbR_Core.Data.Models;
@@ -46,7 +54,10 @@ namespace JabbR_Core.Controllers
             // IUserAuthenticator authenticator,
             // IEmailService emailService
             )
+
         {
+             
+
             // _settings = settings.Value;
             // _authService = authService;
             // _membershipService = membershipService;
@@ -59,6 +70,7 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpGet]
+
         [AllowAnonymous]
         public IActionResult Index()
         {
@@ -71,6 +83,7 @@ namespace JabbR_Core.Controllers
 
             // HttpContextAccessor DI works when Singelton (Scoped injects null)
             var id = _context.HttpContext.User.GetUserId();
+
 
             ChatUser user = _repository.GetUserById(id);
 
@@ -249,25 +262,6 @@ namespace JabbR_Core.Controllers
                  string provider = Request.Form.provider;
                  ChatUser user = repository.GetUserById(Principal.GetUserId());
 
-<<<<<<< HEAD
-=======
-        /*[HttpPost]
-          public IActionResult Unlink()
-             {
-               /*  if (!HasValidCsrfTokenOrSecHeader)
-                 {
-                     return HttpStatusCode.Forbidden;
-                 }
-
-                 if (!IsAuthenticated)
-                 {
-                     return HttpStatusCode.Forbidden;
-                 }
-
-                 string provider = Request.Form.provider;
-                 ChatUser user = repository.GetUserById(Principal.GetUserId());
-
->>>>>>> AccountControllerIntegration
                  if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
                  {
                      Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
@@ -384,48 +378,41 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
-        public IActionResult ChangeUsername(string username, string confirmUsername)
-        {/*
-                if (!HasValidCsrfTokenOrSecHeader)
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangeUsername(ChangeUsernameViewModel model)
+        {
+
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View(HttpStatusCode.Forbidden);
+            }
+
+            // HttpContextAccessor DI works when Singelton (Scoped injects null)
+            var id = _context.HttpContext.User.GetUserId();
+
+            ChatUser user = _repository.GetUserById(id);
+            string oldUsername = user.Name; //user.UserName
+
+            try
+            {
+                if (ModelState.IsValid)
                 {
-                    return HttpStatusCode.Forbidden;
+                    user.UserName = model.username;
+                    user.Name = model.username;
+                    _repository.CommitChanges();
+
+                  //  _notificationService.OnUserNameChanged(user, oldUsername, model.username);
+
+                   return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
                 }
+               
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+            }
 
-                if (!IsAuthenticated)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                string username = Request.Form.username;
-                string confirmUsername = Request.Form.confirmUsername;
-
-                ValidateUsername(username, confirmUsername);*/
-
-            ChatUser user = _repository.GetUserById("1");
-            string oldUsername = user.Name;
-
-            /*  try
-              {
-                  if (ModelValidationResult.IsValid)
-                  {
-                      membershipService.ChangeUserName(user, username);
-                      repository.CommitChanges();
-                  }
-              }
-              catch (Exception ex)
-              {
-                  this.AddValidationError("_FORM", ex.Message);
-              }
-
-              if (ModelValidationResult.IsValid)
-              {
-                  notificationService.OnUserNameChanged(user, oldUsername, username);
-
-                  Request.AddAlertMessage("success", LanguageResources.Authentication_NameChangeCompleted);
-                  return Response.AsRedirect("~/account/#changeUsername");
-              }*/
-
-            return GetProfileView(/*_authService,*/ user);
+            return GetProfileView(user);
         }
 
         [HttpGet]
@@ -604,26 +591,31 @@ namespace JabbR_Core.Controllers
 
         private void ValidateUsername(string username, string confirmUsername)
         {
-            if (String.IsNullOrEmpty(username))
+            /*  if (String.IsNullOrEmpty(username))
+          {
+              this.AddValidationError("confirmUsername", LanguageResources.Authentication_NameNonMatching);
+          }*/
+
+            var changeUsername = new RegularExpressionAttribute(username);
+            if(!changeUsername.IsValid(confirmUsername)) //(String.IsNullOrEmpty(username))
             {
+                changeUsername.FormatErrorMessage(LanguageResources.Authentication_NameNonMatching);
+               // IsValid("usernam")
                 //this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
             }
 
-            if (!String.Equals(username, confirmUsername))
-            {
-                //this.AddValidationError("confirmUsername", LanguageResources.Authentication_NameNonMatching);
-            }
+        
         }
 
 
         private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user)
         {
             return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
+
         }
 
         private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
-                                                 IJabbrRepository repository
-                                                 /*IAuthenticationService authService*/)
+                                                 IJabbrRepository repository)
         {
             ChatUser user = null;
 
@@ -656,5 +648,12 @@ namespace JabbR_Core.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
+
+        public enum ManageMessageId
+        {
+            ChangeUsernameSuccess,
+            Error
+        }
+            
     }
 }
