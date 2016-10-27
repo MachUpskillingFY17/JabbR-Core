@@ -2,6 +2,8 @@
 @using JabbR_Core.ViewModels
 @model ProfilePageViewModel
 
+
+
 @{
     var userModel = Model;
     var gravatar = "https://secure.gravatar.com/avatar/{0}?s=48&d=mm"; //+ userModel.Hash;
@@ -24,18 +26,49 @@
     <section id="page" role="application">
         <header id="heading" role="heading">
             <div class="banner" role="banner">
-                <h1>JabbR</h1>
+                <h1><a href="/">JabbR</a></h1>
             </div>
-            <div style="clear: both"></div>
+            <div id="main-menu" class="pull-right">
+                <div id="tabs-dropdown-container" role="tablist">
+                    <button class="dropdown-toggle" data-toggle="dropdown" id="tabs-dropdown-rooms">
+                        <i class="icon-chevron-down"></i>
+                    </button>
+
+                    <ul id="tabs-dropdown" class="dropdown-menu pull-right" aria-labelledby="tabs-dropdown-rooms"></ul>
+                </div>
+                <div id="connectionStatus" class="connection-status" data-toggle="popover" data-placement="bottom">
+                    <i class="icon-connection-status"></i>
+                    <div id="connection-info-popover" class="popover"><div class="arrow"></div><div class="popover-inner"><i class="popover-title-icon icon-globe" style="display: none;"></i><h3 class="popover-title" style="display: none;"></h3><div class="popover-content"><p></p></div></div></div>
+                    <div id="connection-info-content" style="display: none;"><p id="connection-status"></p><p id="connection-transport"></p></div>
+                    <div id="connection-state-changed-popover" class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title" style="display: none;"></h3><i id="popover-content-icon"></i><div class="popover-content"><p></p></div></div></div>
+                </div>
+                <div id="preferences" class="navbar account pull-right">
+                    <div class="navbar-inner">
+                        <ul class="nav">
+                            <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_self"><i class="icon-comment"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
+                            <li><a class="" title="@LanguageResources.Client_AccountSettings" href="@Url.Content("~/account")" target="_self"><i class="icon-user"></i></a></li>
+                            @if (Model.IsAdmin)
+                            {
+                                <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_self"><i class="icon-cog"></i></a></li>
+                            }
+                            <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
+                            <li><a class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-arrow-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </header>
         <div class="container">
             <div class="row" style="padding-top: 75px;">
-                <!--   atsign Html.AlertMessages()-->
+           
+                <p class="text-success">@ViewData["StatusMessage"]</p> 
+               
                 <div class="row">
                     <div class="span12">
                         <div class="user-details">
                             <img class="gravatar" src="@gravatar" /> 
-                            <span class="name">@userModel.Name</span> <!--atsign userModel.name-->
+
+                            <span class="name">@userModel.Name</span>
                         </div>
                         <hr />
                     </div>
@@ -58,95 +91,118 @@
                                     <div class="control-group">
                                         <label class="control-label label-align-left" for="note">@LanguageResources.Account_Note</label>
                                         <div class="controls">
-                                            <!--atsignif (userModel.Note != null)
+                                            @if (userModel.Note != null)
                                             {
-                                                <span class="input-xxlarge uneditable-input">atsignuserModel.Note</span>
+                                                <span class="input-xxlarge uneditable-input">@Model.Note</span>
                                             }
                                             else
-                                            {-->
+                                            {
                                                 <div class="alert alert-info">To set your note, type /note [message]</div>
-                                          <!--}-->  
+                                            } 
                                         </div>
                                     </div>
                                     <div class="control-group">
                                         <label class="control-label label-align-left" for="country">@LanguageResources.Account_Country</label>
                                         <div class="controls">
-                                           <!-- atsignif (userModel.Country != null)
+                                           @if (userModel.Country != null)
                                             {
                                                 <span class="input-medium uneditable-input"><span>atsignuserModel.Country</span> <i class="flag flag-atsignuserModel.Flag"></i></span>
 }
                                             else
-                                            {-->
+                                            {
                                                 <div class="alert alert-info">To set your country, type /flag [iso-3166-2 code] <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2" target="_blank">ISO Reference Chart</a></div>
-                                            <!--}-->  
+                                            } 
                                         </div>
                                     </div>
                                 </fieldset>
                             </form>
 
-                      <!--      atsignif(userModel.OwnedRooms.Count > 0)
-                            {-->
+                      @if (userModel.OwnedRooms.Count > 0)
+                      {
                                 <fieldset>
                                     <legend>@LanguageResources.Account_OwnedRooms</legend>
                                     <ul id="owned-rooms" class="unstyled">
-                                       <!-- atsignforeach (var room in userModel.OwnedRooms)
-                                        {
+                                       @foreach (var room in userModel.OwnedRooms)
+                                       {
                                             <li class="room">
                                                 <div class="row-fluid room-row">
                                                     <div class="span3">
-                                                        atsignif (room.Private)
+                                                        @if (room.Private)
                                                         {
                                                             <span class="lock"><i class="icon-lock"></i></span>
                                                         }
-                                                        atsignif (room.Closed)
+                                                        @if (room.Closed)
                                                         {
                                                             <span class="readonly"><i class="icon-ban-circle"></i></span>
                                                         }
-                                                        <span class="name">atsignroom.Name</span>
+                                                        <span class="name">@room.Name</span>
                                                     </div>
                                                     <div class="span9">
-                                                        <span class="topic muted">atsignroom.Topic</span>
+                                                        <span class="topic muted">@room.Topic</span>
                                                     </div>
                                                 </div>
                                             </li>
-                                        }-->
+                                       }
                                     </ul>
                                 </fieldset>
-                            <!--}-->
+                              }
                         </div>
                         <div class="account-details tab-pane hide" id="changeUsername">
-                            <form class="form-horizontal" action="@Url.Content("~/account/changeusername")#changeUsername" method="POST">
-                                @Html.ValidationSummary()
-                                <div class="control-group">
-                                    <label class="control-label" for="username">@LanguageResources.Account_UserName</label>
-                                    <div class="controls">
-                                        @Html.TextBox("username", "input-xlarge", LanguageResources.Account_UserName)
-                                    </div>
-                                </div>
-                                <div class="control-group">
-                                    <label class="control-label" for="confirmUsername">@LanguageResources.Account_UserNameConfirm</label>
-                                    <div class="controls">
-                                        @Html.TextBox("confirmUsername", "input-xlarge", LanguageResources.Account_UserNameConfirm)
-                                    </div>
-                                </div>
-                                <div class="control-group">
-                                    <div class="controls">
-                                        <input type="submit" class="btn" value="@LanguageResources.Account_ChangeUserName" />
-                                    </div>
-                                </div>
-                                @Html.AntiForgeryToken()
-                            </form>
+                            @Html.Partial("_changeusername", userModel.ChatUsernameViewModel)
                         </div>
                         <div class="account-details tab-pane hide" id="changePassword">
                             @Html.Partial("_changepassword", userModel.UserPasswordViewModel)
                         </div>
                         <div class="account-details tab-pane hide" id="identityProviders">
-                            @*@Html.Partial("_social", @userModel.SocialDetails)*@
+                            <!--Html.Partial("_social",  atuserModel.SocialDetails)-->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <section id="dialog-container" aria-hidden="true" aria-haspopup="true">
+            <div id="disconnect-dialog" class="modal hide fade">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">&times;</a>
+                    <div class="jabbrLogo" id="logo"></div><h3>@LanguageResources.Client_JabbrError</h3>
+                </div>
+                <div class="modal-body">
+                    <p>@LanguageResources.Client_JabbrErrorMessage</p>
+                </div>
+            </div>
+            <div id="jabbr-help" class="modal hide fade">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">&times;</a>
+                    <h3>@LanguageResources.Client_Help</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="help-body">
+                        <div class="command-list">
+                            <h3>@LanguageResources.Client_FAQ</h3>
+                            @Html.Raw(LanguageResources.Client_FAQMessage)
+                        </div>
+                        <h3>@LanguageResources.Client_SiteWideShortcuts</h3>
+                        <dl id="shortcut" class="command-list"></dl>
+                        <h3>@LanguageResources.Client_SiteWideCommands</h3>
+                        <dl id="global" class="command-list"></dl>
+                        <h3>@LanguageResources.Client_RoomCommands</h3>
+                        <dl id="room" class="command-list"></dl>
+                        <h3>@LanguageResources.Client_UserCommands</h3>
+                        <dl id="user" class="command-list"></dl>
+                    </div>
+                </div>
+            </div>
+            <div id="jabbr-update" class="modal hide fade">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">&times;</a>
+                    <div class="jabbrLogo" id="logo"></div><h3>@LanguageResources.Client_RefreshRequiredHeader</h3>
+                </div>
+                <div class="modal-body">
+                    <p>@LanguageResources.Client_RefreshRequiredNotification</p>
+                </div>
+            </div>
+        </section>
+
     </section>
     <script src="@Url.Content("~/Scripts/jquery-2.0.3.min.js")"></script>
     <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>

@@ -28,15 +28,15 @@ namespace JabbR_Core.Infrastructure
             {
                 foreach (var identity in claimsPrincipal.Identities)
                 {
-                    if (identity.AuthenticationType == Constants.JabbRAuthType)
-                    {
+                    //if (identity.AuthenticationType == Constants.JabbRAuthType)
+                    //{
                         Claim idClaim = identity.FindFirst(JabbRClaimTypes.Identifier);
 
                         if (idClaim != null)
                         {
                             return idClaim.Value;
                         }
-                    }
+                    //}
                 }
             }
 
