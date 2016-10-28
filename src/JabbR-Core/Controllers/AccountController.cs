@@ -47,8 +47,6 @@ namespace JabbR_Core.Controllers
             )
 
         {
-
-
             // _settings = settings.Value;
             // _authService = authService;
             // _membershipService = membershipService;
