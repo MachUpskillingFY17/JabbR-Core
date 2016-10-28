@@ -75,7 +75,6 @@ namespace JabbR_Core.Controllers
                : message == ManageMessageId.CustomMessage ? otherMessages
                : "";
 
-
             /*regular index code*/
             if (!User.Identity.IsAuthenticated)
             {
@@ -87,8 +86,6 @@ namespace JabbR_Core.Controllers
 
             // HttpContextAccessor DI works when Singelton (Scoped injects null)
             var id = _context.HttpContext.User.GetUserId();
-
-
             ChatUser user = _repository.GetUserById(id);
 
             return GetProfileView(user);
