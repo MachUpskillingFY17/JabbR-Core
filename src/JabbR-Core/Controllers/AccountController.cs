@@ -131,13 +131,6 @@ namespace JabbR_Core.Controllers
 
             if (ModelState.IsValid)
             {
-                /////////////////////////////////////////
-                // TESTING PURPOSES: REGISTERING USER 
-                // (Only needed to run once to store in db) Ensure result_create = success! (then comment this out for future testing)
-                //var user = new ChatUser { UserName = model.Username, LastActivity = DateTime.UtcNow};
-                //var result_create = await _userManager.CreateAsync(user, model.Password);
-                /////////////////////////////////////////
-
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 // 3rd paramater (isPersisted:) holds cookie after browser is closed
@@ -182,8 +175,6 @@ namespace JabbR_Core.Controllers
             return this.Redirect("~/account/login");
         }
 
-        // Because Jane is already authenticated, this method will never send us to the register page
-        // Uncomment when Jane isn't a pre-authenticated user
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
