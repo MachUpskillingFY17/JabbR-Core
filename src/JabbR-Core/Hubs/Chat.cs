@@ -18,15 +18,13 @@ namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
     {
-              
         // Never assigned to, always null
         private readonly ICache _cache;
-        private readonly ChatUser _user;
         private readonly List<string> _chatRooms;
-        
+
         // Never used
         private readonly ChatRoom _room;
-        private readonly UserViewModel _userViewModel;  
+        private readonly UserViewModel _userViewModel;
         private readonly RoomViewModel _roomViewModel;
         private readonly LobbyRoomViewModel _lobbyRoom;
 
@@ -42,8 +40,8 @@ namespace JabbR_Core.Hubs
         //ILogger logger,
         //IChatService service
         public Chat(
-            IJabbrRepository repository, 
-            IOptions<ApplicationSettings> settings, 
+            IJabbrRepository repository,
+            IOptions<ApplicationSettings> settings,
             IRecentMessageCache recentMessageCache,
             IChatService chatService)
         {
@@ -84,21 +82,20 @@ namespace JabbR_Core.Hubs
 
             // Try to get the user from the client state
             ChatUser user = _repository.GetUserById(userId);
-            
-            //remove
-            Clients.Caller.userNameChanged(user);
 
             // This function is being manually called here to establish
             // your identity to SignalR and update the UI to match. In 
             // original JabbR it isn't called explicitly anywhere, so 
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
-            // Delete this in the future (when auth is setup properly)
+            //Delete this in the future (when auth is setup properly)
             Clients.Caller.userNameChanged(user);
 
             // Pass the list of rooms & owned rooms to the logOn function.
-            var rooms = _repository.Rooms.ToArray();
-            var myRooms = _repository.Rooms.Where(r => r.Owners.Select(u => u.ChatUserKeyNavigation).Contains(user));
+            //var rooms = _repository.Rooms.ToArray();
+            //var myRooms = _repository.GetOwnedRooms(user).ToList();
+            List<ChatRoom> rooms = new List<ChatRoom>();
+            List<ChatRoom> myRooms = new List<ChatRoom>();
 
             Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
         }
@@ -107,7 +104,8 @@ namespace JabbR_Core.Hubs
         {
             //return _lobbyRoomList;
 
-            return _repository.Rooms.Select(r => new LobbyRoomViewModel() {
+            return _repository.Rooms.Select(r => new LobbyRoomViewModel()
+            {
                 Name = r.Name,
                 Count = r.Users.Count,
                 Private = r.Private,
@@ -133,11 +131,16 @@ namespace JabbR_Core.Hubs
 
         public async void LoadRooms(string[] roomNames)
         {
+            string userId = Context.User.GetUserId();
+            ChatUser user = _repository.VerifyUserId(userId);
+
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
-            foreach (var room in _repository.Rooms)
+            var rooms = _repository.Rooms
+                                   .Where(r => roomNames.Contains(r.Name)).ToList();
+            foreach (var room in rooms)
             {
-                if (room == null || (room.Private && !_user.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).Contains(room)))
+                if (room == null || (room.Private && !user.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).Contains(room)))
                 {
                     continue;
                 }
@@ -154,7 +157,8 @@ namespace JabbR_Core.Hubs
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(ex);
+                        // Logger is null
+                        //_logger.Log(ex);
                     }
                 }
             }
@@ -246,7 +250,7 @@ namespace JabbR_Core.Hubs
 
             // Create a true unique id and save the message to the db
             string id = Guid.NewGuid().ToString("d");
-            
+
             // Ensure the message is logged
             ChatMessage chatMessage = _chatService.AddMessage(user, room, id, clientMessage.Content);
             room.ChatMessages.Add(chatMessage);
@@ -320,7 +324,7 @@ namespace JabbR_Core.Hubs
         }
         void INotificationService.JoinRoom(ChatUser user, ChatRoom room)
         {
-            
+
             var userViewModel = new UserViewModel(user);
             var roomViewModel = new RoomViewModel
             {
@@ -356,9 +360,9 @@ namespace JabbR_Core.Hubs
             }
 
             string userId = Context.User.GetUserId();
-            
+
             ChatUser user = _repository.VerifyUserId(userId);
-            
+
             ChatRoom room = _repository.GetRoomByName(roomName);
 
             if (room == null || (room.Private && !user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room)))
@@ -366,7 +370,7 @@ namespace JabbR_Core.Hubs
                 return null;
             }
 
-            return await GetRoomInfoCore(room); 
+            return await GetRoomInfoCore(room);
             //return new Task<RoomViewModel>(() => thing);
         }
 
@@ -382,22 +386,19 @@ namespace JabbR_Core.Hubs
                     .OrderBy(o => o.When)
                     .ToList();
 
-                // Reverse them since we want to get them in chronological order
-                messages.Reverse();
-
                 recentMessages = messages.Select(m => new MessageViewModel(m)).ToList();
 
                 _recentMessageCache.Add(room.Name, recentMessages);
             }
 
+            List<ChatUser> onlineUsers = await _repository.GetOnlineUsers(room).ToListAsync();
+
             return new RoomViewModel
             {
                 Name = room.Name,
-                Users = from u in _repository.Users
+                Users = from u in onlineUsers
                         select new UserViewModel(u),
-                //Owners = from u in room.Owners.Online()
-                //         select u.Name,
-                Owners = from u in room.Owners select u.ChatUserKeyNavigation.Name,
+                Owners = _repository.GetRoomOwners(room).Online().Select(n => n.Name),
                 RecentMessages = recentMessages,
                 Topic = room.Topic ?? string.Empty,
                 Welcome = room.Welcome ?? String.Empty,
@@ -691,7 +692,7 @@ namespace JabbR_Core.Hubs
         private void LeaveRoom(ChatUser user, ChatRoom room)
         {
             var userViewModel = new UserViewModel(user);
-            
+
             //TODO Remove explicit hub call
             Clients.Caller.leave(userViewModel, room.Name);
 
@@ -938,7 +939,8 @@ namespace JabbR_Core.Hubs
         {
             if (disposing)
             {
-                _repository.Dispose();
+                // Let the DI Container handle disposing the repo
+                //_repository.Dispose();
             }
 
             base.Dispose(disposing);
