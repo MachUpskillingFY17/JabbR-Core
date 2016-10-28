@@ -133,15 +133,18 @@ namespace JabbR_Core
 
             app.UseXContentTypeOptions();
 
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
-                AuthenticationScheme = Constants.JabbRAuthType,
-                LoginPath = new PathString("/Account/Login/"),
-                AccessDeniedPath = new PathString("/Account/Forbidden/"),
-                AutomaticAuthenticate = true, // run with every request and look for cookie if available
-                AutomaticChallenge = true, // take raw 401 and 403 and use redirect paths as defined
-                CookieName = "jabbr.id"
-            });
+            ////////////////////////////////////////////////////////////////
+            // TODO: Authorize Attribute Re-routing to '~/Account/Login'
+            //app.UseCookieAuthentication(new CookieAuthenticationOptions
+            //{
+            //    AuthenticationScheme = Constants.JabbRAuthType,
+            //    LoginPath = new PathString("/Account/Login/"),
+            //    AccessDeniedPath = new PathString("/Account/Forbidden/"),
+            //    AutomaticAuthenticate = true, // run with every request and look for cookie if available
+            //    AutomaticChallenge = true, // take raw 401 and 403 and use redirect paths as defined
+            //    CookieName = "jabbr.id"
+            //});
+            ////////////////////////////////////////////////////////////////
 
             //if (env.IsDevelopment())
             //{
