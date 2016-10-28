@@ -222,10 +222,9 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
         {
-            //return _db.ChatMessages.Include(m => m.UserKeyNavigation)
-            //                   .Include(m => m.RoomKeyNavigation)
-            //                   .Where(m => m.RoomKey == room.Key);
-            return _db.ChatMessages.Where(m => m.RoomKey == room.Key);
+            return _db.ChatMessages.Include(m => m.UserKeyNavigation)
+                               .Include(m => m.RoomKeyNavigation)
+                               .Where(m => m.RoomKey == room.Key);
         }
 
         public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
