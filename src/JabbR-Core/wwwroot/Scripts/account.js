@@ -1,10 +1,4 @@
-﻿$(document).ready(function () {
-    console.log("jquery ready - delete me");
-    $("#logoutLink").click(function () {
-        console.log("Logout clicked");
-        $("#logoutForm").submit();
-    });
-
+﻿(function ($) {
     $('input.error').closest('.control-group').addClass('error');
 
     $('form').each(function () {
@@ -16,7 +10,7 @@
         }
     });
 
-    $('a').each(function() {
+    $('a').each(function () {
         var $el = $(this),
             href = $el.attr('href');
 
