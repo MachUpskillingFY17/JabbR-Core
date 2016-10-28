@@ -352,6 +352,7 @@ namespace JabbR_Core.Controllers
                 return View(HttpStatusCode.Forbidden);
                
             }
+            IdentityResult result = null;
             //Check if user filled out form corrrectly
             if (ModelState.IsValid)
             {
@@ -366,7 +367,7 @@ namespace JabbR_Core.Controllers
                 }
 
                 //string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
-                var result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
+                result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
                 if (result.Succeeded)
                 {
                     return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordSuccess });
