@@ -83,20 +83,17 @@ namespace JabbR_Core.Hubs
             // Try to get the user from the client state
             ChatUser user = _repository.GetUserById(userId);
 
-            //remove
-            Clients.Caller.userNameChanged(user);
-
             // This function is being manually called here to establish
             // your identity to SignalR and update the UI to match. In 
             // original JabbR it isn't called explicitly anywhere, so 
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
-            // Delete this in the future (when auth is setup properly)
+            //Delete this in the future (when auth is setup properly)
             Clients.Caller.userNameChanged(user);
 
             // Pass the list of rooms & owned rooms to the logOn function.
             //var rooms = _repository.Rooms.ToArray();
-            //var myRooms = _repository.GetOwnedRooms(user).ToArray();
+            //var myRooms = _repository.GetOwnedRooms(user).ToList();
             List<ChatRoom> rooms = new List<ChatRoom>();
             List<ChatRoom> myRooms = new List<ChatRoom>();
 
@@ -139,7 +136,8 @@ namespace JabbR_Core.Hubs
 
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
-            var rooms = _repository.Rooms.ToList();
+            var rooms = _repository.Rooms
+                                   .Where(r => roomNames.Contains(r.Name)).ToList();
             foreach (var room in rooms)
             {
                 if (room == null || (room.Private && !user.AllowedRooms.Select(u => u.ChatRoomKeyNavigation).Contains(room)))
@@ -387,9 +385,6 @@ namespace JabbR_Core.Hubs
                     .Take(50)
                     .OrderBy(o => o.When)
                     .ToList();
-
-                // Reverse them since we want to get them in chronological order
-                messages.Reverse();
 
                 recentMessages = messages.Select(m => new MessageViewModel(m)).ToList();
 

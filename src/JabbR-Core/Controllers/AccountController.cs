@@ -59,7 +59,7 @@ namespace JabbR_Core.Controllers
             // IEmailService emailService
             )
         {
-             
+
 
             // _settings = settings.Value;
             // _authService = authService;
@@ -75,16 +75,22 @@ namespace JabbR_Core.Controllers
         [HttpGet]
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index(ManageMessageId? message = null)
+        public IActionResult Index(ManageMessageId? message = null, string otherMessages = "")
         {
+            /*This is for the error messages to be on the page*/
             ViewData["StatusMessage"] =
-                   message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                   : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                   : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
-                   : message == ManageMessageId.Error ? "An error has occurred."
-                   : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
-                   : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
-                   : "";
+              message == ManageMessageId.ChangeUsernameSuccess ? "Your username has been changed."
+               : message == ManageMessageId.Error ? "An error has occurred."
+               : message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+               : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
+               : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
+               : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
+               : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+               : message == ManageMessageId.CustomMessage ? otherMessages
+               : "";
+
+
+            /*regular index code*/
             if (!User.Identity.IsAuthenticated)
             {
                 // return Forbidden view
@@ -236,7 +242,7 @@ namespace JabbR_Core.Controllers
                     var result = await _userManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
-                        await _userManager.AddClaimsAsync(user, new List<Claim>() { new Claim(JabbRClaimTypes.Identifier, user.Id) } );
+                        await _userManager.AddClaimsAsync(user, new List<Claim>() { new Claim(JabbRClaimTypes.Identifier, user.Id) });
                         // Send an email with this link
                         //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
@@ -436,11 +442,11 @@ namespace JabbR_Core.Controllers
                     user.Name = model.username;
                     _repository.CommitChanges();
 
-                  //  _notificationService.OnUserNameChanged(user, oldUsername, model.username);
+                    //  _notificationService.OnUserNameChanged(user, oldUsername, model.username);
 
-                   return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
+                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -632,14 +638,14 @@ namespace JabbR_Core.Controllers
           }*/
 
             var changeUsername = new RegularExpressionAttribute(username);
-            if(!changeUsername.IsValid(confirmUsername)) //(String.IsNullOrEmpty(username))
+            if (!changeUsername.IsValid(confirmUsername)) //(String.IsNullOrEmpty(username))
             {
                 changeUsername.FormatErrorMessage(LanguageResources.Authentication_NameNonMatching);
-               // IsValid("usernam")
+                // IsValid("usernam")
                 //this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
             }
 
-        
+
         }
 
 
@@ -698,6 +704,7 @@ namespace JabbR_Core.Controllers
 
         public enum ManageMessageId
         {
+            Error,
             AddPhoneSuccess,
             AddLoginSuccess,
             ChangePasswordSuccess,
@@ -706,9 +713,8 @@ namespace JabbR_Core.Controllers
             RemoveLoginSuccess,
             RemovePhoneSuccess,
             CustomMessage,
-            Error,
-            ChangeUsernameSuccess,
+            ChangeUsernameSuccess
         }
-            
+
     }
 }
