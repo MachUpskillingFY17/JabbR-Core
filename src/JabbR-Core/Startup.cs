@@ -148,7 +148,7 @@ namespace JabbR_Core
                     AutomaticChallenge = true,
                     CookieName = "jabbr.id"
                 });
-                app.UseFakeLogin();
+                //app.UseFakeLogin();
             }
 
             if (env.IsDevelopment())
@@ -163,6 +163,11 @@ namespace JabbR_Core
             {
                 AppId = _configuration["Authentication:Facebook:AppId"],
                 AppSecret = _configuration["Authentication:Facebook:AppSecret"]
+            });
+            app.UseGoogleAuthentication(new GoogleOptions()
+            {
+                ClientId = _configuration["Authentication:Google:AppId"],
+                ClientSecret = _configuration["Authentication:Google:AppSecret"]
             });
 
             app.UseMvcWithDefaultRoute();
