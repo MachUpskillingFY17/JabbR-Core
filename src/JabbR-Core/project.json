@@ -39,7 +39,8 @@
     "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.1.0-alpha1-22453",
     "NWebsec.AspNetCore.Middleware": "1.0.0-gamma1-15",
     "Microsoft.AspNetCore.Authentication.Facebook": "1.0.0",
-    "Microsoft.AspNetCore.Authentication.Google": "1.0.0"
+    "Microsoft.AspNetCore.Authentication.Google": "1.0.0",
+    "System.ComponentModel.Annotations": "4.3.0-preview1-24530-04"
   },
 
   "tools": {
