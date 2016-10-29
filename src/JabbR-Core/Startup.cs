@@ -168,11 +168,22 @@ namespace JabbR_Core
                 AppId = _configuration["Authentication:Facebook:AppId"],
                 AppSecret = _configuration["Authentication:Facebook:AppSecret"]
             });
+            app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
+            {
+                ClientId = _configuration["Authentication:Microsoft:AppId"],
+                ClientSecret = _configuration["Authentication:Microsoft:AppSecret"]
+            });
             app.UseGoogleAuthentication(new GoogleOptions()
             {
                 ClientId = _configuration["Authentication:Google:AppId"],
                 ClientSecret = _configuration["Authentication:Google:AppSecret"]
             });
+            app.UseTwitterAuthentication(new TwitterOptions()
+            {
+                ConsumerKey = _configuration["Authentication:Twitter:AppId"],
+                ConsumerSecret = _configuration["Authentication:Twitter:AppSecret"]
+            });
+
 
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();

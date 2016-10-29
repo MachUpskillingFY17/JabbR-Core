@@ -40,7 +40,9 @@
     "NWebsec.AspNetCore.Middleware": "1.0.0-gamma1-15",
     "Microsoft.AspNetCore.Authentication.Facebook": "1.0.0",
     "Microsoft.AspNetCore.Authentication.Google": "1.0.0",
-    "System.ComponentModel.Annotations": "4.3.0-preview1-24530-04"
+    "System.ComponentModel.Annotations": "4.3.0-preview1-24530-04",
+    "Microsoft.AspNetCore.Authentication.MicrosoftAccount": "1.0.0",
+    "Microsoft.AspNetCore.Authentication.Twitter": "1.0.0"
   },
 
   "tools": {

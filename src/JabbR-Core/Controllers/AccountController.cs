@@ -125,13 +125,6 @@ namespace JabbR_Core.Controllers
 
             if (ModelState.IsValid)
             {
-                /////////////////////////////////////////
-                // TESTING PURPOSES: REGISTERING USER 
-                // (Only needed to run once to store in db) Ensure result_create = success! (then comment this out for future testing)
-                //var user = new ChatUser { UserName = model.Username, LastActivity = DateTime.UtcNow};
-                //var result_create = await _userManager.CreateAsync(user, model.Password);
-                /////////////////////////////////////////
-
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 // 3rd paramater (isPersisted:) holds cookie after browser is closed
@@ -646,6 +639,7 @@ namespace JabbR_Core.Controllers
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
+                        await _userManager.AddClaimsAsync(user, new List<Claim>() { new Claim(JabbRClaimTypes.Identifier, user.Id) });
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         return RedirectToLocal(returnUrl);
                     }
