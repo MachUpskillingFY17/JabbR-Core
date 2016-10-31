@@ -2,12 +2,13 @@
 @using JabbR_Core.ViewModels
 @model ChangeUsernameViewModel
 
-<form class="form-horizontal" action="@Url.Content("~/account/changeusername")#changeUsername" method="POST">
+@*<form class="form-horizontal" action="@Url.Content("~/account/changeusername")#changeUsername" method="POST">*@
+<form asp-controller="Account" asp-action="ChangeUsername" method="post" class="form-horizontal">
     @Html.ValidationSummary()
     <div class="control-group">
         <label class="control-label" for="username">@LanguageResources.Account_UserName</label>
         <div class="controls">
-            <input asp-for="username"  class="form-control" format=@LanguageResources.Account_UserName placeholder="Username" />
+            <input asp-for="username" class="form-control" format=@LanguageResources.Account_UserName placeholder="Username" />
         </div>
     </div>
     <div class="control-group">

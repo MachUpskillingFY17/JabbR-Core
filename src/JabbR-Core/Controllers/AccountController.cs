@@ -1,34 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-using JabbR_Core.Infrastructure;
-using JabbR_Core.Data.Models;
-using JabbR_Core.Data.Repositories;
+using System.Net;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
-using JabbR_Core.Data.Models;
 using System.Threading.Tasks;
+using JabbR_Core.Data.Models;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using JabbR_Core.Infrastructure;
 using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Jabbr_Core.ViewModels;
 using System.Security.Claims;
 using System.Collections.Generic;
+using System.Text;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         // private IJabbrRepository _repository;
@@ -63,8 +61,6 @@ namespace JabbR_Core.Controllers
             // IEmailService emailService
             )
         {
-
-
             // _settings = settings.Value;
             // _authService = authService;
             // _membershipService = membershipService;
@@ -80,7 +76,6 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpGet]
-
         [AllowAnonymous]
         public IActionResult Index(ManageMessageId? message = null, string otherMessages = "")
         {
@@ -89,6 +84,7 @@ namespace JabbR_Core.Controllers
               message == ManageMessageId.ChangeUsernameSuccess ? "Your username has been changed."
                : message == ManageMessageId.Error ? "An error has occurred."
                : message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+               : message == ManageMessageId.ChangePasswordFailure ? "Failure to change password."
                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
                : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
                : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
@@ -96,22 +92,27 @@ namespace JabbR_Core.Controllers
                : message == ManageMessageId.CustomMessage ? otherMessages
                : "";
 
-
             /*regular index code*/
             if (!User.Identity.IsAuthenticated)
             {
                 // return Forbidden view
                 Response.StatusCode = 403; // HttpStatusCode.Forbidden
-                return View("forbidden");
+                //return this.Redirect("~/Account/Forbidden/");
+                return this.Redirect("~/Account/Login/");
+
             }
 
             // HttpContextAccessor DI works when Singelton (Scoped injects null)
             var id = _context.HttpContext.User.GetUserId();
-
-
             ChatUser user = _repository.GetUserById(id);
 
             return GetProfileView(user);
+        }
+
+        [AllowAnonymous]
+        public IActionResult Forbidden()
+        {
+            return View();
         }
 
         //
@@ -145,13 +146,6 @@ namespace JabbR_Core.Controllers
 
             if (ModelState.IsValid)
             {
-                /////////////////////////////////////////
-                // TESTING PURPOSES: REGISTERING USER 
-                // (Only needed to run once to store in db) Ensure result_create = success! (then comment this out for future testing)
-                //var user = new ChatUser { UserName = model.Username, LastActivity = DateTime.UtcNow};
-                //var result_create = await _userManager.CreateAsync(user, model.Password);
-                /////////////////////////////////////////
-
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 // 3rd paramater (isPersisted:) holds cookie after browser is closed
@@ -187,23 +181,15 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
-        public IActionResult Logout()
-        {
-            /* if (!IsAuthenticated)
-             {
-                 return HttpStatusCode.Forbidden;
-             }
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LogOff()
+        {           
+            await _signInManager.SignOutAsync();
 
-            var response=Response.AsJson(new { success = true });
-
-            this.SignOut();
-
-            return response;*/
-            return Login();
+            // redirect to AccountLogin since you are no longer authenticated
+            return this.Redirect("~/account/login");
         }
 
-        // Because Jane is already authenticated, this method will never send us to the register page
-        // Uncomment when Jane isn't a pre-authenticated user
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
@@ -287,6 +273,25 @@ namespace JabbR_Core.Controllers
                  string provider = Request.Form.provider;
                  ChatUser user = repository.GetUserById(Principal.GetUserId());
 
+<<<<<<< HEAD
+        /*[HttpPost]
+          public IActionResult Unlink()
+             {
+               /*  if (!HasValidCsrfTokenOrSecHeader)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
+
+                 if (!IsAuthenticated)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
+
+                 string provider = Request.Form.provider;
+                 ChatUser user = repository.GetUserById(Principal.GetUserId());
+
+=======
+>>>>>>> AccountControllerIntegration
                  if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
                  {
                      Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
@@ -350,56 +355,55 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
-        public IActionResult ChangePassword(string oldPassword, string password, string confirmPassword)
-        {/*
-                if (!HasValidCsrfTokenOrSecHeader)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                if (!applicationSettings.AllowUserRegistration)
-                {
-                    return HttpStatusCode.NotFound;
-                }
-
-                if (!IsAuthenticated)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                string oldPassword = Request.Form.oldPassword;
-                string password = Request.Form.password;
-                string confirmPassword = Request.Form.confirmPassword;*/
-
-            if (String.IsNullOrEmpty(oldPassword))
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)//string oldPassword, string password, string confirmPassword)
+        {
+            // check if the user IsAuthenticated
+            if (!User.Identity.IsAuthenticated)
             {
-                //this.AddValidationError("oldPassword", LanguageResources.Authentication_OldPasswordRequired);
+                // Don't allow if not authenticated
+                return View(HttpStatusCode.Forbidden);
+               
+            }
+            //Check if user filled out form corrrectly
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // HttpContextAccessor DI works when Singelton (Scoped injects null)
+                    var id = _context.HttpContext.User.GetUserId();
+                    ChatUser actualUser = _repository.GetUserById(id);
+
+                    //var actualUser = await _userManager.FindByNameAsync(User.Identity.Name);
+                    if (actualUser == null)
+                    {
+                        return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+                    }
+
+                    //string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
+                    var result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordSuccess });
+                    }
+                    AddErrors(result);
+                }
+                else
+                {
+                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordFailure });//, errors });
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordFailure });//, errors });
             }
 
-            ValidatePassword(password, confirmPassword);
+            //If we got this far something's wrong
+            return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });//, errors });
 
-            ChatUser user = _repository.GetUserById("1");
-
-            /*   try
-               {
-                   if (ModelValidationResult.IsValid)
-                   {
-                       membershipService.ChangeUserPassword(user, oldPassword, password);
-                       repository.CommitChanges();
-                   }
-               }
-               catch (Exception ex)
-               {
-                   this.AddValidationError("_FORM", ex.Message);
-               }
-
-               if (ModelValidationResult.IsValid)
-               {
-                   Request.AddAlertMessage("success", LanguageResources.Authentication_PassChangeSuccess);
-                   return Response.AsRedirect("~/account/#changePassword");
-               }*/
-
-            return GetProfileView(/*_authService, */user);
+            //ModelState.AddModelError(string.Empty, "Error changing password.");
+            //return GetProfileView(/*_authService, */user);
         }
 
         [HttpPost]
@@ -666,12 +670,24 @@ namespace JabbR_Core.Controllers
             }
         }
 
-        private void AddErrors(IdentityResult result)
+        private String AddErrors(IdentityResult result)
         {
+            var sb = new StringBuilder();
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                sb.Append(error.Description);
+                sb.Append("<br />");
+                //As of now we're not using full views only partials, so we'd lose modelstate
+                //on redirect to the Index view to show the errors, since we have to return the
+                //Index view in order to see any of the partials like ChangePassword
+                //ModelState.AddModelError(string.Empty, error.Description);
             }
+
+            return sb.ToString();
+            //foreach (var error in result.Errors)
+            //{
+            //    ModelState.AddModelError(string.Empty, error.Description);
+            //}
         }
 
         // GET: /Account/ConfirmEmail
@@ -785,15 +801,16 @@ namespace JabbR_Core.Controllers
         {
             ChangeUsernameSuccess,
             Error,
-            AddPhoneSuccess,
-            AddLoginSuccess,
             ChangePasswordSuccess,
-            SetTwoFactorSuccess,
+            ChangePasswordFailure,
             SetPasswordSuccess,
-            RemoveLoginSuccess,
+            SetTwoFactorSuccess,
+            AddPhoneSuccess,
             RemovePhoneSuccess,
+            AddLoginSuccess,
+            RemoveLoginSuccess,
             CustomMessage
-
+            
         }
     }
 }
