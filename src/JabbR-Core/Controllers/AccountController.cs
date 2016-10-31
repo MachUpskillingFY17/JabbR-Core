@@ -82,6 +82,7 @@ namespace JabbR_Core.Controllers
               message == ManageMessageId.ChangeUsernameSuccess ? "Your username has been changed."
                : message == ManageMessageId.Error ? "An error has occurred."
                : message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+               : message == ManageMessageId.ChangePasswordFailure ? "Failure to change password."
                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
                : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
                : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
@@ -352,68 +353,42 @@ namespace JabbR_Core.Controllers
                 return View(HttpStatusCode.Forbidden);
                
             }
-            IdentityResult result = null;
             //Check if user filled out form corrrectly
-            if (ModelState.IsValid)
+            try
             {
-                // HttpContextAccessor DI works when Singelton (Scoped injects null)
-                var id = _context.HttpContext.User.GetUserId();
-                ChatUser actualUser = _repository.GetUserById(id);
-
-                //var actualUser = await _userManager.FindByNameAsync(User.Identity.Name);
-                if (actualUser == null)
+                if (ModelState.IsValid)
                 {
-                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
-                }
+                    // HttpContextAccessor DI works when Singelton (Scoped injects null)
+                    var id = _context.HttpContext.User.GetUserId();
+                    ChatUser actualUser = _repository.GetUserById(id);
 
-                //string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
-                result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
-                if (result.Succeeded)
+                    //var actualUser = await _userManager.FindByNameAsync(User.Identity.Name);
+                    if (actualUser == null)
+                    {
+                        return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+                    }
+
+                    //string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
+                    var result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordSuccess });
+                    }
+                    AddErrors(result);
+                }
+                else
                 {
-                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordSuccess });
+                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordFailure });//, errors });
                 }
-
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordFailure });//, errors });
             }
 
-
-            /*
-
-                if (!applicationSettings.AllowUserRegistration)
-                {
-                    return HttpStatusCode.NotFound;
-                }
-
-                if (!IsAuthenticated)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-
-        ChatUser user = _repository.GetUserById("1");
-
-        /*   try
-           {
-               if (ModelValidationResult.IsValid)
-               {
-                   membershipService.ChangeUserPassword(user, oldPassword, password);
-                   repository.CommitChanges();
-               }
-           }
-           catch (Exception ex)
-           {
-               this.AddValidationError("_FORM", ex.Message);
-           }
-
-           if (ModelValidationResult.IsValid)
-           {
-               Request.AddAlertMessage("success", LanguageResources.Authentication_PassChangeSuccess);
-               return Response.AsRedirect("~/account/#changePassword");
-           }*/
-
-
             //If we got this far something's wrong
-            var errors = AddErrors(result);
-            return RedirectToAction(nameof(Index), new { Message = ManageMessageId.CustomMessage });//, errors });
+            return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });//, errors });
 
             //ModelState.AddModelError(string.Empty, "Error changing password.");
             //return GetProfileView(/*_authService, */user);
@@ -705,16 +680,18 @@ namespace JabbR_Core.Controllers
 
         public enum ManageMessageId
         {
+            ChangeUsernameSuccess,
             Error,
-            AddPhoneSuccess,
-            AddLoginSuccess,
             ChangePasswordSuccess,
-            SetTwoFactorSuccess,
+            ChangePasswordFailure,
             SetPasswordSuccess,
-            RemoveLoginSuccess,
+            SetTwoFactorSuccess,
+            AddPhoneSuccess,
             RemovePhoneSuccess,
-            CustomMessage,
-            ChangeUsernameSuccess
+            AddLoginSuccess,
+            RemoveLoginSuccess,
+            CustomMessage
+            
         }
 
     }
