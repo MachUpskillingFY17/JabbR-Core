@@ -274,25 +274,6 @@ namespace JabbR_Core.Controllers
                  string provider = Request.Form.provider;
                  ChatUser user = repository.GetUserById(Principal.GetUserId());
 
-<<<<<<< HEAD
-        /*[HttpPost]
-          public IActionResult Unlink()
-             {
-               /*  if (!HasValidCsrfTokenOrSecHeader)
-                 {
-                     return HttpStatusCode.Forbidden;
-                 }
-
-                 if (!IsAuthenticated)
-                 {
-                     return HttpStatusCode.Forbidden;
-                 }
-
-                 string provider = Request.Form.provider;
-                 ChatUser user = repository.GetUserById(Principal.GetUserId());
-
-=======
->>>>>>> AccountControllerIntegration
                  if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
                  {
                      Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
@@ -755,19 +736,17 @@ namespace JabbR_Core.Controllers
             var sb = new StringBuilder();
             foreach (var error in result.Errors)
             {
+                //Need ModelState validation for the register page
+                ModelState.AddModelError(string.Empty, error.Description);
+
+                //As of now we're not using full views only partials for account controller, so 
+                //we'd lose modelstate on redirect to the Index view to show the errors, since we 
+                //have to return the Index view in order to see any of the partials like ChangePassword
                 sb.Append(error.Description);
                 sb.Append("<br />");
-                //As of now we're not using full views only partials, so we'd lose modelstate
-                //on redirect to the Index view to show the errors, since we have to return the
-                //Index view in order to see any of the partials like ChangePassword
-                //ModelState.AddModelError(string.Empty, error.Description);
             }
 
             return sb.ToString();
-            //foreach (var error in result.Errors)
-            //{
-            //    ModelState.AddModelError(string.Empty, error.Description);
-            //}
         }
 
         // GET: /Account/ConfirmEmail
