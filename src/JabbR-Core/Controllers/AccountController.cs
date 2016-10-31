@@ -71,7 +71,6 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpGet]
-
         [AllowAnonymous]
         public IActionResult Index(ManageMessageId? message = null, string otherMessages = "")
         {
@@ -93,7 +92,8 @@ namespace JabbR_Core.Controllers
             {
                 // return Forbidden view
                 Response.StatusCode = 403; // HttpStatusCode.Forbidden
-                return View("forbidden");
+                //return View("forbidden");
+                return this.Redirect("~/Account/Login");
             }
 
             // HttpContextAccessor DI works when Singelton (Scoped injects null)
@@ -136,13 +136,6 @@ namespace JabbR_Core.Controllers
 
             if (ModelState.IsValid)
             {
-                /////////////////////////////////////////
-                // TESTING PURPOSES: REGISTERING USER 
-                // (Only needed to run once to store in db) Ensure result_create = success! (then comment this out for future testing)
-                //var user = new ChatUser { UserName = model.Username, LastActivity = DateTime.UtcNow};
-                //var result_create = await _userManager.CreateAsync(user, model.Password);
-                /////////////////////////////////////////
-
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 // 3rd paramater (isPersisted:) holds cookie after browser is closed
