@@ -17,6 +17,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using JabbRCore.Data.InMemory;
+using NWebsec.AspNetCore.Middleware;
+using NWebsec.AspNetCore.Core;
+using Microsoft.AspNetCore.Mvc;
 using static JabbR_Core.Services.MessageServices;
 
 namespace JabbR_Core
@@ -75,7 +79,10 @@ namespace JabbR_Core
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
             services.AddAuthorization();
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(new RequireHttpsAttribute());
+            });
             services.AddSignalR();
 
             // Create instances to register. Required for ChatService to work
@@ -178,6 +185,28 @@ namespace JabbR_Core
 
             app.UseStaticFiles();
             app.UseIdentity();
+            app.UseFacebookAuthentication(new FacebookOptions()
+            {
+                AppId = _configuration["Authentication:Facebook:AppId"],
+                AppSecret = _configuration["Authentication:Facebook:AppSecret"]
+            });
+            //app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
+            //{
+            //    ClientId = _configuration["Authentication:Microsoft:AppId"],
+            //    ClientSecret = _configuration["Authentication:Microsoft:AppSecret"]
+            //});
+            app.UseGoogleAuthentication(new GoogleOptions()
+            {
+                ClientId = _configuration["Authentication:Google:AppId"],
+                ClientSecret = _configuration["Authentication:Google:AppSecret"]
+            });
+            //app.UseTwitterAuthentication(new TwitterOptions()
+            //{
+            //    ConsumerKey = _configuration["Authentication:Twitter:AppId"],
+            //    ConsumerSecret = _configuration["Authentication:Twitter:AppSecret"],
+            //});
+
+
             app.UseMvcWithDefaultRoute();
             app.UseSignalR();
         }
