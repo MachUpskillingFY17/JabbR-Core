@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using JabbRCore.Data.InMemory;
 using NWebsec.AspNetCore.Middleware;
 using NWebsec.AspNetCore.Core;
+using JabbR_Core.Hubs;
+using Microsoft.Extensions.Options;
 
 namespace JabbR_Core
 {
@@ -55,6 +57,7 @@ namespace JabbR_Core
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
             //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
             services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
 
             //services.AddEntityFrameworkInMemoryDatabase();
@@ -70,34 +73,14 @@ namespace JabbR_Core
                     .UseInMemoryDatabase();
                 });
 
-            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
-            //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
-
             services.AddMvc();
             services.AddSignalR();
-
-            // Create instances to register. Required for ChatService to work
-            //var context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            //var repository = new InMemoryRepository(context);
-            //var repository = new InMemoryRepository();
-            //var recentMessageCache = new RecentMessageCache();
-            //var httpContextAccessor = new HttpContextAccessor();
-
-            //var chatService = new ChatService(null, recentMessageCache, repository, null);
-
-            // testing for repo tests
-            //services.AddScoped(provider => context);
 
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IJabbrRepository, InMemoryRepository>();
             services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
-
-            // Register the provider that points to the specific instance
-            //services.AddScoped<IJabbrRepository, InMemoryRepository>();
-            //services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
-            //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // Establish default settings from appsettings.json
             services.Configure<ApplicationSettings>(_configuration.GetSection("ApplicationSettings"));
@@ -114,6 +97,20 @@ namespace JabbR_Core
             services.AddIdentity<ChatUser, IdentityRole>()
                 .AddEntityFrameworkStores<JabbrContext>()
                 .AddDefaultTokenProviders();
+
+            // This code has no effects right now, Chat hubs aren't called via DI
+            // in SignalR, so at the moment we can't control the same objects being 
+            // passed to hubs and ChatService
+            services.AddTransient<Chat>(provider => 
+            {
+                // This is never hit
+                var repository = provider.GetService<IJabbrRepository>();
+                var settings = provider.GetService<IOptions<ApplicationSettings>>();
+                var recentMessageCache = provider.GetService<IRecentMessageCache>();
+                var chatService = provider.GetService<IChatService>();
+
+                return new Chat(repository, settings, recentMessageCache, chatService);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -124,17 +121,12 @@ namespace JabbR_Core
 
             //TODO: AJS FIX UNSAFEEVAL AFTER INCLUDING ANGULAR JS 
             app.UseCsp(options => options.DefaultSources(s => s.Self()).ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com").UnsafeEval()).StyleSources(s=> s.Self().UnsafeInline()));
-
             app.UseXXssProtection(option => option.EnabledWithBlockMode());
-
             app.UseXfo(options => options.Deny());
-
             app.UseXContentTypeOptions();
-
 
             if (env.IsDevelopment())
             {
-
                 app.UseCookieAuthentication(new CookieAuthenticationOptions()
                 {
                     AuthenticationScheme = Constants.JabbRAuthType,

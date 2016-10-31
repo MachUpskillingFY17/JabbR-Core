@@ -22,25 +22,21 @@ namespace JabbR_Core.Hubs
         // Never assigned to, always null
         private readonly ICache _cache;
         private readonly ChatUser _user;
-        private readonly List<string> _chatRooms;
+        private readonly ILogger _logger;
         
         // Never used
-        private readonly ChatRoom _room;
-        private readonly UserViewModel _userViewModel;  
-        private readonly RoomViewModel _roomViewModel;
-        private readonly LobbyRoomViewModel _lobbyRoom;
+        //private readonly List<string> _chatRooms;
+        //private readonly ChatRoom _room;
+        //private readonly UserViewModel _userViewModel;  
+        //private readonly RoomViewModel _roomViewModel;
+        //private readonly LobbyRoomViewModel _lobbyRoom;
+        //private readonly List<LobbyRoomViewModel> _lobbyRoomList;
 
-        private readonly ILogger _logger;
         private readonly IChatService _chatService;
         private readonly ApplicationSettings _settings;
         private readonly IJabbrRepository _repository;
-        private readonly RecentMessageCache _recentMessageCache;
-        private readonly List<LobbyRoomViewModel> _lobbyRoomList;
+        private readonly IRecentMessageCache _recentMessageCache;
 
-        // Old Chat constructor parameters.
-        //InMemoryRepository repository,
-        //ILogger logger,
-        //IChatService service
         public Chat(
             IJabbrRepository repository, 
             IOptions<ApplicationSettings> settings, 
@@ -50,14 +46,8 @@ namespace JabbR_Core.Hubs
             // Request the injected object instances
             _repository = repository;
             _chatService = chatService;
-            _recentMessageCache = (RecentMessageCache)recentMessageCache;
+            _recentMessageCache = recentMessageCache;
             _settings = settings.Value;
-
-            Debug.WriteLine(_repository.GetHashCode());
-
-
-            // Not instantiated with DI, set here
-
         }
 
         private string UserAgent
@@ -131,7 +121,7 @@ namespace JabbR_Core.Hubs
             };
         }
 
-        public async void LoadRooms(string[] roomNames)
+        public void LoadRooms(string[] roomNames)
         {
             // Can't async whenall because we'd be hitting a single 
             // EF context with multiple concurrent queries.
@@ -148,7 +138,7 @@ namespace JabbR_Core.Hubs
                     try
                     {
                         // If invoking roomLoaded fails don't get the roomInfo again
-                        roomInfo = roomInfo ?? await GetRoomInfoCore(room);
+                        roomInfo = roomInfo ?? GetRoomInfoCore(room);
                         Clients.Caller.roomLoaded(roomInfo);
                         break;
                     }
@@ -348,7 +338,7 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        public async Task<RoomViewModel> GetRoomInfo(string roomName)
+        public RoomViewModel GetRoomInfo(string roomName)
         {
             if (string.IsNullOrEmpty(roomName))
             {
@@ -356,9 +346,9 @@ namespace JabbR_Core.Hubs
             }
 
             string userId = Context.User.GetUserId();
-            
+
             ChatUser user = _repository.VerifyUserId(userId);
-            
+
             ChatRoom room = _repository.GetRoomByName(roomName);
 
             if (room == null || (room.Private && !user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room)))
@@ -366,11 +356,11 @@ namespace JabbR_Core.Hubs
                 return null;
             }
 
-            return await GetRoomInfoCore(room); 
+            return GetRoomInfoCore(room);
             //return new Task<RoomViewModel>(() => thing);
         }
 
-        private async Task<RoomViewModel> GetRoomInfoCore(ChatRoom room)
+        private RoomViewModel GetRoomInfoCore(ChatRoom room)
         {
             var recentMessages = _recentMessageCache.GetRecentMessages(room.Name);
 
@@ -393,11 +383,12 @@ namespace JabbR_Core.Hubs
             return new RoomViewModel
             {
                 Name = room.Name,
-                Users = from u in _repository.Users
+                Users = from u 
+                        in _repository.Users
                         select new UserViewModel(u),
-                //Owners = from u in room.Owners.Online()
-                //         select u.Name,
-                Owners = from u in room.Owners select u.ChatUserKeyNavigation.Name,
+                Owners = from u 
+                         in room.Owners
+                         select u.ChatUserKeyNavigation.Name,
                 RecentMessages = recentMessages,
                 Topic = room.Topic ?? string.Empty,
                 Welcome = room.Welcome ?? String.Empty,
