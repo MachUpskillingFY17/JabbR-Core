@@ -2,6 +2,8 @@
 using JabbR_Core.Services;
 using JabbR_Core.Middleware;
 using JabbR_Core.Data.Models;
+using NWebsec.AspNetCore.Core;
+using JabbRCore.Data.InMemory;
 using JabbR_Core.Localization;
 using JabbR_Core.Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -10,14 +12,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
+using NWebsec.AspNetCore.Middleware;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using JabbRCore.Data.InMemory;
 using NWebsec.AspNetCore.Middleware;
 using NWebsec.AspNetCore.Core;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace JabbR_Core
 {
@@ -139,21 +143,33 @@ namespace JabbR_Core
 
             app.UseXContentTypeOptions();
 
+            ////////////////////////////////////////////////////////////////
+            // TODO: Authorize Attribute Re-routing to '~/Account/Login'
+            //app.UseCookieAuthentication(new CookieAuthenticationOptions
+            //{
+            //    AuthenticationScheme = Constants.JabbRAuthType,
+            //    LoginPath = new PathString("/Account/Login/"),
+            //    AccessDeniedPath = new PathString("/Account/Forbidden/"),
+            //    AutomaticAuthenticate = true, // run with every request and look for cookie if available
+            //    AutomaticChallenge = true, // take raw 401 and 403 and use redirect paths as defined
+            //    CookieName = "jabbr.id"
+            //});
+            ////////////////////////////////////////////////////////////////
 
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
 
-                app.UseCookieAuthentication(new CookieAuthenticationOptions()
-                {
-                    AuthenticationScheme = Constants.JabbRAuthType,
-                    LoginPath = new PathString("/Account/Unauthorized/"),
-                    AccessDeniedPath = new PathString("/Account/Forbidden/"),
-                    AutomaticAuthenticate = true,
-                    AutomaticChallenge = true,
-                    CookieName = "jabbr.id"
-                });
-                //app.UseFakeLogin();
-            }
+            //    app.UseCookieAuthentication(new CookieAuthenticationOptions()
+            //    {
+            //        AuthenticationScheme = Constants.JabbRAuthType,
+            //        LoginPath = new PathString("/Account/Unauthorized/"),
+            //        AccessDeniedPath = new PathString("/Account/Forbidden/"),
+            //        AutomaticAuthenticate = true,
+            //        AutomaticChallenge = true,
+            //        CookieName = "jabbr.id"
+            //    });
+            //    //app.UseFakeLogin();
+            //}
 
             if (env.IsDevelopment())
             {
@@ -162,6 +178,7 @@ namespace JabbR_Core
 
             loggerFactory.AddConsole();
 
+            app.UseStaticFiles();
             app.UseIdentity();
             app.UseFacebookAuthentication(new FacebookOptions()
             {
@@ -186,7 +203,6 @@ namespace JabbR_Core
 
 
             app.UseMvcWithDefaultRoute();
-            app.UseStaticFiles();
             app.UseSignalR();
         }
     }

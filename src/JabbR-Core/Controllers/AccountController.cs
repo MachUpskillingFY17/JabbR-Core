@@ -2,11 +2,12 @@
 using System.Net;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
-using JabbR_Core.Data.Models;
 using System.Threading.Tasks;
+using JabbR_Core.Data.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using JabbR_Core.Data.Repositories;
@@ -16,6 +17,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JabbR_Core.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         // private IJabbrRepository _repository;
@@ -46,8 +48,6 @@ namespace JabbR_Core.Controllers
             )
 
         {
-
-
             // _settings = settings.Value;
             // _authService = authService;
             // _membershipService = membershipService;
@@ -60,7 +60,6 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpGet]
-
         [AllowAnonymous]
         public IActionResult Index(ManageMessageId? message = null, string otherMessages = "")
         {
@@ -76,22 +75,27 @@ namespace JabbR_Core.Controllers
                : message == ManageMessageId.CustomMessage ? otherMessages
                : "";
 
-
             /*regular index code*/
             if (!User.Identity.IsAuthenticated)
             {
                 // return Forbidden view
                 Response.StatusCode = 403; // HttpStatusCode.Forbidden
-                return View("forbidden");
+                //return this.Redirect("~/Account/Forbidden/");
+                return this.Redirect("~/Account/Login/");
+
             }
 
             // HttpContextAccessor DI works when Singelton (Scoped injects null)
             var id = _context.HttpContext.User.GetUserId();
-
-
             ChatUser user = _repository.GetUserById(id);
 
             return GetProfileView(user);
+        }
+
+        [AllowAnonymous]
+        public IActionResult Forbidden()
+        {
+            return View();
         }
 
         //
@@ -160,23 +164,15 @@ namespace JabbR_Core.Controllers
         }
 
         [HttpPost]
-        public IActionResult Logout()
-        {
-            /* if (!IsAuthenticated)
-             {
-                 return HttpStatusCode.Forbidden;
-             }
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LogOff()
+        {           
+            await _signInManager.SignOutAsync();
 
-            var response=Response.AsJson(new { success = true });
-
-            this.SignOut();
-
-            return response;*/
-            return Login();
+            // redirect to AccountLogin since you are no longer authenticated
+            return this.Redirect("~/account/login");
         }
 
-        // Because Jane is already authenticated, this method will never send us to the register page
-        // Uncomment when Jane isn't a pre-authenticated user
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
@@ -259,6 +255,25 @@ namespace JabbR_Core.Controllers
                  string provider = Request.Form.provider;
                  ChatUser user = repository.GetUserById(Principal.GetUserId());
 
+<<<<<<< HEAD
+        /*[HttpPost]
+          public IActionResult Unlink()
+             {
+               /*  if (!HasValidCsrfTokenOrSecHeader)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
+
+                 if (!IsAuthenticated)
+                 {
+                     return HttpStatusCode.Forbidden;
+                 }
+
+                 string provider = Request.Form.provider;
+                 ChatUser user = repository.GetUserById(Principal.GetUserId());
+
+=======
+>>>>>>> AccountControllerIntegration
                  if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
                  {
                      Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
