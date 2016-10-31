@@ -43,6 +43,7 @@ namespace JabbR_Core.ViewModels
 
         public ICollection<ChatRoom> OwnedRooms { get; private set; }
 
+        public ChangePasswordViewModel UserPasswordViewModel { get; set; }
         public ChangeUsernameViewModel ChatUsernameViewModel { get; set; }
     }
 }
