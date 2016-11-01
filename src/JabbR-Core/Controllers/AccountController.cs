@@ -416,7 +416,7 @@ namespace JabbR_Core.Controllers
 
                     return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
                 }
-
+                //   AddErrors()
             }
             catch (Exception ex)
             {
