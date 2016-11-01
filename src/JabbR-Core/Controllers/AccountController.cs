@@ -79,6 +79,8 @@ namespace JabbR_Core.Controllers
                : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
                : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
                : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+               : message == ManageMessageId.ErrorChangeUsername ? "Your username was not changed. Please be sure you entered the correct information"
+               : message == ManageMessageId.WrongPassword ? "You entered the wrong password. Please try again"
                : message == ManageMessageId.CustomMessage ? otherMessages
                : "";
 
@@ -173,7 +175,7 @@ namespace JabbR_Core.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOff()
-        {           
+        {
             await _signInManager.SignOutAsync();
 
             // redirect to AccountLogin since you are no longer authenticated
@@ -285,7 +287,7 @@ namespace JabbR_Core.Controllers
             {
                 // Don't allow if not authenticated
                 return View(HttpStatusCode.Forbidden);
-               
+
             }
             //Check if user filled out form corrrectly
             try
@@ -330,7 +332,7 @@ namespace JabbR_Core.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ChangeUsername(ChangeUsernameViewModel model)
+        public async Task<IActionResult> ChangeUsername(ChangeUsernameViewModel model)
         {
 
             if (!User.Identity.IsAuthenticated)
@@ -348,22 +350,28 @@ namespace JabbR_Core.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    user.UserName = model.username;
-                    user.Name = model.username;
-                    _repository.CommitChanges();
+                    var result = await _signInManager.CheckPasswordSignInAsync(user, model.password, false);
+                    if (result.Succeeded)
+                    {
+                        user.UserName = model.username;
+                        user.Name = model.username;
+                        _repository.CommitChanges();
 
-                    //  _notificationService.OnUserNameChanged(user, oldUsername, model.username);
+                        //  _notificationService.OnUserNameChanged(user, oldUsername, model.username);
 
-                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
+                        return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
+                    }
+                    else
+                        return new RedirectResult(Url.Action("Index", new { Message = ManageMessageId.WrongPassword }) + "#changeUsername");
                 }
-                //   AddErrors()
             }
             catch (Exception ex)
             {
                 return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
             }
 
-            return GetProfileView(user);
+            return new RedirectResult(Url.Action("Index", new { Message = ManageMessageId.ErrorChangeUsername }) + "#changeUsername");
+
         }
 
         //[HttpGet]
@@ -557,9 +565,9 @@ namespace JabbR_Core.Controllers
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
             if (result.Succeeded)
             {
-                return RedirectToLocal(returnUrl); 
+                return RedirectToLocal(returnUrl);
             }
-            if (result.IsLockedOut) 
+            if (result.IsLockedOut)
             {
                 return View("Lockout");
             }
@@ -570,7 +578,7 @@ namespace JabbR_Core.Controllers
                 ViewData["LoginProvider"] = info.LoginProvider;
                 var email = info.Principal.FindFirstValue(ClaimTypes.Email);
                 return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = email });
-            } 
+            }
         }
 
         [HttpPost]
@@ -725,7 +733,7 @@ namespace JabbR_Core.Controllers
                 //this.AddValidationError("confirmPassword", LanguageResources.Authentication_PassNonMatching);
             }
         }
-        
+
         private void ValidateUsername(string username, string confirmUsername)
         {
             /*  if (String.IsNullOrEmpty(username))
@@ -804,8 +812,10 @@ namespace JabbR_Core.Controllers
             RemovePhoneSuccess,
             AddLoginSuccess,
             RemoveLoginSuccess,
+            ErrorChangeUsername,
+            WrongPassword,
             CustomMessage
-            
+
         }
     }
 }
