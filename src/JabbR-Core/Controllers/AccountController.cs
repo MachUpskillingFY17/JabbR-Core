@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Linq;
+using System.Text;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
 using System.Threading.Tasks;
@@ -7,37 +9,27 @@ using JabbR_Core.Data.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using JabbR_Core.Data.Repositories;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Net;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Jabbr_Core.ViewModels;
-using System.Security.Claims;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
-        // private IJabbrRepository _repository;
         // private IAuthenticationService _authService;
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
         private readonly IJabbrRepository _repository;
         private readonly IEmailSender _emailSender;
 
-        // Microsoft.AspNetCore.Identity.EntityFrameworkCore
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
         Microsoft.AspNetCore.Http.HttpContext context;
@@ -52,7 +44,6 @@ namespace JabbR_Core.Controllers
             IJabbrRepository repository,
             IOptions<ApplicationSettings> settings,
             IEmailSender emailsender
-
 
             // IOptions<ApplicationSettings> settings,
             // IMembershipService membershipService,
@@ -72,8 +63,6 @@ namespace JabbR_Core.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailsender;
-
-            //var signin = _signInManager.Context;
         }
 
         [HttpGet]
@@ -210,8 +199,6 @@ namespace JabbR_Core.Controllers
             return View("register");
         }
 
-        // Because Jane is already authenticated, this will never send us to the register page
-        // Uncomment when Jane isn't a pre-authenticated user
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -258,83 +245,36 @@ namespace JabbR_Core.Controllers
             return View(model);
         }
 
-        /*[HttpPost]
-          public IActionResult Unlink()
-             {
-               /*  if (!HasValidCsrfTokenOrSecHeader)
-                 {
-                     return HttpStatusCode.Forbidden;
-                 }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult Unlink()
+        //{
+        //    if (!User.Identity.IsAuthenticated)
+        //    {
+        //        return View(HttpStatusCode.Forbidden);
+        //    }
 
-                 if (!IsAuthenticated)
-                 {
-                     return HttpStatusCode.Forbidden;
-                 }
+        //    string provider = Request.Form.provider;
+        //    ChatUser user = _repository.GetUserById(_context.HttpContext.User.GetUserId());
 
-                 string provider = Request.Form.provider;
-                 ChatUser user = repository.GetUserById(Principal.GetUserId());
+        //    if (user.ChatUserIdentities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
+        //    {
+        //        Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
+        //        return Redirect("~/account/#identityProviders");
+        //    }
 
-                 if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
-                 {
-                     Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
-                     return Response.AsRedirect("~/account/#identityProviders");
-                 }
+        //    var identity = user.ChatUserIdentities.FirstOrDefault(i => i.ProviderName == provider);
 
-                 var identity = user.Identities.FirstOrDefault(i => i.ProviderName == provider);
+        //    if (identity != null)
+        //    {
+        //        _repository.Remove(identity);
 
-                 if (identity != null)
-                 {
-                     repository.Remove(identity);
+        //        Request.AddAlertMessage("success", String.Format(LanguageResources.Account_UnlinkCompleted, provider));
+        //        return Redirect("~/account/#identityProviders");
+        //    }
 
-                     Request.AddAlertMessage("success", String.Format(LanguageResources.Account_UnlinkCompleted, provider));
-                     return Response.AsRedirect("~/account/#identityProviders");
-                 }
-
-                 return HttpStatusCode.BadRequest;
-             }*/
-
-
-        [HttpPost]
-        public IActionResult NewPassword(string password, string confirmPassword)
-        {
-            /*  if (!HasValidCsrfTokenOrSecHeader)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
-
-              if (!IsAuthenticated)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
-
-              string password = Request.Form.password;
-              string confirmPassword = Request.Form.confirmPassword;*/
-
-            ValidatePassword(password, confirmPassword);
-
-            ChatUser user = _repository.GetUserById("1"); ;//Principal.GetUserId());
-
-            /* try
-             {
-                 if (ModelValidationResult.IsValid)
-                 {
-                     membershipService.SetUserPassword(user, password);
-                     repository.CommitChanges();
-                 }
-             }
-             catch (Exception ex)
-             {
-                 this.AddValidationError("_FORM", ex.Message);
-             }
-
-             if (ModelValidationResult.IsValid)
-             {
-                 Request.AddAlertMessage("success", LanguageResources.Authentication_PassAddSuccess);
-                 return Response.AsRedirect("~/account/#changePassword");
-             }*/
-
-            return GetProfileView(/*_authService,*/ user);
-        }
+        //    return View(HttpStatusCode.BadRequest);
+        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -665,90 +605,6 @@ namespace JabbR_Core.Controllers
             return View(model);
         }
 
-
-        private void ValidatePassword(string password, string confirmPassword)
-        {
-            if (String.IsNullOrEmpty(password))
-            {
-                //this.AddValidationError("password", LanguageResources.Authentication_PassRequired);
-            }
-
-            if (!String.Equals(password, confirmPassword))
-            {
-                //this.AddValidationError("confirmPassword", LanguageResources.Authentication_PassNonMatching);
-            }
-        }
-        
-        private void ValidateUsername(string username, string confirmUsername)
-        {
-            /*  if (String.IsNullOrEmpty(username))
-          {
-              this.AddValidationError("confirmUsername", LanguageResources.Authentication_NameNonMatching);
-          }*/
-
-            var changeUsername = new RegularExpressionAttribute(username);
-            if (!changeUsername.IsValid(confirmUsername)) //(String.IsNullOrEmpty(username))
-            {
-                changeUsername.FormatErrorMessage(LanguageResources.Authentication_NameNonMatching);
-                // IsValid("usernam")
-                //this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
-            }
-
-
-        }
-
-
-        private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user)
-        {
-            return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
-
-        }
-
-        private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
-                                                 IJabbrRepository repository)
-        {
-            ChatUser user = null;
-
-            if (User.Identity.IsAuthenticated)
-            {
-                var id = _context.HttpContext.User.GetUserId();
-                user = _repository.GetUserById(id);
-            }
-
-            var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
-            return viewModel;
-        }
-
-        private IActionResult RedirectToLocal(string returnUrl)
-        {
-            if (Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            else
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
-        }
-
-        private String AddErrors(IdentityResult result)
-        {
-            var sb = new StringBuilder();
-            foreach (var error in result.Errors)
-            {
-                //Need ModelState validation for the register page
-                ModelState.AddModelError(string.Empty, error.Description);
-
-                //As of now we're not using full views only partials for account controller, so 
-                //we'd lose modelstate on redirect to the Index view to show the errors, since we 
-                //have to return the Index view in order to see any of the partials like ChangePassword
-                sb.Append(error.Description);
-                sb.Append("<br />");
-            }
-
-            return sb.ToString();
-        }
-
         // GET: /Account/ConfirmEmail
         [HttpGet]
         [AllowAnonymous]
@@ -856,6 +712,86 @@ namespace JabbR_Core.Controllers
         {
             return View();
         }
+
+        private void ValidatePassword(string password, string confirmPassword)
+        {
+            if (String.IsNullOrEmpty(password))
+            {
+                //this.AddValidationError("password", LanguageResources.Authentication_PassRequired);
+            }
+
+            if (!String.Equals(password, confirmPassword))
+            {
+                //this.AddValidationError("confirmPassword", LanguageResources.Authentication_PassNonMatching);
+            }
+        }
+        
+        private void ValidateUsername(string username, string confirmUsername)
+        {
+            /*  if (String.IsNullOrEmpty(username))
+          {
+              this.AddValidationError("confirmUsername", LanguageResources.Authentication_NameNonMatching);
+          }*/
+
+            var changeUsername = new RegularExpressionAttribute(username);
+            if (!changeUsername.IsValid(confirmUsername)) //(String.IsNullOrEmpty(username))
+            {
+                changeUsername.FormatErrorMessage(LanguageResources.Authentication_NameNonMatching);
+                // IsValid("usernam")
+                //this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
+            }
+        }
+
+        private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user)
+        {
+            return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
+        }
+
+        private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
+                                                 IJabbrRepository repository)
+        {
+            ChatUser user = null;
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var id = _context.HttpContext.User.GetUserId();
+                user = _repository.GetUserById(id);
+            }
+
+            var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
+            return viewModel;
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+        }
+
+        private String AddErrors(IdentityResult result)
+        {
+            var sb = new StringBuilder();
+            foreach (var error in result.Errors)
+            {
+                //Need ModelState validation for the register page
+                ModelState.AddModelError(string.Empty, error.Description);
+
+                //As of now we're not using full views only partials for account controller, so 
+                //we'd lose modelstate on redirect to the Index view to show the errors, since we 
+                //have to return the Index view in order to see any of the partials like ChangePassword
+                sb.Append(error.Description);
+                sb.Append("<br />");
+            }
+
+            return sb.ToString();
+        }
+
         public enum ManageMessageId
         {
             ChangeUsernameSuccess,

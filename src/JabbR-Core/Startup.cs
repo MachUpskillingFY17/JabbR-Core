@@ -5,6 +5,7 @@ using JabbR_Core.Data.Models;
 using NWebsec.AspNetCore.Core;
 using JabbRCore.Data.InMemory;
 using JabbR_Core.Localization;
+using Microsoft.AspNetCore.Mvc;
 using JabbR_Core.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using JabbR_Core.Data.Repositories;
@@ -17,10 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using JabbRCore.Data.InMemory;
-using NWebsec.AspNetCore.Middleware;
-using NWebsec.AspNetCore.Core;
-using Microsoft.AspNetCore.Mvc;
 using static JabbR_Core.Services.MessageServices;
 
 namespace JabbR_Core
