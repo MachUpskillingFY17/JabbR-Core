@@ -21,6 +21,7 @@ using JabbRCore.Data.InMemory;
 using NWebsec.AspNetCore.Middleware;
 using NWebsec.AspNetCore.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using static JabbR_Core.Services.MessageServices;
 
 namespace JabbR_Core
@@ -193,18 +194,18 @@ namespace JabbR_Core
             //app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
             //{
             //    ClientId = _configuration["Authentication:Microsoft:AppId"],
-            //    ClientSecret = _configuration["Authentication:Microsoft:AppSecret"]
+            //    ClientSecret = _configuration["Authentication:Microsoft:AppSecret"],
             //});
             app.UseGoogleAuthentication(new GoogleOptions()
             {
                 ClientId = _configuration["Authentication:Google:AppId"],
-                ClientSecret = _configuration["Authentication:Google:AppSecret"]
+                ClientSecret = _configuration["Authentication:Google:AppSecret"],
             });
-            //app.UseTwitterAuthentication(new TwitterOptions()
-            //{
-            //    ConsumerKey = _configuration["Authentication:Twitter:AppId"],
-            //    ConsumerSecret = _configuration["Authentication:Twitter:AppSecret"],
-            //});
+            app.UseTwitterAuthentication(new TwitterOptions()
+            {
+                ConsumerKey = _configuration["Authentication:Twitter:AppId"],
+                ConsumerSecret = _configuration["Authentication:Twitter:AppSecret"],
+            });
 
 
             app.UseMvcWithDefaultRoute();
