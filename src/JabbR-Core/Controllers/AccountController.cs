@@ -27,6 +27,7 @@ namespace JabbR_Core.Controllers
         // private IAuthenticationService _authService;
         private ApplicationSettings _settings;
         private IMembershipService _membershipService;
+
         private readonly IJabbrRepository _repository;
         private readonly IEmailSender _emailSender;
 

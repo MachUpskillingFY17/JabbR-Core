@@ -14,9 +14,11 @@ namespace JabbR_Core.Tests.Services
 {
     public class RepositoryExtensionsTest
     {
+        // Never used
+        //private IQueryable<ChatUser> _queryableChatUser;
+
         private readonly IJabbrRepository _repository;
         private readonly ClaimsPrincipal _principal;
-        private IQueryable<ChatUser> _queryableChatUser;
         private readonly ICache _cache;
         JabbrContext _context;
         DbContextOptionsBuilder<JabbrContext> _options;
