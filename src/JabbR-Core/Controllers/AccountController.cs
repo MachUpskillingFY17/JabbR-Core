@@ -308,19 +308,19 @@ namespace JabbR_Core.Controllers
                     var result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordSuccess });
+                        return new RedirectResult(Url.Action("Index", new { Message = ManageMessageId.ChangePasswordSuccess }) + "#changePassword");
                     }
                     AddErrors(result);
                 }
                 else
                 {
-                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordFailure });//, errors });
+                    return new RedirectResult(Url.Action("Index", new { Message = ManageMessageId.ChangePasswordFailure }) + "#changePassword");
                 }
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
-                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordFailure });//, errors });
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
             }
 
             //If we got this far something's wrong
