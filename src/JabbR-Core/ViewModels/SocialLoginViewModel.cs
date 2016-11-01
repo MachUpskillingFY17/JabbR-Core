@@ -2,10 +2,9 @@
 using System.Linq;
 using System.Collections.Generic;
 using JabbR_Core.Data.Models;
-//using SimpleAuthentication.Core;
 
 namespace JabbR_Core.ViewModels
-{
+{ 
     public class SocialLoginViewModel
     {
         public SocialLoginViewModel(/*IEnumerable<IAuthenticationProvider> configuredProviders,*/ IEnumerable<ChatUserIdentity> userIdentities)
