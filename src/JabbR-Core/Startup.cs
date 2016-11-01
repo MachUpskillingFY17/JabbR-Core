@@ -191,11 +191,11 @@ namespace JabbR_Core
                 AppId = _configuration["Authentication:Facebook:AppId"],
                 AppSecret = _configuration["Authentication:Facebook:AppSecret"]
             });
-            //app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
-            //{
-            //    ClientId = _configuration["Authentication:Microsoft:AppId"],
-            //    ClientSecret = _configuration["Authentication:Microsoft:AppSecret"],
-            //});
+            app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
+            {
+                ClientId = _configuration["Authentication:Microsoft:AppId"],
+                ClientSecret = _configuration["Authentication:Microsoft:AppSecret"],
+            });
             app.UseGoogleAuthentication(new GoogleOptions()
             {
                 ClientId = _configuration["Authentication:Google:AppId"],
