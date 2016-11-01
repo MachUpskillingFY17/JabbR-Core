@@ -8,15 +8,13 @@
     <div class="control-group">
         <label class="control-label" for="username">@LanguageResources.Account_UserName</label>
         <div class="controls">
-            <input asp-for="username" class="form-control" format=@LanguageResources.Account_UserName placeholder="Username" />
-            @Html.ValidationMessageFor(x => x.username)
-        </div>
+            <input asp-for="username" class="form-control" format=@LanguageResources.Account_UserName placeholder="New Username" />
+         </div>
     </div>
     <div class="control-group">
         <label class="control-label" for="confirmUsername">@LanguageResources.Account_UserNameConfirm</label>
         <div class="controls">
-            <input asp-for="confirmUsername" class="form-control" format=@LanguageResources.Account_UserName placeholder="Confirm Username" />
-            @Html.ValidationMessageFor(x => x.confirmUsername)
+            <input asp-for="confirmUsername" class="form-control" format=@LanguageResources.Account_UserName placeholder="Confirm New Username" />
         </div>
     </div>
     <div class="control-group">
