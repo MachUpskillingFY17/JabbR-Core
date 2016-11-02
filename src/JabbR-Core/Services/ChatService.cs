@@ -348,11 +348,11 @@ namespace JabbR_Core.Services
             }; 
 
             room.Owners.Add(owner);
-            user.OwnedRooms.Add(owner);
+            //user.OwnedRooms.Add(owner);
 
             // Update repositiory
             _repository.Add(room);
-            _repository.Add(owner);
+          //  _repository.Add(owner);
 
             //Debug.WriteLine(name);
             //Debug.WriteLine(user.Name);

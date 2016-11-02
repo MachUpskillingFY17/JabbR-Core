@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JabbR_Core.Controllers
 {
+
     public class LoginController : Controller
     {
         private IHttpContextAccessor _context;
