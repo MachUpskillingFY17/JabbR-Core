@@ -12,7 +12,9 @@ namespace JabbR_Core.Tests.Repositories
 {
     public class InMemoryRepositoryTest
     {
-        JabbrContext _context;
+        // Never assigned to, always null
+        //JabbrContext _context;
+
         InMemoryRepository _repository;
         DbContextOptionsBuilder<JabbrContext> _options;
 
@@ -301,9 +303,6 @@ namespace JabbR_Core.Tests.Repositories
         [Fact]
         public void GetMessagesByRoomAndId()
         {
-            // Create a new repo with the context to fight side effects         
-            _repository = new InMemoryRepository(_context);
-
             // Add a user to the repository
             _repository.Add(user1);
 

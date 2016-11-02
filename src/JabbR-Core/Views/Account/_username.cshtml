@@ -1,11 +1,15 @@
 ﻿@using JabbR_Core;
+@using JabbR_Core.Services
 @using JabbR_Core.ViewModels
+@using JabbR_Core.Data.Repositories
 @using Microsoft.AspNetCore.Identity
 @using System.Collections.Generic
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Http.Authentication
 @model LoginViewModel
 @inject SignInManager<ChatUser> SignInManager
+@inject ApplicationSettings Settings
+@inject IJabbrRepository Repository
 
 <form asp-controller="Account" asp-action="Login" method="post" class="form-horizontal">
     @Html.ValidationSummary()

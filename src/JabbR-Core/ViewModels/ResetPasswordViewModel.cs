@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Jabbr_Core.ViewModels
+namespace JabbR_Core.ViewModels
 {
     public class ResetPasswordViewModel
     {
