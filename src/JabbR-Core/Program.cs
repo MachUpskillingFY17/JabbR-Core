@@ -23,7 +23,7 @@ namespace JabbR_Core
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                // .UseUrls("http://*:5000")
-                .UseConfiguration(config)
+               // .UseConfiguration(config)
                 .Build();
 
             host.Run();
