@@ -13,11 +13,12 @@ using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
 
 namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
-    {
+    {   
         // Never assigned to, always null
         private readonly ICache _cache;
         private readonly ILogger _logger;
@@ -26,6 +27,8 @@ namespace JabbR_Core.Hubs
         private readonly ApplicationSettings _settings;
         private readonly IJabbrRepository _repository;
         private readonly IRecentMessageCache _recentMessageCache;
+
+        private static readonly TimeSpan _disconnectThreshold = TimeSpan.FromSeconds(10);
 
         public Chat(
             IJabbrRepository repository,
@@ -64,6 +67,29 @@ namespace JabbR_Core.Hubs
 
             // Try to get the user from the client state
             ChatUser user = _repository.GetUserById(userId);
+
+            if (reconnecting)
+            {
+                // If the user was marked as offline then mark them inactive
+                if (user.Status == (int)UserStatus.Offline)
+                {
+                    user.Status = (int)UserStatus.Inactive;
+                    _repository.CommitChanges();
+                }
+
+                // Ensure the client is re-added
+                _chatService.AddClient(user, Context.ConnectionId, UserAgent);
+            }
+            else
+            {
+                // Update some user values
+                _chatService.UpdateActivity(user, Context.ConnectionId, UserAgent);
+                _repository.CommitChanges();
+            }
+
+            ClientState clientState = GetClientState();
+
+            OnUserInitialize(clientState, user, reconnecting); 
 
             // This function is being manually called here to establish
             // your identity to SignalR and update the UI to match. In 
@@ -610,9 +636,47 @@ namespace JabbR_Core.Hubs
             }
         }
 
-        private void DisconnectClient(string id)
+        private void DisconnectClient(string clientId, bool useThreshold = false)
         {
-            throw new NotImplementedException();
+            string userId = _chatService.DisconnectClient(clientId);
+
+            if (String.IsNullOrEmpty(userId))
+            {
+                _logger.Log("Failed to disconnect {0}. No user found", clientId);
+                return;
+            }
+
+            if (useThreshold)
+            {
+                Thread.Sleep(_disconnectThreshold);
+            }
+
+            // Query for the user to get the updated status
+            ChatUser user = _repository.GetUserById(userId);
+
+            // There's no associated user for this client id
+            if (user == null)
+            {
+                //_logger.Log("Failed to disconnect {0}:{1}. No user found", userId, clientId);
+                return;
+            }
+
+            _repository.Reload(user);
+
+            //_logger.Log("{0}:{1} disconnected", user.Name, Context.ConnectionId);
+
+            // The user will be marked as offline if all clients leave
+            if (user.Status == (int)UserStatus.Offline)
+            {
+                //_logger.Log("Marking {0} offline", user.Name);
+
+                foreach (var room in user.Rooms)
+                {
+                    var userViewModel = new UserViewModel(user);
+
+                    Clients.OthersInGroup(room.ChatRoomKeyNavigation.Name).leave(userViewModel, room.ChatRoomKeyNavigation.Name);
+                }
+            }
         }
 
         void INotificationService.ShowUserInfo(ChatUser user)
@@ -928,12 +992,24 @@ namespace JabbR_Core.Hubs
             base.Dispose(disposing);
         }
 
+        private void OnUserInitialize(ClientState clientState, ChatUser user, bool reconnecting)
+        {
+            // Update the active room on the client (only if it's still a valid room)
+            if (user.Rooms.Any(room => room.ChatRoomKeyNavigation.Name.Equals(clientState.ActiveRoom, StringComparison.OrdinalIgnoreCase)))
+            {
+                // Update the active room on the client (only if it's still a valid room)
+                Clients.Caller.activeRoom = clientState.ActiveRoom;
+            }
+
+            LogOn(user, Context.ConnectionId, reconnecting);
+        }
+
         private void LogOn(ChatUser user, string clientId, bool reconnecting)
         {
             if (!reconnecting)
             {
                 // Update the client state
-                //Clients.Caller.id = user.Id;
+                Clients.Caller.id = user.Id;
                 Clients.Caller.name = user.Name;
                 Clients.Caller.hash = user.Hash;
                 Clients.Caller.unreadNotifications = user.Notifications.Count(n => !n.Read);
@@ -966,7 +1042,6 @@ namespace JabbR_Core.Hubs
                 }
             }
 
-
             if (!reconnecting)
             {
                 foreach (var r in user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).ToList())
@@ -985,8 +1060,6 @@ namespace JabbR_Core.Hubs
                 Clients.Caller.logOn(rooms, privateRooms, user.Preferences);
             }
         }
-
-
     }
 
 }
