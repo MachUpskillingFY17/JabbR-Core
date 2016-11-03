@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
+using System.Net.Http;
+using Microsoft.AspNetCore.Identity;
+using JabbR_Core.Controllers;
 
 namespace JabbR_Core.Hubs
 {
@@ -626,11 +629,8 @@ namespace JabbR_Core.Hubs
             foreach (var client in clients)
             {
                 DisconnectClient(client.Id);
-                Clients.Client(client.Id).logOut();
+                Clients.Client(clientId).logOut();
             }
-
-            // Call account controller logoff here? 
-            // (looks like it is already being called in chat.js line 67)
         }
 
         private void DisconnectClient(string clientId, bool useThreshold = false)
