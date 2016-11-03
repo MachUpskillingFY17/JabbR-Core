@@ -510,6 +510,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.OnSelfMessage(ChatRoom room, ChatUser user, string content)
         {
+            Clients.Caller.sendMeMessage(user.Name, content, room.Name);
             Clients.Group(room.Name).sendMeMessage(user.Name, content, room.Name);
         }
 
