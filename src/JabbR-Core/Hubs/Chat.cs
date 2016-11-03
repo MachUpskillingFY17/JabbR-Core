@@ -18,7 +18,7 @@ using System.Threading;
 namespace JabbR_Core.Hubs
 {
     public class Chat : Hub, INotificationService
-    {   
+    {
         // Never assigned to, always null
         private readonly ICache _cache;
         private readonly ILogger _logger;
@@ -89,8 +89,6 @@ namespace JabbR_Core.Hubs
 
             ClientState clientState = GetClientState();
 
-            OnUserInitialize(clientState, user, reconnecting); 
-
             // This function is being manually called here to establish
             // your identity to SignalR and update the UI to match. In 
             // original JabbR it isn't called explicitly anywhere, so 
@@ -99,13 +97,14 @@ namespace JabbR_Core.Hubs
             //Delete this in the future (when auth is setup properly)
             Clients.Caller.userNameChanged(user);
 
+            // OnUserIntialize calls Clients.Caller.logOn so we don't need to call it here
+            OnUserInitialize(clientState, user, reconnecting);
             // Pass the list of rooms & owned rooms to the logOn function.
             //var rooms = _repository.Rooms.ToArray();
             //var myRooms = _repository.GetOwnedRooms(user).ToList();
-            List<ChatRoom> rooms = new List<ChatRoom>();
-            List<ChatRoom> myRooms = new List<ChatRoom>();
-
-            Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
+            //List<ChatRoom> rooms = new List<ChatRoom>();
+            //List<ChatRoom> myRooms = new List<ChatRoom>();
+            //Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
         }
 
         public List<LobbyRoomViewModel> GetRooms()
@@ -1009,10 +1008,10 @@ namespace JabbR_Core.Hubs
             if (!reconnecting)
             {
                 // Update the client state
-                Clients.Caller.id = user.Id;
-                Clients.Caller.name = user.Name;
-                Clients.Caller.hash = user.Hash;
-                Clients.Caller.unreadNotifications = user.Notifications.Count(n => !n.Read);
+                //Clients.Caller.id = user.Id;
+                //Clients.Caller.name = user.Name;
+                //Clients.Caller.hash = user.Hash;
+                //Clients.Caller.unreadNotifications = user.Notifications.Count(n => !n.Read);
             }
 
             var rooms = new List<RoomViewModel>();

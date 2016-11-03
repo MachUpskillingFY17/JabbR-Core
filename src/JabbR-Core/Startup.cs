@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Buffers;
+using Newtonsoft.Json;
 using JabbR_Core.Hubs;
 using JabbR_Core.Services;
 using JabbR_Core.Middleware;
@@ -16,6 +18,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using NWebsec.AspNetCore.Middleware;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -77,8 +80,13 @@ namespace JabbR_Core
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
             services.AddAuthorization();
+            var formatterSettings = new JsonSerializerSettingsProvider.CreateSerializerSettings();
+            formatterSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            var jsonOutputFormatter = new JsonOutputFormatter(formatterSettings, ArrayPool<Char>.Create());
             services.AddMvc(options =>
             {
+                options.OutputFormatters.RemoveType<JsonOutputFormatter>();
+                options.OutputFormatters.Insert(0, jsonOutputFormatter);
                 options.Filters.Add(new RequireHttpsAttribute());
             });
             services.AddSignalR();
@@ -149,21 +157,6 @@ namespace JabbR_Core
             //    CookieName = "jabbr.id"
             //});
             ////////////////////////////////////////////////////////////////
-
-            //if (env.IsDevelopment())
-            //{
-
-            //    app.UseCookieAuthentication(new CookieAuthenticationOptions()
-            //    {
-            //        AuthenticationScheme = Constants.JabbRAuthType,
-            //        LoginPath = new PathString("/Account/Unauthorized/"),
-            //        AccessDeniedPath = new PathString("/Account/Forbidden/"),
-            //        AutomaticAuthenticate = true,
-            //        AutomaticChallenge = true,
-            //        CookieName = "jabbr.id"
-            //    });
-            //    //app.UseFakeLogin();
-            //}
 
             if (env.IsDevelopment())
             {
