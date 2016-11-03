@@ -724,6 +724,7 @@ namespace JabbR_Core.Hubs
             // Tell all users in rooms to change the note
             foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
+                Clients.Caller.changeNote(userViewModel, room.Name);
                 Clients.Group(room.Name).changeNote(userViewModel, room.Name);
             }
         }
