@@ -98,14 +98,7 @@ namespace JabbR_Core.Hubs
             var userViewModel = new UserViewModel(user);
             Clients.Caller.userNameChanged(userViewModel);
 
-            // OnUserIntialize calls Clients.Caller.logOn so we don't need to call it here
             OnUserInitialize(clientState, user, reconnecting);
-            // Pass the list of rooms & owned rooms to the logOn function.
-            //var rooms = _repository.Rooms.ToArray();
-            //var myRooms = _repository.GetOwnedRooms(user).ToList();
-            //List<ChatRoom> rooms = new List<ChatRoom>();
-            //List<ChatRoom> myRooms = new List<ChatRoom>();
-            //Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
         }
 
         public List<LobbyRoomViewModel> GetRooms()
@@ -629,11 +622,15 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.LogOut(ChatUser user, string clientId)
         {
-            foreach (var client in user.ConnectedClients)
+            var clients = new List<ChatClient>(user.ConnectedClients);
+            foreach (var client in clients)
             {
                 DisconnectClient(client.Id);
                 Clients.Client(client.Id).logOut();
             }
+
+            // Call account controller logoff here? 
+            // (looks like it is already being called in chat.js line 67)
         }
 
         private void DisconnectClient(string clientId, bool useThreshold = false)
@@ -1006,6 +1003,10 @@ namespace JabbR_Core.Hubs
 
         private void LogOn(ChatUser user, string clientId, bool reconnecting)
         {
+            // When id, name, hash and unreadNotifications are uncommented we get this error
+            // 'Microsoft.AspNetCore.SignalR.Hubs.SignalProxy' does not contain a definition for 'name'
+            // When this is resolved we can get rid of the direct call to 
+            // Clients.Caller.usernamechanged() on line 99
             if (!reconnecting)
             {
                 // Update the client state
