@@ -80,13 +80,13 @@ namespace JabbR_Core
             //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
             services.AddAuthorization();
-            var formatterSettings = new JsonSerializerSettingsProvider.CreateSerializerSettings();
-            formatterSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            var jsonOutputFormatter = new JsonOutputFormatter(formatterSettings, ArrayPool<Char>.Create());
+            //var formatterSettings = new JsonSerializerSettingsProvider.CreateSerializerSettings();
+            //formatterSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //var jsonOutputFormatter = new JsonOutputFormatter(formatterSettings, ArrayPool<Char>.Create());
             services.AddMvc(options =>
             {
-                options.OutputFormatters.RemoveType<JsonOutputFormatter>();
-                options.OutputFormatters.Insert(0, jsonOutputFormatter);
+                //options.OutputFormatters.RemoveType<JsonOutputFormatter>();
+                //options.OutputFormatters.Insert(0, jsonOutputFormatter);
                 options.Filters.Add(new RequireHttpsAttribute());
             });
             services.AddSignalR();

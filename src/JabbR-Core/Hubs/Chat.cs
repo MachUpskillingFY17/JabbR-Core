@@ -95,7 +95,8 @@ namespace JabbR_Core.Hubs
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
             //Delete this in the future (when auth is setup properly)
-            Clients.Caller.userNameChanged(user);
+            var userViewModel = new UserViewModel(user);
+            Clients.Caller.userNameChanged(userViewModel);
 
             // OnUserIntialize calls Clients.Caller.logOn so we don't need to call it here
             OnUserInitialize(clientState, user, reconnecting);
