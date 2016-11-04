@@ -531,7 +531,7 @@ namespace JabbR_Core.Hubs
             string userId = Context.User.GetUserId();
 
             var userModel = new UserViewModel(user);
-
+            
             Clients.Caller.showUsersRoomList(userModel, user.Rooms.Select(r => r.ChatRoomKeyNavigation).Allowed(userId).Select(r => r.Name));
         }
 
