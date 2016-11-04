@@ -1,7 +1,6 @@
 ﻿@using JabbR_Core
 @using JabbR_Core.ViewModels
 
-<!--using PagedList-->
 @model NotificationsViewModel
 @{
     var notificationsViewModel = Model as NotificationsViewModel;
@@ -24,7 +23,38 @@
     <section id="page" role="application">
         <header id="heading" role="heading">
             <div class="banner" role="banner">
-                <h1>JabbR</h1>
+                <h1><a href="/">JabbR</a></h1>
+            </div>
+            <div id="main-menu" class="pull-right">
+                <div id="tabs-dropdown-container" role="tablist">
+                    <button class="dropdown-toggle" data-toggle="dropdown" id="tabs-dropdown-rooms">
+                        <i class="icon-chevron-down"></i>
+                    </button>
+
+                    <ul id="tabs-dropdown" class="dropdown-menu pull-right" aria-labelledby="tabs-dropdown-rooms"></ul>
+                </div>
+                <div id="connectionStatus" class="connection-status" data-toggle="popover" data-placement="bottom">
+                    <i class="icon-connection-status"></i>
+                    <div id="connection-info-popover" class="popover"><div class="arrow"></div><div class="popover-inner"><i class="popover-title-icon icon-globe" style="display: none;"></i><h3 class="popover-title" style="display: none;"></h3><div class="popover-content"><p></p></div></div></div>
+                    <div id="connection-info-content" style="display: none;"><p id="connection-status"></p><p id="connection-transport"></p></div>
+                    <div id="connection-state-changed-popover" class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title" style="display: none;"></h3><i id="popover-content-icon"></i><div class="popover-content"><p></p></div></div></div>
+                </div>
+                <div id="preferences" class="navbar account pull-right">
+                    <div class="navbar-inner">
+                        <ul class="nav">
+                            <li><a id="notifications" class="" title="@LanguageResources.Client_Notifications" href="@Url.Content("~/notifications")" target="_self"><i class="icon-comment"></i><span id="notification-unread-count" class="badge badge-info"></span></a></li>
+                            <li><a class="" title="@LanguageResources.Client_AccountSettings" href="@Url.Content("~/account")" target="_self"><i class="icon-user"></i></a></li>
+                            <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
+                            <li>
+                                <a id="logoutLink" class="logout" title="@LanguageResources.Client_SignOut">
+                                    <form style="height: 1px" asp-controller="Account" asp-action="Logoff" method="post" id="logoutForm">
+                                        <i class="icon-arrow-right"></i>
+                                    </form>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </header>
         <div class="container">
@@ -42,57 +72,30 @@
             </div>
             <div class="tabbable tabs-left">
                 <ul class="nav nav-tabs">
-                    <li class="active"> <!--class="atsign(!Model.ShowAll ? "active" : "")"-->
-                        <a href="#unreadNotifications" data-toggle="tab"> <!-- atsignUrl.Content("~/notifications")"-->
+                    <li class="active">
+                        <a href="#unreadNotifications" data-toggle="tab">
                             @Html.Raw(String.Format(LanguageResources.Notifications_UnreadWithCount, Model.UnreadCount))
                         </a>
                     </li>
-                    <li> <!--class="atsign(Model.ShowAll ? "active" : "")"-->
-                        <a href="#allNotifications" data-toggle="tab">@LanguageResources.Notifications_AllNotifications</a> <!--"atsignUrl.Content("~/notifications?all=true")-->
+                    <li>
+                        <a href="#allNotifications" data-toggle="tab">@LanguageResources.Notifications_AllNotifications</a>
                     </li>
                 </ul>
                 <div class="tab-content">
-                    <!--if (notificationsViewModel.Notifications.Count > 0)
-                    {
-                        <ul id="notifications-container" class="unstyled" data-mode="(Model.ShowAll ? "all" : "unread")">
-                            foreach (var notification in notificationsViewModel.Notifications)
-                            {
-                                <li data-notification-id="notification.NotificationKey" class="notification-item (!notification.Read ? "notification-unread" : "")">
-                                    if (!notification.Read)
-                                    {
-                                        <a href="#" title="LanguageResources.Notifications_MarkAsRead" class="pull-right js-mark-as-read" data-action-url="Url.Content("~/notifications/markasread")" data-notification-id="notification.NotificationKey">
-                                            <i class="icon-large icon-ok-circle"></i>
-                                        </a>
-                                    }
-                                    <blockquote>
-                                        <p class="(notification.HtmlEncoded ? "" : "linkify")">notification.Message</p>
-                                        <small>
-                                            <img class="gravatar" src="https://secure.gravatar.com/avatar/atnotification.FromUserImage?s=16&amp;d=mm" />
-                                            Html.Raw(String.Format(LanguageResources.Notifications_MetadataInfo,
-                                                                       /* Encoder.HtmlEncode(*/notification.FromUserName,//),
-                                                                                                                         /*Encoder.HtmlEncode(*/notification.RoomName,//),
-                                                                                                                                                                      /*Encoder.HtmlEncode(*/notification.WhenString))
-                                        </small>
-                                    </blockquote>
-                                </li>
-                            }
-                        </ul>
-                        <div id="notifications-pager">
-
-                         <!--   Html.(notificationsViewModel.Notifications, Model.ShowAll ? "?all=true&" : "?")
+                  <!-- if (notificationsViewModel.Notifications.Count > 0)
+                    {-->
+                        <div class="account-details tab-pane active" id="unreadNotifications">
+                            @Html.Partial("_unreadNotifications", notificationsViewModel)
                         </div>
-                    }
-                    if (notificationsViewModel.Notifications.Count == 0)
+                        <div class="account-details tab-pane hide" id="allNotifications">
+                            @Html.Partial("_allNotifications", notificationsViewModel)
+                        </div>
+                  <!--  }
+                    <!--if (notificationsViewModel.Notifications.Count == 0)
                     {
-                        <p id="no-notifications" class="well well-large">LanguageResources.Notifications_NoUnread</p>
-                    }
-                    <!--   <p id="no-notifications" class="well well-large" Html.DisplayNoneIf(model => model.Notifications.Count > 0)>LanguageResources.Notifications_NoUnread</p>-->
-                    <div class="account-details " id="unreadNotifications">
-                        @Html.Partial("_unreadNotifications", notificationsViewModel)
-                    </div>
-                    <div class="account-details tab-pane hide" id="allNotifications">
-                        <p id="no-notifications" class="well well-large">This is ehre all goes</p>
-                    </div>
+                        <p id="no-notifications" class="well well-large">@LanguageResources.Notifications_NoUnread</p>
+                    }-->
+
                 </div>
             </div>
         </div>
@@ -111,6 +114,7 @@
     <script type="text/javascript" src="~/Chat.emoji.js"></script>
     <script type="text/javascript" src="~/notifications.unreadcounter.js"></script>
     <script type="text/javascript" src="~/notifications.js"></script>
+    <script src="~/notificationtabs.js"></script>
 </body>
 
 </html>

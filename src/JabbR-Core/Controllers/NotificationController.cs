@@ -196,26 +196,61 @@ namespace JabbR_Core.Controllers
                 }
             }
 
-            return notificationsQuery.OrderByDescending(n => n.MessageKeyNavigation.When)
-                                     .Select(n => new NotificationViewModel()
-                                     {
-                                         NotificationKey = n.Key,
-                                         FromUserName = n.MessageKeyNavigation.UserKeyNavigation.Name,
-                                         FromUserImage = "Image", //n.Message.User.Hash,
-                                         Message = n.MessageKeyNavigation.Content,
-                                         HtmlEncoded = n.MessageKeyNavigation.HtmlEncoded,
-                                         RoomName = n.RoomKeyNavigation.Name,
-                                         Read = n.Read,
-                                         When = n.MessageKeyNavigation.When
-                                     })
-                                     .ToList();
+
+
+             return notificationsQuery.OrderByDescending(n => n.MessageKeyNavigation.When)
+                                      .Select(n => new NotificationViewModel()
+                                      {
+                                          NotificationKey = n.Key,
+                                          FromUserName = n.MessageKeyNavigation.UserKeyNavigation.Name,
+                                          FromUserImage = "Image", //n.Message.User.Hash,
+                                          Message = n.MessageKeyNavigation.Content,
+                                          HtmlEncoded = n.MessageKeyNavigation.HtmlEncoded,
+                                          RoomName = n.RoomKeyNavigation.Name,
+                                          Read = n.Read,
+                                          When = n.MessageKeyNavigation.When
+                                      })
+                                      .ToList();
+
+            //To test comment out the first return statement and uncomment the one below, so you have dummy notifications. For testing index
+            //You should just be seeing the difference between Unread Notifications and All Notifications Tab. No functionality in this branch
+
+         /*   var vm = new NotificationViewModel()
+            {
+                NotificationKey = 1,
+                FromUserName = "Jack",
+                FromUserImage = "Image",
+                Message = "This is the unread test message",
+                HtmlEncoded = true,
+                RoomName = "light-meow",
+                Read = false,
+                When = DateTimeOffset.Now
+            };
+
+            var vm2 = new NotificationViewModel()
+            {
+                NotificationKey = 2,
+                FromUserName = "Jack",
+                FromUserImage = "Image",
+                Message = "This is the read test message ",
+                HtmlEncoded = true,
+                RoomName = "light-meow",
+                Read = true,
+                When = DateTimeOffset.Now
+            };
+            List<NotificationViewModel> notifications = new List<NotificationViewModel>();
+
+            notifications.Add(vm);
+            notifications.Add(vm2);
+
+            return notifications;*/
         }
 
         private class NotificationRequestModel
         {
             public NotificationRequestModel()
             {
-                All = false;
+                All = true;
                 Page = 1;
                 Room = null;
             }

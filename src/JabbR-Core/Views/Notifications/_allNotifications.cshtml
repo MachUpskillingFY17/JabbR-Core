@@ -6,33 +6,32 @@
 }
 
 
-    <ul id="notifications-container" class="unstyled" data-mode="unread">
+    <ul id="notifications-container" class="unstyled" data-mode="all">
         @foreach (var notification in notificationsViewModel.Notifications)
         {
-            @if (!notification.Read) { 
             <li data-notification-id="@notification.NotificationKey" class="notification-item @(!notification.Read ? "notification-unread" : "")">
-                
+                @if (!notification.Read)
+                {
                     <a href="#" title="@LanguageResources.Notifications_MarkAsRead" class="pull-right js-mark-as-read" data-action-url="@Url.Content("~/notifications/markasread")" data-notification-id="@notification.NotificationKey">
                         <i class="icon-large icon-ok-circle"></i>
                     </a>
-                
+                }
                 <blockquote>
                     <p class="@(notification.HtmlEncoded ? "" : "linkify")">@notification.Message</p>
                     <small>
                         <img class="gravatar" src="https://secure.gravatar.com/avatar/@notification.FromUserImage?s=16&amp;d=mm" />
                         @Html.Raw(String.Format(LanguageResources.Notifications_MetadataInfo,
-                                                                    /* Encoder.HtmlEncode(*/notification.FromUserName,//),
-                                                                                                                      /*Encoder.HtmlEncode(*/notification.RoomName,//),
-                                                                                                                                                                   /*Encoder.HtmlEncode(*/notification.WhenString))
+                                                                       /* Encoder.HtmlEncode(*/notification.FromUserName,//),
+                                                                                                                         /*Encoder.HtmlEncode(*/notification.RoomName,//),
+                                                                                                                                                                      /*Encoder.HtmlEncode(*/notification.WhenString))
                     </small>
                 </blockquote>
             </li>
-            }
         }
+    </ul>
 
-        </ul>
 @if (notificationsViewModel.Notifications.Count == 0)
 {
-    <p id="no-notifications" class="well well-large">@LanguageResources.Notifications_NoUnread</p>
+    <p id="no-notifications" class="well well-large">You have no notifications!</p>
 }
 
