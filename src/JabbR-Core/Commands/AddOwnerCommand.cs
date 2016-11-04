@@ -33,6 +33,12 @@ namespace JabbR_Core.Commands
             context.NotificationService.AddOwner(targetUser, targetRoom);
 
             context.Repository.CommitChanges();
+            ChatRoomOwners toAdd = new ChatRoomOwners();
+            toAdd.ChatRoomKey = targetRoom.Key;
+            toAdd.ChatUserId = targetUser.Id;
+        
+            targetUser.OwnedRooms.Add(toAdd);
+
         }
     }
 }
