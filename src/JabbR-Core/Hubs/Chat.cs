@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Threading;
 using System.Diagnostics;
 using JabbR_Core.Services;
 using JabbR_Core.Commands;
@@ -13,10 +14,6 @@ using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
-using System.Threading;
-using System.Net.Http;
-using Microsoft.AspNetCore.Identity;
-using JabbR_Core.Controllers;
 
 namespace JabbR_Core.Hubs
 {
@@ -629,7 +626,7 @@ namespace JabbR_Core.Hubs
             foreach (var client in clients)
             {
                 DisconnectClient(client.Id);
-                Clients.Client(clientId).logOut();
+                Clients.Client(client.Id).logOut();
             }
         }
 
