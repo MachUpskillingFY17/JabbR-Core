@@ -517,6 +517,7 @@ namespace JabbR_Core.Hubs
         void INotificationService.SendPrivateMessage(ChatUser fromUser, ChatUser toUser, string messageText)
         {
             // Send a message to the sender and the sendee
+            Clients.Caller.sendPrivateMessage(fromUser.Name, toUser.Name, messageText);
             Clients.User(fromUser.Id).sendPrivateMessage(fromUser.Name, toUser.Name, messageText);
 
             Clients.User(toUser.Id).sendPrivateMessage(fromUser.Name, toUser.Name, messageText);
