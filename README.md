@@ -34,7 +34,7 @@ Alternatively, if you want to use [LocalDB, an alternative built in database](ht
 can run the same command as above, but with a simpler connection string like so
 
 ```bash
-$ dotnet user-secrets set "connectionString" "Server=(localdb)\mssqllocaldb;Database=aspnet-application;Trusted_Connection=True;MultipleActiveResultSets=true"
+$ dotnet user-secrets set "connectionString" "Server=(localdb)\mssqllocaldb;Database=JabbRCore;Trusted_Connection=True;MultipleActiveResultSets=true"
 ```
 
 Note that this command will double escape the back slash in the connection string for you, so you only need to enter one as shown above.
