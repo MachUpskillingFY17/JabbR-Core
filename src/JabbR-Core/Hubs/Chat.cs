@@ -74,8 +74,8 @@ namespace JabbR_Core.Hubs
             //Delete this in the future (when auth is setup properly)
 
             //todo remove
-            var viewModel = new UserViewModel(user);
-            Clients.Caller.userNameChanged(viewModel);
+            //var viewModel = new UserViewModel(user);
+            Clients.Caller.userNameChanged(user);
 
             // Pass the list of rooms & owned rooms to the logOn function.
             //var rooms = _repository.Rooms.ToArray();
