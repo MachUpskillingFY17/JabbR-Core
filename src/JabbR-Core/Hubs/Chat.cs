@@ -661,6 +661,7 @@ namespace JabbR_Core.Hubs
         void INotificationService.NudgeUser(ChatUser user, ChatUser targetUser)
         {
             //Clients.Caller(targetUser.Id).nudge(user.Name, targetUser.Name, null);
+            Clients.Caller.nudge(user.Name, targetUser.Name, null);
             // Send a nudge message to the sender and the sendee
             Clients.User(targetUser.Id).nudge(user.Name, targetUser.Name, null);
 
