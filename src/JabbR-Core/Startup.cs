@@ -56,25 +56,8 @@ namespace JabbR_Core
             // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
             // 
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
-            //string connection = _configuration["connectionString"];
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=True";
+            string connection = _configuration["connectionString"];
             services.AddDbContext<JabbrContext>(options => /*options.UseInMemoryDatabase()*/ options.UseSqlServer(connection));
-
-            //services.AddEntityFrameworkInMemoryDatabase();
-            //services.AddDbContext<JabbrContext>();
-
-            // To get around the typeload exception because of transactions as per EF team emails.
-            //services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
-            //services.AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<JabbrContext>((serviceProvider, options) =>
-            //    {
-            //        options
-            //        .UseInternalServiceProvider(serviceProvider)
-            //        .UseInMemoryDatabase();
-            //    });
-
-            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
-            //https://stormpath.com/blog/tutorial-entity-framework-core-in-memory-database-asp-net-core
 
             services.AddAuthorization();
             services.AddMvc(options =>
