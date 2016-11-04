@@ -71,7 +71,8 @@ namespace JabbR_Core.Hubs
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
             //Delete this in the future (when auth is setup properly)
-            Clients.Caller.userNameChanged(user);
+            var userVM = new UserViewModel(user);
+            Clients.Caller.userNameChanged(userVM);
 
             // Pass the list of rooms & owned rooms to the logOn function.
             //var rooms = _repository.Rooms.ToArray();
