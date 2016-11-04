@@ -670,6 +670,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.NudgeRoom(ChatRoom room, ChatUser user)
         {
+            Clients.Caller.nudge(user.Name, null, room.Name);
             Clients.Group(room.Name).nudge(user.Name, null, room.Name);
         }
 
