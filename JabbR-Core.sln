@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{575CF6F1-A57
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F9783D31-E74F-46CD-8C34-02B1DE58C670}"
 	ProjectSection(SolutionItems) = preProject
+		CreateBuilds.bat = CreateBuilds.bat
 		global.json = global.json
 		NuGet.config = NuGet.config
 	EndProjectSection
