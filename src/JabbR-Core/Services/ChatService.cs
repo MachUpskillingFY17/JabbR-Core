@@ -656,6 +656,7 @@ namespace JabbR_Core.Services
             {
                 Id = clientId,
                 UserKeyNavigation = user,
+                UserId = user.Id,
                 UserAgent = userAgent,
                 LastActivity = DateTimeOffset.UtcNow,
                 LastClientActivity = user.LastActivity

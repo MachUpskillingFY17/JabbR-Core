@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
+using JabbR_Core.Hubs;
 
 namespace JabbR_Core.Controllers
 {
@@ -30,6 +31,7 @@ namespace JabbR_Core.Controllers
 
         private readonly IJabbrRepository _repository;
         private readonly IEmailSender _emailSender;
+        private readonly IChatNotificationService _chatNotifications;
 
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
@@ -44,7 +46,8 @@ namespace JabbR_Core.Controllers
             IHttpContextAccessor context,
             IJabbrRepository repository,
             IOptions<ApplicationSettings> settings,
-            IEmailSender emailsender
+            IEmailSender emailsender,
+            IChatNotificationService chatNotifications
 
             // IOptions<ApplicationSettings> settings,
             // IMembershipService membershipService,
@@ -64,6 +67,7 @@ namespace JabbR_Core.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailsender;
+            _chatNotifications = chatNotifications;
         }
 
         [HttpGet]
@@ -379,7 +383,7 @@ namespace JabbR_Core.Controllers
                         user.NormalizedUserName = model.username.ToUpper();
                         _repository.CommitChanges();
 
-                        //_notificationService.OnUserNameChanged(user, oldUsername, model.username); 
+                        _chatNotifications.OnUserNameChanged(user, oldUsername, model.username); 
 
                         return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
                     }
