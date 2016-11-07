@@ -63,13 +63,7 @@
     }
 
     function performLogout() {
-        var d = $.Deferred();
-        $.post('account/logout', {}).done(function () {
-            d.resolveWith(null);
-            document.location = document.location.pathname;
-        });
-
-        return d.promise();
+        $("#logoutForm").submit();
     }
 
     function logout() {
@@ -991,9 +985,12 @@
 
     chat.client.showUsersRoomList = function (user, rooms) {
         if (rooms.length === 0) {
+            //TODO: get User.Status to not be passed in as null, hardcoding for now
+            user.Status = "Active";
             ui.addListToActiveRoom(utility.getLanguageResource('Chat_UserNotInRooms', user.Name, user.Status), []);
         }
         else {
+            user.Status = "Active";
             ui.addListToActiveRoom(utility.getLanguageResource('Chat_UserInRooms', user.Name, user.Status), [rooms.join(', ')]);
         }
     };
