@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Threading;
 using System.Diagnostics;
 using JabbR_Core.Services;
 using JabbR_Core.Commands;
@@ -26,6 +27,8 @@ namespace JabbR_Core.Hubs
         private readonly ApplicationSettings _settings;
         private readonly IJabbrRepository _repository;
         private readonly IRecentMessageCache _recentMessageCache;
+
+        private static readonly TimeSpan _disconnectThreshold = TimeSpan.FromSeconds(10);
 
         public Chat(
             IJabbrRepository repository,
@@ -65,22 +68,38 @@ namespace JabbR_Core.Hubs
             // Try to get the user from the client state
             ChatUser user = _repository.GetUserById(userId);
 
+            if (reconnecting)
+            {
+                // If the user was marked as offline then mark them inactive
+                if (user.Status == (int)UserStatus.Offline)
+                {
+                    user.Status = (int)UserStatus.Inactive;
+                    _repository.CommitChanges();
+                }
+
+                // Ensure the client is re-added
+                _chatService.AddClient(user, Context.ConnectionId, UserAgent);
+            }
+            else
+            {
+                // Update some user values
+                _chatService.UpdateActivity(user, Context.ConnectionId, UserAgent);
+                _repository.CommitChanges();
+            }
+
+            ClientState clientState = GetClientState();
+
             // This function is being manually called here to establish
             // your identity to SignalR and update the UI to match. In 
             // original JabbR it isn't called explicitly anywhere, so 
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
             //Delete this in the future (when auth is setup properly)
-            var userVM = new UserViewModel(user);
-            Clients.Caller.userNameChanged(userVM);
 
-            // Pass the list of rooms & owned rooms to the logOn function.
-            //var rooms = _repository.Rooms.ToArray();
-            //var myRooms = _repository.GetOwnedRooms(user).ToList();
-            List<ChatRoom> rooms = new List<ChatRoom>();
-            List<ChatRoom> myRooms = new List<ChatRoom>();
+            var userViewModel = new UserViewModel(user);
+            Clients.Caller.userNameChanged(userViewModel);
 
-            Clients.Caller.logOn(rooms, myRooms, new { TabOrder = new List<string>() });
+            OnUserInitialize(clientState, user, reconnecting);
         }
 
         public List<LobbyRoomViewModel> GetRooms()
@@ -511,6 +530,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.OnSelfMessage(ChatRoom room, ChatUser user, string content)
         {
+            Clients.Caller.sendMeMessage(user.Name, content, room.Name);
             Clients.Group(room.Name).sendMeMessage(user.Name, content, room.Name);
         }
 
@@ -532,7 +552,7 @@ namespace JabbR_Core.Hubs
             string userId = Context.User.GetUserId();
 
             var userModel = new UserViewModel(user);
-
+            
             Clients.Caller.showUsersRoomList(userModel, user.Rooms.Select(r => r.ChatRoomKeyNavigation).Allowed(userId).Select(r => r.Name));
         }
 
@@ -604,16 +624,55 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.LogOut(ChatUser user, string clientId)
         {
-            foreach (var client in user.ConnectedClients)
+            var clients = new List<ChatClient>(user.ConnectedClients);
+            foreach (var client in clients)
             {
                 DisconnectClient(client.Id);
                 Clients.Client(client.Id).logOut();
             }
         }
 
-        private void DisconnectClient(string id)
+        private void DisconnectClient(string clientId, bool useThreshold = false)
         {
-            throw new NotImplementedException();
+            string userId = _chatService.DisconnectClient(clientId);
+
+            if (String.IsNullOrEmpty(userId))
+            {
+                _logger.Log("Failed to disconnect {0}. No user found", clientId);
+                return;
+            }
+
+            if (useThreshold)
+            {
+                Thread.Sleep(_disconnectThreshold);
+            }
+
+            // Query for the user to get the updated status
+            ChatUser user = _repository.GetUserById(userId);
+
+            // There's no associated user for this client id
+            if (user == null)
+            {
+                //_logger.Log("Failed to disconnect {0}:{1}. No user found", userId, clientId);
+                return;
+            }
+
+            _repository.Reload(user);
+
+            //_logger.Log("{0}:{1} disconnected", user.Name, Context.ConnectionId);
+
+            // The user will be marked as offline if all clients leave
+            if (user.Status == (int)UserStatus.Offline)
+            {
+                //_logger.Log("Marking {0} offline", user.Name);
+
+                foreach (var room in user.Rooms)
+                {
+                    var userViewModel = new UserViewModel(user);
+
+                    Clients.OthersInGroup(room.ChatRoomKeyNavigation.Name).leave(userViewModel, room.ChatRoomKeyNavigation.Name);
+                }
+            }
         }
 
         void INotificationService.ShowUserInfo(ChatUser user)
@@ -748,6 +807,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.ChangeTopic(ChatUser user, ChatRoom room)
         {
+            Clients.Caller.topicChanged(room.Name, room.Topic ?? String.Empty, user.Name);
             Clients.Group(room.Name).topicChanged(room.Name, room.Topic ?? String.Empty, user.Name);
 
             // trigger a lobby update
@@ -828,6 +888,7 @@ namespace JabbR_Core.Hubs
             // notify all clients who can see the room
             if (!room.Private)
             {
+                Clients.Caller.updateRoom(roomViewModel);
                 Clients.All.updateRoom(roomViewModel);
             }
             else
@@ -929,15 +990,31 @@ namespace JabbR_Core.Hubs
             base.Dispose(disposing);
         }
 
+        private void OnUserInitialize(ClientState clientState, ChatUser user, bool reconnecting)
+        {
+            // Update the active room on the client (only if it's still a valid room)
+            if (user.Rooms.Any(room => room.ChatRoomKeyNavigation.Name.Equals(clientState.ActiveRoom, StringComparison.OrdinalIgnoreCase)))
+            {
+                // Update the active room on the client (only if it's still a valid room)
+                Clients.Caller.activeRoom = clientState.ActiveRoom;
+            }
+
+            LogOn(user, Context.ConnectionId, reconnecting);
+        }
+
         private void LogOn(ChatUser user, string clientId, bool reconnecting)
         {
+            // When id, name, hash and unreadNotifications are uncommented we get this error
+            // 'Microsoft.AspNetCore.SignalR.Hubs.SignalProxy' does not contain a definition for 'name'
+            // When this is resolved we can get rid of the direct call to 
+            // Clients.Caller.usernamechanged() on line 99
             if (!reconnecting)
             {
                 // Update the client state
                 //Clients.Caller.id = user.Id;
-                Clients.Caller.name = user.Name;
-                Clients.Caller.hash = user.Hash;
-                Clients.Caller.unreadNotifications = user.Notifications.Count(n => !n.Read);
+                //Clients.Caller.name = user.Name;
+                //Clients.Caller.hash = user.Hash;
+                //Clients.Caller.unreadNotifications = user.Notifications.Count(n => !n.Read);
             }
 
             var rooms = new List<RoomViewModel>();
@@ -967,7 +1044,6 @@ namespace JabbR_Core.Hubs
                 }
             }
 
-
             if (!reconnecting)
             {
                 foreach (var r in user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).ToList())
@@ -986,8 +1062,6 @@ namespace JabbR_Core.Hubs
                 Clients.Caller.logOn(rooms, privateRooms, user.Preferences);
             }
         }
-
-
     }
 
 }
