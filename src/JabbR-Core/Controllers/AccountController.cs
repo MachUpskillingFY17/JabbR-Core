@@ -1,576 +1,584 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+using System.Net;
 using System.Linq;
-using System.Security.Claims;
-using JabbR_Core.Infrastructure;
-using JabbR_Core.Data.Models;
-using JabbR_Core.Data.Repositories;
+using System.Text;
 using JabbR_Core.Services;
 using JabbR_Core.ViewModels;
+using System.Threading.Tasks;
+using JabbR_Core.Data.Models;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-//using JabbR_Core.Configuration;
+using Microsoft.AspNetCore.Http;
+using JabbR_Core.Infrastructure;
+using System.Collections.Generic;
+using JabbR_Core.Data.Repositories;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations;
 
 namespace JabbR_Core.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
+        // private IAuthenticationService _authService;
         private ApplicationSettings _settings;
-       // private IJabbrRepository _repository;
-       // private IAuthenticationService _authService;
         private IMembershipService _membershipService;
+
         private readonly IJabbrRepository _repository;
-        
-        public AccountController(//IOptions<ApplicationSettings> settings,
-                                  // IMembershipService membershipService,
-                                     IJabbrRepository repository
-                                  //      IAuthenticationService authService,
-                                  //   IChatNotificationService notificationService,
-                                  //   IUserAuthenticator authenticator,
-                                  //  IEmailService emailService
-                                  )
+        private readonly IEmailSender _emailSender;
+
+        private readonly UserManager<ChatUser> _userManager;
+        private readonly SignInManager<ChatUser> _signInManager;
+        Microsoft.AspNetCore.Http.HttpContext context;
+
+        private IHttpContextAccessor _context;
+
+        public AccountController(
+            UserManager<ChatUser> userManager,
+            SignInManager<ChatUser> signInManager,
+            ApplicationSettings applicationSettings,
+            IHttpContextAccessor context,
+            IJabbrRepository repository,
+            IOptions<ApplicationSettings> settings,
+            IEmailSender emailsender
+
+            // IOptions<ApplicationSettings> settings,
+            // IMembershipService membershipService,
+            // IAuthenticationService authService
+            // IChatNotificationService notificationService,
+            // IUserAuthenticator authenticator,
+            // IEmailService emailService
+            )
         {
             // _settings = settings.Value;
-            //    _authService = authService;
+            // _authService = authService;
             // _membershipService = membershipService;
 
+            _context = context;
+            _settings = applicationSettings;
             _repository = repository;
-        
-            
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _emailSender = emailsender;
         }
+
         [HttpGet]
-        public IActionResult Index()
-        {/*
-             if (!IsAuthenticated)
-             {
-                 return HttpStatusCode.Forbidden;
-             }*/
+        [AllowAnonymous]
+        public IActionResult Index(ManageMessageId? message = null, string otherMessages = "")
+        {
+            /*This is for the error messages to be on the page*/
+            ViewData["StatusMessage"] =
+              message == ManageMessageId.ChangeUsernameSuccess ? "Your username has been changed."
+               : message == ManageMessageId.Error ? "An error has occurred."
+               : message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+               : message == ManageMessageId.ChangePasswordFailure ? "Failure to change password."
+               : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
+               : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
+               : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
+               : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+               : message == ManageMessageId.ErrorChangeUsername ? "Your username was not changed. Please be sure you entered the correct information"
+               : message == ManageMessageId.WrongPassword ? "You entered the wrong password. Please try again"
+               : message == ManageMessageId.CustomMessage ? otherMessages
+               : "";
 
+            /*regular index code*/
+            if (!User.Identity.IsAuthenticated)
+            {
+                // return Forbidden view
+                Response.StatusCode = 403; // HttpStatusCode.Forbidden
+                //return this.Redirect("~/Account/Forbidden/");
+                return this.Redirect("~/Account/Login/");
 
-            ChatUser user = _repository.GetUserById("1");
+            }
 
+            // HttpContextAccessor DI works when Singelton (Scoped injects null)
+            var id = _context.HttpContext.User.GetUserId();
+            ChatUser user = _repository.GetUserById(id);
 
             return GetProfileView(user);
-
-           // return View();
         }
 
+        [AllowAnonymous]
+        public IActionResult Forbidden()
+        {
+            return View();
+        }
 
+        //
+        // GET: /Account/Login
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
-            /*  if (IsAuthenticated)
-              {
-                  return this.AsRedirectQueryStringOrDefault("~/");
-              }
-
-              return View("login"/*, GetLoginViewModel(applicationSettings, repository, authService));*/
-            return View("login");
+            // check if the user IsAuthenticated
+            if (User.Identity.IsAuthenticated)
+            {
+                // if so, no reason to login. Redirect to home page.
+                return this.Redirect("~/");
+            }
+            return View(GetLoginViewModel(_settings, _repository/*, authService*/));
         }
 
-
+        //
+        // POST: /Account/Login
         [HttpPost]
-        public IActionResult Login(string username, string password)
-        {/*
-            if (!HasValidCsrfTokenOrSecHeader)
-            {
-                return HttpStatusCode.Forbidden;
-            }
-
-            if (IsAuthenticated)
-            {
-                return this.AsRedirectQueryStringOrDefault("~/");
-            }
-
-            username = Request.Form.username; //IForm Validation is Nancy
-            password = Request.Form.password;*/
-
-            if (String.IsNullOrEmpty(username))
-            {
-                // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
-            }
-
-            if (String.IsNullOrEmpty(password))
-            {
-                // this.AddValidationError("password", LanguageResources.Authentication_PassRequired);
-            }
-
-            /* try
-             {
-                /* if (ModelValidationResult.IsValid)
-                 {
-                     IList<Claim> claims;
-                     if (authenticator.TryAuthenticateUser(username, password, out claims))
-                     {
-                         return this.SignIn(claims);
-                     }
-                 }
-             }
-             catch
-             {
-                 // Swallow the exception    
-             }
-
-             this.AddValidationError("_FORM", LanguageResources.Authentication_GenericFailure);
-
-             return View["login", GetLoginViewModel(applicationSettings, repository, authService)];*/
-            return View("login");
-        }
-
-        [HttpPost]
-        public IActionResult Logout()
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            /* if (!IsAuthenticated)
-             {
-                 return HttpStatusCode.Forbidden;
-             }
+            // check if the user IsAuthenticated
+            if (User.Identity.IsAuthenticated)
+            {
+                // if so, no reason to login. Redirect to home page.
+                return this.Redirect("~/");
+            }
 
-            var response=Response.AsJson(new { success = true });
+            if (ModelState.IsValid)
+            {
 
-            this.SignOut();
+                if (_settings.NewUserForceEmailConfirmation)
+                {
+                    var user = await _userManager.FindByNameAsync(model.Username);
+                    if (!await _userManager.IsEmailConfirmedAsync(user))
+                    {
+                        ModelState.AddModelError(null, "Email address has not been verified yet.");
+                        return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                    }
+                }
 
-            return response;*/
-            return Login();
+                // This doesn't count login failures towards account lockout
+                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                // 3rd paramater (isPersisted:) holds cookie after browser is closed
+                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
+                if (result.Succeeded)
+                {
+                        // user logged in
+                        // Redirect to home page - Lobby
+                        return this.Redirect("~/");
+                }
+                if (result.RequiresTwoFactor)
+                {
+                    // TODO: Future implemntation
+                    // return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                }
+                if (result.IsLockedOut)
+                {
+                    // user account locked out
+                    // TODO: Future implemtation of Lockout View
+                    // return View("Lockout");
+                    return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                }
+                else
+                {
+                    // If we got this far, something failed, redisplay form
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LogOff()
+        {
+            await _signInManager.SignOutAsync();
+
+            // redirect to AccountLogin since you are no longer authenticated
+            return this.Redirect("~/account/login");
         }
 
         [HttpGet]
-        public IActionResult Register()
+        [AllowAnonymous]
+        public IActionResult Register(string returnUrl = null)
         {
-            /*  if (IsAuthenticated)
-              {
-                  return this.AsRedirectQueryStringOrDefault("~/");
-              }*/
-
-            //  bool requirePassword = !Principal.Identity.IsAuthenticated; // found in JabbrModule
-
-            /* if (requirePassword &&
-                 !applicationSettings.AllowUserRegistration)
-             {
-                 return HttpStatusCode.NotFound;
-             }
-
-             ViewBag.requirePassword = requirePassword;*/ //ViewBag is a 
-
-            return View("register"); //why doesnt View(); work?
-        }
-
-        [HttpPost]
-        public IActionResult Create(string username, string email, string password, string confirmPassword)
-        {
-            /*  if (!HasValidCsrfTokenOrSecHeader)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
-
-              bool requirePassword = !Principal.Identity.IsAuthenticated;
-
-              if (requirePassword &&
-                  !applicationSettings.AllowUserRegistration)
-              {
-                  return HttpStatusCode.NotFound;
-              }
-
-              if (IsAuthenticated)
-              {
-                  return this.AsRedirectQueryStringOrDefault("~/");
-              }
-
-              ViewBag.requirePassword = requirePassword;
-
-              string username = Request.Form.username;
-              string email = Request.Form.email;
-              string password = Request.Form.password;
-              string confirmPassword = Request.Form.confirmPassword;*/
-
-            if (String.IsNullOrEmpty(username))
+            if (User.Identity.IsAuthenticated)
             {
-                // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
+                return Redirect("~/");
             }
 
-            if (String.IsNullOrEmpty(email))
+            if (!_settings.AllowUserRegistration)
             {
-                // this.AddValidationError("email", LanguageResources.Authentication_EmailRequired);
+                return View(HttpStatusCode.NotFound);
             }
 
-            /* try
-             {
-                 if (requirePassword)
-                 {
-                     ValidatePassword(password, confirmPassword);
-                 }
-
-                 if (ModelValidationResult.IsValid)
-                 {
-                     if (requirePassword)
-                     {
-                         ChatUser user = membershipService.AddUser(username, email, password);
-
-                         return this.SignIn(user);
-                     }
-                     else
-                     {
-                         // Add the required claims to this identity
-                         var identity = Principal.Identity as ClaimsIdentity;
-
-                         if (!Principal.HasClaim(ClaimTypes.Name))
-                         {
-                             identity.AddClaim(new Claim(ClaimTypes.Name, username));
-                         }
-
-                         if (!Principal.HasClaim(ClaimTypes.Email))
-                         {
-                             identity.AddClaim(new Claim(ClaimTypes.Email, email));
-                         }
-
-                         return this.SignIn(Principal.Claims);
-                     }
-                 }
-             }
-             catch (Exception ex)
-             {
-                 this.AddValidationError("_FORM", ex.Message);
-             }*/
+            ViewData["ReturnUrl"] = returnUrl;
 
             return View("register");
         }
 
-      /*[HttpPost]
-        public IActionResult Unlink()
-           {
-             /*  if (!HasValidCsrfTokenOrSecHeader)
-               {
-                   return HttpStatusCode.Forbidden;
-               }
-
-               if (!IsAuthenticated)
-               {
-                   return HttpStatusCode.Forbidden;
-               }
-
-               string provider = Request.Form.provider;
-               ChatUser user = repository.GetUserById(Principal.GetUserId());
-
-               if (user.Identities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
-               {
-                   Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
-                   return Response.AsRedirect("~/account/#identityProviders");
-               }
-
-               var identity = user.Identities.FirstOrDefault(i => i.ProviderName == provider);
-
-               if (identity != null)
-               {
-                   repository.Remove(identity);
-
-                   Request.AddAlertMessage("success", String.Format(LanguageResources.Account_UnlinkCompleted, provider));
-                   return Response.AsRedirect("~/account/#identityProviders");
-               }
-
-               return HttpStatusCode.BadRequest;
-           }*/
-
-
         [HttpPost]
-        public IActionResult NewPassword(string password, string confirmPassword)
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
-            /*  if (!HasValidCsrfTokenOrSecHeader)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
-
-              if (!IsAuthenticated)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
-
-              string password = Request.Form.password;
-              string confirmPassword = Request.Form.confirmPassword;*/
-
-            ValidatePassword(password, confirmPassword);
-
-            ChatUser user = _repository.GetUserById("1"); ;//Principal.GetUserId());
-
-            /* try
-             {
-                 if (ModelValidationResult.IsValid)
-                 {
-                     membershipService.SetUserPassword(user, password);
-                     repository.CommitChanges();
-                 }
-             }
-             catch (Exception ex)
-             {
-                 this.AddValidationError("_FORM", ex.Message);
-             }
-
-             if (ModelValidationResult.IsValid)
-             {
-                 Request.AddAlertMessage("success", LanguageResources.Authentication_PassAddSuccess);
-                 return Response.AsRedirect("~/account/#changePassword");
-             }*/
-
-            return GetProfileView(/*_authService,*/ user);
-        }
-
-        [HttpPost]
-        public IActionResult ChangePassword(string oldPassword, string password, string confirmPassword)
-        {/*
-                if (!HasValidCsrfTokenOrSecHeader)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                if (!applicationSettings.AllowUserRegistration)
-                {
-                    return HttpStatusCode.NotFound;
-                }
-
-                if (!IsAuthenticated)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                string oldPassword = Request.Form.oldPassword;
-                string password = Request.Form.password;
-                string confirmPassword = Request.Form.confirmPassword;*/
-
-            if (String.IsNullOrEmpty(oldPassword))
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
             {
-                //this.AddValidationError("oldPassword", LanguageResources.Authentication_OldPasswordRequired);
+
+                if (!_settings.AllowUserRegistration)
+                {
+                    return View(HttpStatusCode.NotFound);
+                }
+
+                if (User.Identity.IsAuthenticated)
+                {
+                    return Redirect("~/");
+                }
+
+                //try
+                //{
+                    var user = new ChatUser { Name = model.Name, UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddClaimsAsync(user, new List<Claim>() { new Claim(JabbRClaimTypes.Identifier, user.Id) });
+
+                        if (_settings.NewUserForceEmailConfirmation)
+                        {
+                            // Send an email with this link
+                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                            var callbackUrl = Url.Action("ConfirmEmail", "Account", new {userId = user.Id, code = code},
+                                protocol: HttpContext.Request.Scheme);
+                            await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                                $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                        }
+                        return RedirectToLocal(returnUrl);
+                    }
+                    AddErrors(result);
+               // }
+               //We DONT want to show exception details to the client.
+               // catch (Exception ex)
+               // {
+                 //   ModelState.AddModelError(string.Empty, ex.Message);
+                //}
             }
 
-            ValidatePassword(password, confirmPassword);
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
 
-            ChatUser user = _repository.GetUserById("1");
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult Unlink()
+        //{
+        //    if (!User.Identity.IsAuthenticated)
+        //    {
+        //        return View(HttpStatusCode.Forbidden);
+        //    }
 
-            /*   try
-               {
-                   if (ModelValidationResult.IsValid)
-                   {
-                       membershipService.ChangeUserPassword(user, oldPassword, password);
-                       repository.CommitChanges();
-                   }
-               }
-               catch (Exception ex)
-               {
-                   this.AddValidationError("_FORM", ex.Message);
-               }
+        //    string provider = Request.Form.provider;
+        //    ChatUser user = _repository.GetUserById(_context.HttpContext.User.GetUserId());
 
-               if (ModelValidationResult.IsValid)
-               {
-                   Request.AddAlertMessage("success", LanguageResources.Authentication_PassChangeSuccess);
-                   return Response.AsRedirect("~/account/#changePassword");
-               }*/
+        //    if (user.ChatUserIdentities.Count == 1 && !user.HasUserNameAndPasswordCredentials())
+        //    {
+        //        Request.AddAlertMessage("error", LanguageResources.Account_UnlinkRequiresMultipleIdentities);
+        //        return Redirect("~/account/#identityProviders");
+        //    }
 
-            return GetProfileView(/*_authService, */user);
+        //    var identity = user.ChatUserIdentities.FirstOrDefault(i => i.ProviderName == provider);
+
+        //    if (identity != null)
+        //    {
+        //        _repository.Remove(identity);
+
+        //        Request.AddAlertMessage("success", String.Format(LanguageResources.Account_UnlinkCompleted, provider));
+        //        return Redirect("~/account/#identityProviders");
+        //    }
+
+        //    return View(HttpStatusCode.BadRequest);
+        //}
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)//string oldPassword, string password, string confirmPassword)
+        {
+            // check if the user IsAuthenticated
+            if (!User.Identity.IsAuthenticated)
+            {
+                // Don't allow if not authenticated
+                return View(HttpStatusCode.Forbidden);
+
+            }
+            //Check if user filled out form corrrectly
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // HttpContextAccessor DI works when Singelton (Scoped injects null)
+                    var id = _context.HttpContext.User.GetUserId();
+                    ChatUser actualUser = _repository.GetUserById(id);
+
+                    //var actualUser = await _userManager.FindByNameAsync(User.Identity.Name);
+                    if (actualUser == null)
+                    {
+                        return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+                    }
+
+                    //string forceToken = await _userManager.GenerateChangeEmailTokenAsync(actualUser, null);
+                    var result = await _userManager.ChangePasswordAsync(actualUser, model.OldPassword, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        return new RedirectResult(Url.Action("Index", new { Message = ManageMessageId.ChangePasswordSuccess }) + "#changePassword");
+                    }
+                    AddErrors(result);
+                }
+                else
+                {
+                    return new RedirectResult(Url.Action("Index", new { Message = ManageMessageId.ChangePasswordFailure }) + "#changePassword");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+            }
+
+            //If we got this far something's wrong
+            return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });//, errors });
+
+            //ModelState.AddModelError(string.Empty, "Error changing password.");
+            //return GetProfileView(/*_authService, */user);
         }
 
         [HttpPost]
-        public IActionResult ChangeUsername(string username, string confirmUsername)
-        {/*
-                if (!HasValidCsrfTokenOrSecHeader)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeUsername(ChangeUsernameViewModel model)
+        {
+
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View(HttpStatusCode.Forbidden);
+            }
+
+            // HttpContextAccessor DI works when Singelton (Scoped injects null)
+            var id = _context.HttpContext.User.GetUserId();
+
+            ChatUser user = _repository.GetUserById(id);
+            string oldUsername = user.Name; //user.UserName
+
+            try
+            {
+                if (ModelState.IsValid)
                 {
-                    return HttpStatusCode.Forbidden;
+                    var result = await _signInManager.CheckPasswordSignInAsync(user, model.password, false);
+                    if (result.Succeeded)
+                    {
+                        user.UserName = model.username;
+                        user.Name = model.username;
+                        _repository.CommitChanges();
+
+                        //  _notificationService.OnUserNameChanged(user, oldUsername, model.username);
+
+                        return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
+                    }
+                    else
+                        return new RedirectResult(Url.Action("Index", new { Message = ManageMessageId.WrongPassword }) + "#changeUsername");
                 }
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+            }
 
-                if (!IsAuthenticated)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
+            return new RedirectResult(Url.Action("Index", new { Message = ManageMessageId.ErrorChangeUsername }) + "#changeUsername");
 
-                string username = Request.Form.username;
-                string confirmUsername = Request.Form.confirmUsername;
+        }
 
-                ValidateUsername(username, confirmUsername);*/
-
-            ChatUser user = _repository.GetUserById("1");
-            string oldUsername = user.Name;
-
-            /*  try
-              {
-                  if (ModelValidationResult.IsValid)
-                  {
-                      membershipService.ChangeUserName(user, username);
-                      repository.CommitChanges();
-                  }
-              }
-              catch (Exception ex)
-              {
-                  this.AddValidationError("_FORM", ex.Message);
-              }
-
-              if (ModelValidationResult.IsValid)
-              {
-                  notificationService.OnUserNameChanged(user, oldUsername, username);
-
-                  Request.AddAlertMessage("success", LanguageResources.Authentication_NameChangeCompleted);
-                  return Response.AsRedirect("~/account/#changeUsername");
-              }*/
-
-            return GetProfileView(/*_authService,*/ user);
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult ExternalLogin(string provider, string returnUrl = null)
+        {
+            // Request a redirect to the external login provider.
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
         }
 
         [HttpGet]
-        public IActionResult RequestResetPassword()
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
         {
-            /*  if (IsAuthenticated)
-              {
-                  return Response.AsRedirect("~/account/#changePassword");
-              }
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
+                return View(nameof(Login));
+            }
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
 
-              if (!Principal.Identity.IsAuthenticated &&
-                  !applicationSettings.AllowUserResetPassword ||
-                  string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
-              {
-                  return HttpStatusCode.NotFound;
-              }*/
+            // Sign in the user with this external login provider if the user already has a login.
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+            if (result.Succeeded)
+            {
+                return RedirectToLocal(returnUrl);
+            }
+            if (result.IsLockedOut)
+            {
+                return View("Lockout");
+            }
+            else
+            {
+                // If the user does not have an account, then ask the user to create an account.
+                ViewData["ReturnUrl"] = returnUrl;
+                ViewData["LoginProvider"] = info.LoginProvider;
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = email });
+            }
+        }
 
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl = null)
+        {
+            if (ModelState.IsValid)
+            {
+                // Get the information about the user from the external login provider
+                var info = await _signInManager.GetExternalLoginInfoAsync();
+                if (info == null)
+                {
+                    return View("ExternalLoginFailure");
+                }
+                var user = new ChatUser { Name = model.Name, UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
+                var result = await _userManager.CreateAsync(user);
+                if (result.Succeeded)
+                {
+                    result = await _userManager.AddLoginAsync(user, info);
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddClaimsAsync(user, new List<Claim>() { new Claim(JabbRClaimTypes.Identifier, user.Id) });
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return RedirectToLocal(returnUrl);
+                    }
+                }
+                AddErrors(result);
+            }
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View(model);
+        }
+
+        // GET: /Account/ConfirmEmail
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return View("Error");
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return View("Error");
+            }
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            return View(result.Succeeded ? "ConfirmEmail" : "Error");
+        }
+
+        // GET: /Account/ForgotPassword
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
             return View();
         }
 
+        //
+        // POST: /Account/ForgotPassword
         [HttpPost]
-        public IActionResult RequestResetPassword(string username)
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
-            /*  if (!HasValidCsrfTokenOrSecHeader)
-               {
-                   return HttpStatusCode.Forbidden;
-               }
-
-               if (IsAuthenticated)
-               {
-                   return Response.AsRedirect("~/account/#changePassword");
-               }
-
-               if (!Principal.Identity.IsAuthenticated &&
-                   !applicationSettings.AllowUserResetPassword ||
-                   string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
-               {
-                   return HttpStatusCode.NotFound;
-               }
-
-               string username = Request.Form.username;*/
-
-            if (String.IsNullOrEmpty(username))
+            if (ModelState.IsValid)
             {
-                // this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    return View("ForgotPasswordConfirmation");
+                }
+
+                // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
+                // Send an email with this link
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                await _emailSender.SendEmailAsync(model.Email, "Reset Password",
+                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+                return View("ForgotPasswordConfirmation");
             }
 
-            /*  try
-              {
-                  if (ModelValidationResult.IsValid)
-                  {
-                      ChatUser user = _repository.GetUserByName(username);
-
-                      if (user == null)
-                      {
-                          this.AddValidationError("username", String.Format(LanguageResources.Account_NoMatchingUser, username));
-                      }
-                      else if (String.IsNullOrWhiteSpace(user.Email))
-                      {
-                          this.AddValidationError("username", String.Format(LanguageResources.Account_NoEmailForUser, username));
-                      }
-                      else
-                      {
-                          membershipService.RequestResetPassword(user, _settings.RequestResetPasswordValidThroughInHours);
-                          repository.CommitChanges();
-
-                          emailService.SendRequestResetPassword(user, this.Request.Url.SiteBase + "/account/resetpassword/");
-
-                          return View["requestresetpasswordsuccess", username];
-                      }
-                  }
-              }
-              catch (Exception ex)
-              {
-                  this.AddValidationError("_FORM", ex.Message);
-              } */
-
-            return View("requestresetpasswordsuccess");
+            // If we got this far, something failed, redisplay form
+            return View(model);
         }
 
+        //
+        // GET: /Account/ForgotPasswordConfirmation
         [HttpGet]
-        public IActionResult ResetPassword(string id)
+        [AllowAnonymous]
+        public IActionResult ForgotPasswordConfirmation()
         {
-            /* if (!applicationSettings.AllowUserResetPassword ||
-                 string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
-             {
-                 return HttpStatusCode.NotFound;
-             }*/
-
-            string resetPasswordToken = id; //parameters.id;
-           // string userName = _membershipService.GetUserNameFromToken(resetPasswordToken);
-
-            // Is the token not valid, maybe some character change?
-            /* if (userName == null)
-             {
-                 return View["resetpassworderror", LanguageResources.Account_ResetInvalidToken];
-             }
-             else
-             {
-                 ChatUser user = repository.GetUserByRequestResetPasswordId(userName, resetPasswordToken);
-
-                 // Is the token expired?
-                 if (user == null)
-                 {
-                     return View["resetpassworderror", LanguageResources.Account_ResetExpiredToken];
-                 }
-                 else
-                 {
-                     return View["resetpassword", user.RequestPasswordResetId];
-                 }
-             }*/
-            return View("resetpassword");
+            return View();
         }
 
-        [HttpPost]
-        public IActionResult ResetPassword(string id, string password, string confirmPassword)
+        //
+        // GET: /Account/ResetPassword
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string code = null)
         {
-            /*  if (!HasValidCsrfTokenOrSecHeader)
-              {
-                  return HttpStatusCode.Forbidden;
-              }
+            return code == null ? View("Error") : View();
+        }
 
-              if (!applicationSettings.AllowUserResetPassword ||
-                  string.IsNullOrWhiteSpace(applicationSettings.EmailSender))
-              {
-                  return HttpStatusCode.NotFound;
-              }*/
+        //
+        // POST: /Account/ResetPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+            }
+            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
+            if (result.Succeeded)
+            {
+                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+            }
+            AddErrors(result);
+            return View();
+        }
 
-            string resetPasswordToken = id; // parameters.id;
-            string newPassword = password; // Request.Form.password;
-            string confirmNewPassword = confirmPassword; // Request.Form.confirmPassword;
-
-            ValidatePassword(newPassword, confirmNewPassword);
-
-            /*   try
-               {
-                   if (ModelValidationResult.IsValid)
-                   {
-                       string userName = membershipService.GetUserNameFromToken(resetPasswordToken);
-                       ChatUser user = repository.GetUserByRequestResetPasswordId(userName, resetPasswordToken);
-
-                       // Is the token expired?
-                       if (user == null)
-                       {
-                           return View["resetpassworderror", LanguageResources.Account_ResetExpiredToken];
-                       }
-                       else
-                       {
-                           membershipService.ResetUserPassword(user, newPassword);
-                           repository.CommitChanges();
-
-                           return View["resetpasswordsuccess"];
-                       }
-                   }
-               }
-               catch (Exception ex)
-
-                   this.AddValidationError("_FORM", ex.Message);
-               }*/
-
-            return View("resetpasswordsuccess");
+        //
+        // GET: /Account/ResetPasswordConfirmation
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
         }
 
         private void ValidatePassword(string password, string confirmPassword)
@@ -588,36 +596,86 @@ namespace JabbR_Core.Controllers
 
         private void ValidateUsername(string username, string confirmUsername)
         {
-            if (String.IsNullOrEmpty(username))
+            /*  if (String.IsNullOrEmpty(username))
+          {
+              this.AddValidationError("confirmUsername", LanguageResources.Authentication_NameNonMatching);
+          }*/
+
+            var changeUsername = new RegularExpressionAttribute(username);
+            if (!changeUsername.IsValid(confirmUsername)) //(String.IsNullOrEmpty(username))
             {
+                changeUsername.FormatErrorMessage(LanguageResources.Authentication_NameNonMatching);
+                // IsValid("usernam")
                 //this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
             }
-
-            if (!String.Equals(username, confirmUsername))
-            {
-                //this.AddValidationError("confirmUsername", LanguageResources.Authentication_NameNonMatching);
-            }
         }
-
 
         private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user)
         {
-            return View("index", new ProfilePageViewModel(user/*, authService.GetProviders()*/));
+            return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
         }
 
         private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
-                                                 IJabbrRepository repository
-                                                 /*IAuthenticationService authService*/)
+                                                 IJabbrRepository repository)
         {
             ChatUser user = null;
 
-            /*  if (IsAuthenticated)
-              {
-                  user = repository.GetUserById(Principal.GetUserId());
-              }*/
+            if (User.Identity.IsAuthenticated)
+            {
+                var id = _context.HttpContext.User.GetUserId();
+                user = _repository.GetUserById(id);
+            }
 
             var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
             return viewModel;
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+        }
+
+        private String AddErrors(IdentityResult result)
+        {
+            var sb = new StringBuilder();
+            foreach (var error in result.Errors)
+            {
+                //Need ModelState validation for the register page
+                ModelState.AddModelError(string.Empty, error.Description);
+
+                //As of now we're not using full views only partials for account controller, so 
+                //we'd lose modelstate on redirect to the Index view to show the errors, since we 
+                //have to return the Index view in order to see any of the partials like ChangePassword
+                sb.Append(error.Description);
+                sb.Append("<br />");
+            }
+
+            return sb.ToString();
+        }
+
+        public enum ManageMessageId
+        {
+            ChangeUsernameSuccess,
+            Error,
+            ChangePasswordSuccess,
+            ChangePasswordFailure,
+            SetPasswordSuccess,
+            SetTwoFactorSuccess,
+            AddPhoneSuccess,
+            RemovePhoneSuccess,
+            AddLoginSuccess,
+            RemoveLoginSuccess,
+            ErrorChangeUsername,
+            WrongPassword,
+            CustomMessage
+
         }
     }
 }

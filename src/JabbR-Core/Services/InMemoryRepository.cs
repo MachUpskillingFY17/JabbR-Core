@@ -36,7 +36,7 @@ namespace JabbR_Core.Services
         private readonly ICollection<ChatRoomOwners> _owner;
         private readonly ICollection<ChatRoomUsers> _userRooms;
         private readonly ICollection<ChatUserIdentity> _identities;
-
+            
         public InMemoryRepository(JabbrContext context)
         {
             /*AJS: UNCOMMENTED THIS AND COMMENTED OUT HARD CODING TO GET TESTS TO WORK*/
@@ -87,14 +87,14 @@ namespace JabbR_Core.Services
 
         public IQueryable<ChatUser> Users { get { return _users.AsQueryable(); } }
 
-        //public IQueryable<ChatClient> Clients { get { return _users.SelectMany(u => u.ConnectedClients).AsQueryable(); } }
-        public IQueryable<ChatClient> Clients
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IQueryable<ChatClient> Clients { get { return _users.SelectMany(u => u.ConnectedClients).AsQueryable(); } }
+        //public IQueryable<ChatClient> Clients
+        //{
+        //    get
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
         public IQueryable<Settings> Settings { get { return _settings.AsQueryable(); } }
 
         
@@ -163,7 +163,7 @@ namespace JabbR_Core.Services
         public void Remove(ChatClient client)
         {
             var user = _users.FirstOrDefault(u => client.UserKeyNavigation == u);
-            //user.ConnectedClients.Remove(client);
+            user.ConnectedClients.Remove(client);
         }
 
         public void Remove(ChatRoom room)
@@ -244,9 +244,29 @@ namespace JabbR_Core.Services
                 .AsQueryable();
         }
 
+        public IQueryable<ChatRoom> GetOwnedRooms(ChatUser user)
+        {
+            var rooms = _owner
+                .Where(r => r.ChatUserId == user.Id)
+                .Select(r => r.ChatRoomKeyNavigation)
+                .AsQueryable();
+
+            return rooms;
+        }
+
+        public IQueryable<ChatUser> GetRoomOwners(ChatRoom room)
+        {
+            var owners = _owner
+                .Where(r => r.ChatRoomKey == room.Key)
+                .Select(r => r.ChatUserKeyNavigation)
+                .AsQueryable();
+
+            return owners;
+        }
+
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
         {
-            return _notifications.Where(n => n.UserKey == user.Key).AsQueryable();
+            return _notifications.Where(n => n.UserId == user.Id).AsQueryable();
         }
 
         public IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room)
@@ -340,7 +360,7 @@ namespace JabbR_Core.Services
             var userRoom = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };

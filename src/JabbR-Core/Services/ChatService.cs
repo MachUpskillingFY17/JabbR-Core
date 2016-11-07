@@ -342,17 +342,17 @@ namespace JabbR_Core.Services
             var owner = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             }; 
 
             room.Owners.Add(owner);
-            user.OwnedRooms.Add(owner);
+            //user.OwnedRooms.Add(owner);
 
             // Update repositiory
             _repository.Add(room);
-            _repository.Add(owner);
+          //  _repository.Add(owner);
 
             //Debug.WriteLine(name);
             //Debug.WriteLine(user.Name);
@@ -373,7 +373,7 @@ namespace JabbR_Core.Services
                     ChatPrivateRoomUsers allowed = new ChatPrivateRoomUsers()
                     {
                         ChatRoomKey = room.Key,
-                        ChatUserKey = user.Key,
+                        ChatUserId = user.Id,
                         ChatRoomKeyNavigation = room,
                         ChatUserKeyNavigation = user
                     };
@@ -547,7 +547,7 @@ namespace JabbR_Core.Services
                 owner = new ChatRoomOwners()
                 {
                     ChatRoomKey = targetRoom.Key,
-                    ChatUserKey = targetUser.Key,
+                    ChatUserId = targetUser.Id,
                     ChatRoomKeyNavigation = targetRoom,
                     ChatUserKeyNavigation = targetUser
                 };
@@ -569,7 +569,7 @@ namespace JabbR_Core.Services
                     var allowed = new ChatPrivateRoomUsers()
                     {
                         ChatRoomKey = targetRoom.Key,
-                        ChatUserKey = targetUser.Key,
+                        ChatUserId = targetUser.Id,
                         ChatRoomKeyNavigation = targetRoom,
                         ChatUserKeyNavigation = targetUser
                     };
@@ -600,8 +600,8 @@ namespace JabbR_Core.Services
             }
 
             // Get the ChatRoomOwners relationships
-            var roomRelation = targetRoom.Owners.Where(r => (targetRoom.Key == r.ChatRoomKey) && (targetUser.Key == r.ChatUserKey)).ToList();
-            var userRelation = targetRoom.Owners.Where(r => (targetRoom.Key == r.ChatRoomKey) && (targetUser.Key == r.ChatUserKey)).ToList();
+            var roomRelation = targetRoom.Owners.Where(r => (targetRoom.Key == r.ChatRoomKey) && (targetUser.Id == r.ChatUserId)).ToList();
+            var userRelation = targetRoom.Owners.Where(r => (targetRoom.Key == r.ChatRoomKey) && (targetUser.Id == r.ChatUserId)).ToList();
 
             // Remove user as owner of room
             // We can use .First() becasue the ChatRoomKey and ChatUserKey combined will only return one unique value
@@ -647,7 +647,6 @@ namespace JabbR_Core.Services
         public ChatClient AddClient(ChatUser user, string clientId, string userAgent)
         {
             ChatClient client = _repository.GetClientById(clientId);
-            //var client = new ChatClient();
             if (client != null)
             {
                 return client;
@@ -779,7 +778,7 @@ namespace JabbR_Core.Services
                 userroomAllowed = new ChatPrivateRoomUsers()
                 {
                     ChatRoomKey = targetRoom.Key,
-                    ChatUserKey = targetUser.Key,
+                    ChatUserId = targetUser.Id,
                     ChatRoomKeyNavigation = targetRoom,
                     ChatUserKeyNavigation = targetUser
                 };
@@ -859,7 +858,7 @@ namespace JabbR_Core.Services
             var isAllowed = new ChatPrivateRoomUsers()
             {
                 ChatRoomKey = targetRoom.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = targetRoom,
                 ChatUserKeyNavigation = user
             };
@@ -880,7 +879,7 @@ namespace JabbR_Core.Services
                 var uIsAllowed = new ChatPrivateRoomUsers()
                 {
                     ChatRoomKey = targetRoom.Key,
-                    ChatUserKey = u.Key,
+                    ChatUserId = u.Id,
                     ChatRoomKeyNavigation = targetRoom,
                     ChatUserKeyNavigation = u
                 };

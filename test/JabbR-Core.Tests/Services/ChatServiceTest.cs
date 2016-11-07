@@ -207,7 +207,7 @@ namespace JabbR_Core.Tests.Services
             ChatPrivateRoomUsers cr = new ChatPrivateRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatUserKeyNavigation = user,
                 ChatRoomKeyNavigation = room
             };
@@ -313,7 +313,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -350,7 +350,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -387,7 +387,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -419,7 +419,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -427,7 +427,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -448,7 +448,7 @@ namespace JabbR_Core.Tests.Services
             var oldOwner = new ChatUser
             {
                 Name = "foo",
-                Key = 1
+                Id = "1"
             };
             _repository.Add(oldOwner);
 
@@ -463,14 +463,14 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room",
                 CreatorKeyNavigation = oldOwner,
-                CreatorKey = oldOwner.Key
+                CreatorId = oldOwner.Id
             };
 
             // Now that both the original owner and room have been created, add the owner relationship
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = oldOwner.Key,
+                ChatUserId = oldOwner.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = oldOwner
             };
@@ -512,14 +512,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = oldOwner.Key,
+                ChatUserId = oldOwner.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = oldOwner
             };
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = oldOwner.Key,
+                ChatUserId = oldOwner.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = oldOwner
             };
@@ -533,7 +533,7 @@ namespace JabbR_Core.Tests.Services
             ChatPrivateRoomUsers userAllowed = new ChatPrivateRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = newOwner.Key,
+                ChatUserId = newOwner.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = newOwner
             };
@@ -577,14 +577,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = oldOwner.Key,
+                ChatUserId = oldOwner.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = oldOwner
             };
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = oldOwner.Key,
+                ChatUserId = oldOwner.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = oldOwner
             };
@@ -631,7 +631,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
@@ -676,14 +676,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomUsers crtrgt = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = targetUser.Key,
+                ChatUserId = targetUser.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
@@ -723,14 +723,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = unspecialUser.Key,
+                ChatUserId = unspecialUser.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = unspecialUser
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -745,14 +745,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = unspecialUser.Key,
+                ChatUserId = unspecialUser.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = unspecialUser
             };
             ChatRoomOwners cro2 = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -794,14 +794,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -815,7 +815,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -850,14 +850,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -896,14 +896,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = targetUser.Key,
+                ChatUserId = targetUser.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
@@ -943,14 +943,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -989,28 +989,28 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = targetUser.Key,
+                ChatUserId = targetUser.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomOwners cro2 = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = targetUser.Key,
+                ChatUserId = targetUser.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
@@ -1056,28 +1056,28 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomOwners cro2 = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = targetUser.Key,
+                ChatUserId = targetUser.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = targetUser.Key,
+                ChatUserId = targetUser.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
@@ -1127,14 +1127,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
@@ -1177,21 +1177,21 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1240,21 +1240,21 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = creator.Key,
+                ChatUserId = creator.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = creator
             };
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = creator.Key,
+                ChatUserId = creator.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = creator
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
@@ -1302,7 +1302,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = owner.Key,
+                ChatUserId = owner.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = owner
             };
@@ -1310,14 +1310,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = owner.Key,
+                ChatUserId = owner.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = owner
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
@@ -1360,14 +1360,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
             ChatRoomUsers cr2 = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = otherAdmin.Key,
+                ChatUserId = otherAdmin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = otherAdmin
             };
@@ -1461,7 +1461,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1469,7 +1469,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1506,7 +1506,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1514,14 +1514,14 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
             ChatPrivateRoomUsers cra = new ChatPrivateRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1553,7 +1553,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1561,7 +1561,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1608,7 +1608,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = creator.Key,
+                ChatUserId = creator.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = creator
             };
@@ -1623,7 +1623,7 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomUsers ur = new ChatRoomUsers()
                 {
                     ChatRoomKey = room.Key,
-                    ChatUserKey = u.Key,
+                    ChatUserId = u.Id,
                     ChatRoomKeyNavigation = room,
                     ChatUserKeyNavigation = u
                 };
@@ -1636,7 +1636,7 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomUsers ur = new ChatRoomUsers()
                 {
                     ChatRoomKey = room.Key,
-                    ChatUserKey = u.Key,
+                    ChatUserId = u.Id,
                     ChatRoomKeyNavigation = room,
                     ChatUserKeyNavigation = u
                 };
@@ -1683,7 +1683,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
@@ -1724,7 +1724,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1732,7 +1732,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1766,7 +1766,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1802,7 +1802,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1810,7 +1810,7 @@ namespace JabbR_Core.Tests.Services
             ChatPrivateRoomUsers cra = new ChatPrivateRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user2.Key,
+                ChatUserId = user2.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user2
             };
@@ -1818,7 +1818,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1860,7 +1860,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1868,7 +1868,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = user.Key,
+                ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
@@ -1906,7 +1906,7 @@ namespace JabbR_Core.Tests.Services
             ChatRoomUsers cr = new ChatRoomUsers()
             {
                 ChatRoomKey = room.Key,
-                ChatUserKey = admin.Key,
+                ChatUserId = admin.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = admin
             };
@@ -2063,13 +2063,13 @@ namespace JabbR_Core.Tests.Services
             // Create two chat users and make one an admin
             var admin = new ChatUser
             {
-                Key = 1,
+                Id = "1",
                 Name = "foo",
                 IsAdmin = true
             };
             var user2 = new ChatUser
             {
-                Key = 2,
+                Id = "2",
                 Name = "foo2"
             };
             _repository.Add(admin);
@@ -2089,7 +2089,7 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatRoomKey = room.Key,
                 ChatUserKeyNavigation = admin,
-                ChatUserKey = admin.Key
+                ChatUserId = admin.Id
             };
             room.Users.Add(ur);
             admin.Rooms.Add(ur);

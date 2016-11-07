@@ -63,13 +63,7 @@
     }
 
     function performLogout() {
-        var d = $.Deferred();
-        $.post('account/logout', {}).done(function () {
-            d.resolveWith(null);
-            document.location = document.location.pathname;
-        });
-
-        return d.promise();
+        $("#logoutForm").submit();
     }
 
     function logout() {
@@ -344,7 +338,6 @@
             // get list of available commands
             chat.server.getCommands()
                 .done(function (commands) {
-                    console.log(commands);
                     ui.setCommands(commands);
                 });
 
