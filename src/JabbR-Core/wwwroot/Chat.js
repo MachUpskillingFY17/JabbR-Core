@@ -63,13 +63,7 @@
     }
 
     function performLogout() {
-        var d = $.Deferred();
-        $.post('account/logout', {}).done(function () {
-            d.resolveWith(null);
-            document.location = document.location.pathname;
-        });
-
-        return d.promise();
+        $("#logoutForm").submit();
     }
 
     function logout() {
