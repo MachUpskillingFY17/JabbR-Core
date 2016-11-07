@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using static JabbR_Core.Services.MessageServices;
 using JabbR_Core.Data.Logging;
 using Microsoft.AspNetCore.SignalR.Hubs;
+using JabbRCore.Data.InMemory;
 
 namespace JabbR_Core
 {
@@ -39,14 +40,14 @@ namespace JabbR_Core
 
             if (env.IsDevelopment())
             {
-               builder.AddUserSecrets();
+                builder.AddUserSecrets();
             }
 
             builder.AddEnvironmentVariables();
 
             _configuration = builder.Build();
         }
-       
+
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
@@ -56,34 +57,41 @@ namespace JabbR_Core
             //
             // Store the connection string using the CLI tool. Include your actual username and password
             // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-           
+
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
             //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=True";
             //If not running in Development (ie the env variable ASPNETCORE_ENVIRONMENT!=DEVELOPMENT) then the format to set at cmd line (on Windows)
             //set connectionString=Server=(localdb)\mssqllocaldb;Database=aspnet-application;Trusted_Connection=True;MultipleActiveResultSets=true
 
-            services.AddDbContext<JabbrContext>(options => /*options.UseInMemoryDatabase()*/ options.UseSqlServer(connection));
+            bool inMem = false;
 
-            //services.AddEntityFrameworkInMemoryDatabase();
-            //services.AddDbContext<JabbrContext>();
+            bool.TryParse(_configuration["ApplicationSettings:InMemoryDatabase"], out inMem);
+            if (!inMem)
+            {
+                services.AddDbContext<JabbrContext>(
+                    options => /*options.UseInMemoryDatabase()*/ options.UseSqlServer(connection));
+            }
+            else
+            {
+                //services.AddEntityFrameworkInMemoryDatabase();
+                //services.AddDbContext<JabbrContext>();
 
-            // To get around the typeload exception because of transactions as per EF team emails.
-            //services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
-            //services.AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<JabbrContext>((serviceProvider, options) =>
-            //    {
-            //        options
-            //        .UseInternalServiceProvider(serviceProvider)
-            //        .UseInMemoryDatabase();
-            //    });
-
-            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
+                // To get around the typeload exception because of transactions as per EF team emails.
+                services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
+                services.AddEntityFrameworkInMemoryDatabase()
+                    .AddDbContext<JabbrContext>((serviceProvider, options) =>
+                    {
+                        options
+                        .UseInternalServiceProvider(serviceProvider)
+                        .UseInMemoryDatabase();
+                    });
+            }
 
             services.AddAuthorization();
             services.AddMvc(options =>
             {
-              //  options.Filters.Add(new RequireHttpsAttribute());
+                //  options.Filters.Add(new RequireHttpsAttribute());
             });
             services.AddSignalR();
 
@@ -106,12 +114,12 @@ namespace JabbR_Core
                 settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
             });
 
-            // Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
             services.AddIdentity<ChatUser, IdentityRole>()
                 .AddEntityFrameworkStores<JabbrContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddTransient<IEmailSender, AuthMessageSender>();  
+            services.AddTransient<IEmailSender, AuthMessageSender>();
             services.Configure<AuthMessageSenderOptions>(_configuration);
 
             //SignalR currently doesn't use DI to resolve hubs. This will allow it.
@@ -119,7 +127,7 @@ namespace JabbR_Core
             // This code has no effects right now, Chat hubs aren't called via DI
             // in SignalR, so at the moment we can't control the same objects being 
             // passed to hubs and ChatService
-            services.AddTransient<Chat>(provider => 
+            services.AddTransient<Chat>(provider =>
             {
                 // This is never hit
                 var repository = provider.GetService<IJabbrRepository>();
@@ -138,11 +146,11 @@ namespace JabbR_Core
             app.UseHsts(options => options.MaxAge(days: 365));
 
             //TODO: AJS FIX UNSAFEEVAL AFTER INCLUDING ANGULAR JS 
-            app.UseCsp(options => 
+            app.UseCsp(options =>
             options.DefaultSources(s => s.Self())
                     .ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com", "code.jquery.com").UnsafeEval())
-                    .StyleSources(s=> s.Self().UnsafeInline())
-                    .ImageSources(s=> s.Self().CustomSources("secure.gravatar.com")));
+                    .StyleSources(s => s.Self().UnsafeInline())
+                    .ImageSources(s => s.Self().CustomSources("secure.gravatar.com")));
             app.UseXXssProtection(option => option.EnabledWithBlockMode());
             app.UseXfo(options => options.Deny());
             app.UseXContentTypeOptions();
