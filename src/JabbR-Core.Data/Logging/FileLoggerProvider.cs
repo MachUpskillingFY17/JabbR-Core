@@ -27,6 +27,8 @@ namespace JabbR_Core.Data.Logging
 
             public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
+                //Log to prevent issues with file currently being accessed with overlapping requests
+                //This slows things down but ensures proper serialization in text file.
                 lock (lockObject)
                 {
                     //File.AppendAllText(@"entityframework.log", formatter(state, exception));
