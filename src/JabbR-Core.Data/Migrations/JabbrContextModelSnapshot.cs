@@ -13,7 +13,7 @@ namespace JabbRCore.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .HasAnnotation("ProductVersion", "1.1.0-alpha1-22028")
+                .HasAnnotation("ProductVersion", "1.1.0-alpha1-22397")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("JabbR_Core.Data.Models.Attachment", b =>
@@ -27,7 +27,7 @@ namespace JabbRCore.Data.Migrations
 
                     b.Property<string>("Id");
 
-                    b.Property<int>("OwnerKey");
+                    b.Property<string>("OwnerId");
 
                     b.Property<int>("RoomKey");
 
@@ -42,7 +42,7 @@ namespace JabbRCore.Data.Migrations
                     b.HasKey("Key")
                         .HasName("PK_dbo.Attachments");
 
-                    b.HasIndex("OwnerKey")
+                    b.HasIndex("OwnerId")
                         .HasName("IX_OwnerKey");
 
                     b.HasIndex("RoomKey")
@@ -70,13 +70,13 @@ namespace JabbRCore.Data.Migrations
 
                     b.Property<string>("UserAgent");
 
-                    b.Property<int>("UserKey")
+                    b.Property<string>("UserId")
                         .HasColumnName("User_Key");
 
                     b.HasKey("Key")
                         .HasName("PK_ChatClients");
 
-                    b.HasIndex("UserKey");
+                    b.HasIndex("UserId");
 
                     b.ToTable("ChatClients");
                 });
@@ -107,7 +107,7 @@ namespace JabbRCore.Data.Migrations
 
                     b.Property<string>("Source");
 
-                    b.Property<int?>("UserKey")
+                    b.Property<string>("UserId")
                         .HasColumnName("User_Key");
 
                     b.Property<DateTimeOffset>("When");
@@ -117,7 +117,7 @@ namespace JabbRCore.Data.Migrations
 
                     b.HasIndex("RoomKey");
 
-                    b.HasIndex("UserKey");
+                    b.HasIndex("UserId");
 
                     b.ToTable("ChatMessages");
                 });
@@ -127,13 +127,13 @@ namespace JabbRCore.Data.Migrations
                     b.Property<int>("ChatRoomKey")
                         .HasColumnName("ChatRoom_Key");
 
-                    b.Property<int>("ChatUserKey")
+                    b.Property<string>("ChatUserId")
                         .HasColumnName("ChatUser_Key");
 
-                    b.HasKey("ChatRoomKey", "ChatUserKey")
+                    b.HasKey("ChatRoomKey", "ChatUserId")
                         .HasName("PK_ChatPrivateRoomUsers");
 
-                    b.HasIndex("ChatUserKey");
+                    b.HasIndex("ChatUserId");
 
                     b.ToTable("ChatPrivateRoomUsers");
                 });
@@ -147,7 +147,7 @@ namespace JabbRCore.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("0");
 
-                    b.Property<int?>("CreatorKey");
+                    b.Property<string>("CreatorId");
 
                     b.Property<string>("InviteCode")
                         .HasColumnType("nchar(6)");
@@ -157,22 +157,22 @@ namespace JabbRCore.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasAnnotation("MaxLength", 200);
+                        .HasMaxLength(200);
 
                     b.Property<bool>("Private")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("0");
 
                     b.Property<string>("Topic")
-                        .HasAnnotation("MaxLength", 80);
+                        .HasMaxLength(80);
 
                     b.Property<string>("Welcome")
-                        .HasAnnotation("MaxLength", 200);
+                        .HasMaxLength(200);
 
                     b.HasKey("Key")
                         .HasName("PK_ChatRooms");
 
-                    b.HasIndex("CreatorKey");
+                    b.HasIndex("CreatorId");
 
                     b.HasIndex("Name")
                         .IsUnique()
@@ -186,26 +186,26 @@ namespace JabbRCore.Data.Migrations
                     b.Property<int>("ChatRoomKey")
                         .HasColumnName("ChatRoom_Key");
 
-                    b.Property<int>("ChatUserKey")
+                    b.Property<string>("ChatUserId")
                         .HasColumnName("ChatUser_Key");
 
-                    b.HasKey("ChatRoomKey", "ChatUserKey")
+                    b.HasKey("ChatRoomKey", "ChatUserId")
                         .HasName("PK_ChatRoomOwners");
 
-                    b.HasIndex("ChatUserKey");
+                    b.HasIndex("ChatUserId");
 
                     b.ToTable("ChatRoomOwners");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatRoomUsers", b =>
                 {
-                    b.Property<int>("ChatUserKey")
+                    b.Property<string>("ChatUserId")
                         .HasColumnName("ChatUser_Key");
 
                     b.Property<int>("ChatRoomKey")
                         .HasColumnName("ChatRoom_Key");
 
-                    b.HasKey("ChatUserKey", "ChatRoomKey")
+                    b.HasKey("ChatUserId", "ChatRoomKey")
                         .HasName("PK_ChatRoomUsers");
 
                     b.HasIndex("ChatRoomKey");
@@ -215,24 +215,26 @@ namespace JabbRCore.Data.Migrations
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatUser", b =>
                 {
-                    b.Property<int>("Key")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("AfkNote")
-                        .HasAnnotation("MaxLength", 200);
+                    b.Property<int>("AccessFailedCount");
 
-                    b.Property<string>("Email");
+                    b.Property<string>("AfkNote")
+                        .HasMaxLength(200);
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256);
+
+                    b.Property<bool>("EmailConfirmed");
 
                     b.Property<string>("Flag")
-                        .HasAnnotation("MaxLength", 255);
+                        .HasMaxLength(255);
 
                     b.Property<string>("Hash");
-
-                    b.Property<string>("HashedPassword");
-
-                    b.Property<string>("Id")
-                        .IsRequired()
-                        .HasAnnotation("MaxLength", 200);
 
                     b.Property<string>("Identity");
 
@@ -254,10 +256,26 @@ namespace JabbRCore.Data.Migrations
                     b.Property<DateTime?>("LastNudged")
                         .HasColumnType("datetime");
 
+                    b.Property<bool>("LockoutEnabled");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd");
+
                     b.Property<string>("Name");
 
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256);
+
                     b.Property<string>("Note")
-                        .HasAnnotation("MaxLength", 200);
+                        .HasMaxLength(200);
+
+                    b.Property<string>("PasswordHash");
+
+                    b.Property<string>("PhoneNumber");
+
+                    b.Property<bool>("PhoneNumberConfirmed");
 
                     b.Property<string>("RawPreferences");
 
@@ -265,20 +283,28 @@ namespace JabbRCore.Data.Migrations
 
                     b.Property<DateTimeOffset?>("RequestPasswordResetValidThrough");
 
-                    b.Property<string>("Salt");
+                    b.Property<string>("SecurityStamp");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("0");
 
-                    b.HasKey("Key")
-                        .HasName("PK_ChatUsers");
+                    b.Property<bool>("TwoFactorEnabled");
 
-                    b.HasIndex("Id")
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id")
+                        .HasName("PK_Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("IX_Id");
+                        .HasName("UserNameIndex");
 
-                    b.ToTable("ChatUsers");
+                    b.ToTable("AspNetUsers");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatUserIdentity", b =>
@@ -292,12 +318,12 @@ namespace JabbRCore.Data.Migrations
 
                     b.Property<string>("ProviderName");
 
-                    b.Property<int>("UserKey");
+                    b.Property<string>("UserId");
 
                     b.HasKey("Key")
                         .HasName("PK_dbo.ChatUserIdentities");
 
-                    b.HasIndex("UserKey")
+                    b.HasIndex("UserId")
                         .HasName("IX_UserKey");
 
                     b.ToTable("ChatUserIdentities");
@@ -306,17 +332,17 @@ namespace JabbRCore.Data.Migrations
             modelBuilder.Entity("JabbR_Core.Data.Models.MigrationHistory", b =>
                 {
                     b.Property<string>("MigrationId")
-                        .HasAnnotation("MaxLength", 150);
+                        .HasMaxLength(150);
 
                     b.Property<string>("ContextKey")
-                        .HasAnnotation("MaxLength", 300);
+                        .HasMaxLength(300);
 
                     b.Property<byte[]>("Model")
                         .IsRequired();
 
                     b.Property<string>("ProductVersion")
                         .IsRequired()
-                        .HasAnnotation("MaxLength", 32);
+                        .HasMaxLength(32);
 
                     b.HasKey("MigrationId", "ContextKey")
                         .HasName("PK_dbo.__MigrationHistory");
@@ -335,7 +361,7 @@ namespace JabbRCore.Data.Migrations
 
                     b.Property<int>("RoomKey");
 
-                    b.Property<int>("UserKey");
+                    b.Property<string>("UserId");
 
                     b.HasKey("Key")
                         .HasName("PK_dbo.Notifications");
@@ -346,7 +372,7 @@ namespace JabbRCore.Data.Migrations
                     b.HasIndex("RoomKey")
                         .HasName("IX_RoomKey");
 
-                    b.HasIndex("UserKey")
+                    b.HasIndex("UserId")
                         .HasName("IX_UserKey");
 
                     b.ToTable("Notifications");
@@ -365,12 +391,118 @@ namespace JabbRCore.Data.Migrations
                     b.ToTable("Settings");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .HasName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ClaimType");
+
+                    b.Property<string>("ClaimValue");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ClaimType");
+
+                    b.Property<string>("ClaimValue");
+
+                    b.Property<string>("UserId")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider");
+
+                    b.Property<string>("ProviderKey");
+
+                    b.Property<string>("ProviderDisplayName");
+
+                    b.Property<string>("UserId")
+                        .IsRequired();
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId");
+
+                    b.Property<string>("RoleId");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId");
+
+                    b.Property<string>("LoginProvider");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("Value");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens");
+                });
+
             modelBuilder.Entity("JabbR_Core.Data.Models.Attachment", b =>
                 {
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "OwnerKeyNavigation")
                         .WithMany("Attachments")
-                        .HasForeignKey("OwnerKey")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("OwnerId")
+                        .HasConstraintName("FK_dbo.Attachments_dbo.ChatUsers_OwnerKey");
 
                     b.HasOne("JabbR_Core.Data.Models.ChatRoom", "RoomKeyNavigation")
                         .WithMany("Attachments")
@@ -382,7 +514,7 @@ namespace JabbRCore.Data.Migrations
                 {
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "UserKeyNavigation")
                         .WithMany("ConnectedClients")
-                        .HasForeignKey("UserKey");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatMessage", b =>
@@ -393,7 +525,7 @@ namespace JabbRCore.Data.Migrations
 
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "UserKeyNavigation")
                         .WithMany("ChatMessages")
-                        .HasForeignKey("UserKey");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatPrivateRoomUsers", b =>
@@ -404,14 +536,14 @@ namespace JabbRCore.Data.Migrations
 
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "ChatUserKeyNavigation")
                         .WithMany("AllowedRooms")
-                        .HasForeignKey("ChatUserKey");
+                        .HasForeignKey("ChatUserId");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatRoom", b =>
                 {
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "CreatorKeyNavigation")
                         .WithMany("ChatRooms")
-                        .HasForeignKey("CreatorKey");
+                        .HasForeignKey("CreatorId");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatRoomOwners", b =>
@@ -422,7 +554,7 @@ namespace JabbRCore.Data.Migrations
 
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "ChatUserKeyNavigation")
                         .WithMany("OwnedRooms")
-                        .HasForeignKey("ChatUserKey");
+                        .HasForeignKey("ChatUserId");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatRoomUsers", b =>
@@ -433,15 +565,15 @@ namespace JabbRCore.Data.Migrations
 
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "ChatUserKeyNavigation")
                         .WithMany("Rooms")
-                        .HasForeignKey("ChatUserKey");
+                        .HasForeignKey("ChatUserId");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.ChatUserIdentity", b =>
                 {
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "UserKeyNavigation")
                         .WithMany("ChatUserIdentities")
-                        .HasForeignKey("UserKey")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK_dbo.ChatUserIdentities_dbo.ChatUsers_UserKey");
                 });
 
             modelBuilder.Entity("JabbR_Core.Data.Models.Notification", b =>
@@ -460,8 +592,44 @@ namespace JabbRCore.Data.Migrations
 
                     b.HasOne("JabbR_Core.Data.Models.ChatUser", "UserKeyNavigation")
                         .WithMany("Notifications")
-                        .HasForeignKey("UserKey")
-                        .HasConstraintName("FK_dbo.Notifications_dbo.ChatUsers_UserKey")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK_dbo.Notifications_dbo.ChatUsers_UserKey");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole")
+                        .WithMany("Claims")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("JabbR_Core.Data.Models.ChatUser")
+                        .WithMany("Claims")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("JabbR_Core.Data.Models.ChatUser")
+                        .WithMany("Logins")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("JabbR_Core.Data.Models.ChatUser")
+                        .WithMany("Roles")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
         }

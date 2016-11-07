@@ -15,7 +15,7 @@ namespace JabbR_Core.Data.Models
         public string Id { get; set; }
         public DateTimeOffset When { get; set; }
         public int? RoomKey { get; set; }
-        public int? UserKey { get; set; }
+        public string UserId { get; set; }
         public bool HtmlEncoded { get; set; }
         public string HtmlContent { get; set; }
         public string ImageUrl { get; set; }

@@ -59,13 +59,16 @@
             <script src="~/lib/jquery/jquery-2.2.4.min.js"></script>
         </environment>
     <environment names="Staging,Production">
-        <script src="https://code.jquery.com/jquery-2.2.4.min.js"  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"
-                asp-fallback-src="~/lib/jquery/jquery-2.2.4.min.js"
-                asp-fallback-test="window.jQuery">
-        </script>
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     </environment>
 
-    <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.0.3.js"></script>
+    <environment names="Development">
+        <script src="~/scripts/jquery.signalR-2.2.1.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.2.1.js" crossorigin="anonymous"></script>
+        </script>
+    </environment>
     <script src="signalr/hubs"></script>
 
 
@@ -125,7 +128,12 @@
                                 <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_self"><i class="icon-cog"></i></a></li>
                             }
                             <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
-                            <li><a class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-arrow-right"></i></a></li>
+                            <li><a id="logoutLink" class="logout" title="@LanguageResources.Client_SignOut">
+                                    <form asp-controller="Account" asp-action="Logoff" method="post" id="logoutForm">
+                                        <i class="icon-arrow-right"></i>
+                                    </form>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -343,6 +351,7 @@
     <script type="text/javascript" src="~/Chat.githubissues.js" ></script>
     <script type="text/javascript" src="~/Chat.js" ></script>
     <script type="text/javascript" src="~/loader.js" ></script>
+    <script type="text/javascript" src="~/Scripts/home.js"></script>
     @if (Model.DebugMode)
     {
     @*<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.network.mock.js")"></script>*@

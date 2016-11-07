@@ -18,12 +18,19 @@ namespace JabbR_Core
             var config = new ConfigurationBuilder().AddCommandLine(args).Build();
 
             var host = new WebHostBuilder()
-                .UseKestrel()
+                //.UseKestrel()
+                 .UseKestrel(options =>
+                 {
+                     // options.ThreadCount = 4;
+                     options.NoDelay = true;
+                     options.UseHttps("testCert.pfx", "testPassword");
+                     options.UseConnectionLogging();
+                 })
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
-               // .UseUrls("http://*:5000")
-               // .UseConfiguration(config)
+                .UseUrls("http://*:5000", "https://*:5001")
+                .UseConfiguration(config)
                 .Build();
 
             host.Run();

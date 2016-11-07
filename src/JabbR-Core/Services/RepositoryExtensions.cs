@@ -26,10 +26,10 @@ namespace JabbR_Core.Services
 
         public static IEnumerable<ChatRoom> Allowed(this IEnumerable<ChatRoom> rooms, string userId)
         {
-            return from r in rooms
+            return (from r in rooms
                    where !r.Private ||
                          r.Private && r.AllowedUsers.Any(u => u.ChatUserKeyNavigation.Id == userId)
-                   select r;
+                   select r).ToList();
         }
 
         public static ChatRoom VerifyUserRoom(this IJabbrRepository repository, ICache cache, ChatUser user, string roomName)
@@ -109,7 +109,8 @@ namespace JabbR_Core.Services
 
         public static ChatUser VerifyUser(this IJabbrRepository repository, string userName)
         {
-            userName = MembershipService.NormalizeUserName(userName);
+            // MembershipService is getting replaced by identity so this test is no longer working
+            //userName = MembershipService.NormalizeUserName(userName);
 
             ChatUser user = repository.GetUserByName(userName);
 
@@ -138,8 +139,8 @@ namespace JabbR_Core.Services
 
         public static IList<string> GetAllowedClientIds(this IJabbrRepository repository, ChatRoom room)
         {
-            int[] allowedUserKeys = room.AllowedUsers.Select(u => u.ChatUserKey).ToArray();
-            return repository.Clients.Where(c => allowedUserKeys.Contains(c.UserKey)).Select(c => c.Id).ToList();
+            string[] allowedUserKeys = room.AllowedUsers.Select(u => u.ChatUserId).ToArray();
+            return repository.Clients.Where(c => allowedUserKeys.Contains(c.UserId)).Select(c => c.Id).ToList();
         }
     }
 }
