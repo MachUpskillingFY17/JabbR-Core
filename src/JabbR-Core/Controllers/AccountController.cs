@@ -376,9 +376,10 @@ namespace JabbR_Core.Controllers
                     {
                         user.UserName = model.username;
                         user.Name = model.username;
+                        user.NormalizedUserName = model.username.ToUpper();
                         _repository.CommitChanges();
 
-                        //  _notificationService.OnUserNameChanged(user, oldUsername, model.username);
+                        //_notificationService.OnUserNameChanged(user, oldUsername, model.username); 
 
                         return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangeUsernameSuccess });
                     }
