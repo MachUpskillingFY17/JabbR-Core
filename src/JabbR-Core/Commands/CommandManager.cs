@@ -180,12 +180,11 @@ namespace JabbR_Core.Commands
 
         public static IList<ICommand> GetCommands()
         {
-
            IEnumerable<ICommand> commandsList = typeof(CommandManager).GetTypeInfo().Assembly.GetExportedTypes()
                 .Where(o => o.GetTypeInfo().IsSubclassOf(typeof(UserCommand)))
                 .Select(t => (ICommand)Activator.CreateInstance(t));
-            return commandsList.ToList();
 
+            return commandsList.ToList();
         }
 
         public static IEnumerable<CommandMetaData> GetCommandsMetaData()
