@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using static JabbR_Core.Services.MessageServices;
 using JabbR_Core.Data.Logging;
 using Microsoft.AspNetCore.SignalR.Hubs;
+using JabbR_Core.ContentProviders.Core;
 
 namespace JabbR_Core
 {
@@ -96,6 +97,7 @@ namespace JabbR_Core
             services.AddScoped<ApplicationSettings>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
+            services.AddScoped<IResourceProcessor, ResourceProcessor>();
             //services.AddScoped<IMembershipService, MembershipService>();
 
             // Establish default settings from appsettings.json

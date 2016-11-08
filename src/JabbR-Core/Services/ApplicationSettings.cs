@@ -69,7 +69,7 @@ namespace JabbR_Core.Services
 
         public string EmailSender { get; set; }
 
-        //public List<ContentProviderSetting> ContentProviders { get; set; }
+        public List<ContentProviderSetting> ContentProviders { get; set; }
 
         public HashSet<string> DisabledContentProviders { get; set; }
 
@@ -109,7 +109,7 @@ namespace JabbR_Core.Services
                 AllowUserResetPassword = false,
                 RequestResetPasswordValidThroughInHours = 6,
                 EmailSender = String.Empty,
-                //ContentProviders = ContentProviderSetting.GetDefaultContentProviders()
+                ContentProviders = ContentProviderSetting.GetDefaultContentProviders()
             };
         }
 
