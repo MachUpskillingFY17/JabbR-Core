@@ -647,7 +647,6 @@ namespace JabbR_Core.Services
         public ChatClient AddClient(ChatUser user, string clientId, string userAgent)
         {
             ChatClient client = _repository.GetClientById(clientId);
-            //var client = new ChatClient();
             if (client != null)
             {
                 return client;
