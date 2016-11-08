@@ -59,13 +59,16 @@
             <script src="~/lib/jquery/jquery-2.2.4.min.js"></script>
         </environment>
     <environment names="Staging,Production">
-        <script src="https://code.jquery.com/jquery-2.2.4.min.js"  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"
-                asp-fallback-src="~/lib/jquery/jquery-2.2.4.min.js"
-                asp-fallback-test="window.jQuery">
-        </script>
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     </environment>
 
-    <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.0.3.js"></script>
+    <environment names="Development">
+        <script src="~/scripts/jquery.signalR-2.2.1.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.2.1.js" crossorigin="anonymous"></script>
+        </script>
+    </environment>
     <script src="signalr/hubs"></script>
 
 

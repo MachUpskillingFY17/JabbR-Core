@@ -26,10 +26,10 @@ namespace JabbR_Core.Services
 
         public static IEnumerable<ChatRoom> Allowed(this IEnumerable<ChatRoom> rooms, string userId)
         {
-            return from r in rooms
+            return (from r in rooms
                    where !r.Private ||
                          r.Private && r.AllowedUsers.Any(u => u.ChatUserKeyNavigation.Id == userId)
-                   select r;
+                   select r).ToList();
         }
 
         public static ChatRoom VerifyUserRoom(this IJabbrRepository repository, ICache cache, ChatUser user, string roomName)

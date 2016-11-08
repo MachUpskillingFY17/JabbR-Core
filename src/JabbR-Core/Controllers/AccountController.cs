@@ -139,15 +139,26 @@ namespace JabbR_Core.Controllers
 
             if (ModelState.IsValid)
             {
+
+                if (_settings.NewUserForceEmailConfirmation)
+                {
+                    var user = await _userManager.FindByNameAsync(model.Username);
+                    if (!await _userManager.IsEmailConfirmedAsync(user))
+                    {
+                        ModelState.AddModelError(null, "Email address has not been verified yet.");
+                        return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                    }
+                }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 // 3rd paramater (isPersisted:) holds cookie after browser is closed
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    // user logged in
-                    // Redirect to home page - Lobby
-                    return this.Redirect("~/");
+                        // user logged in
+                        // Redirect to home page - Lobby
+                        return this.Redirect("~/");
                 }
                 if (result.RequiresTwoFactor)
                 {
@@ -157,7 +168,7 @@ namespace JabbR_Core.Controllers
                 if (result.IsLockedOut)
                 {
                     // user account locked out
-                    // TODO: Fiture implemtation of Lockout View
+                    // TODO: Future implemtation of Lockout View
                     // return View("Lockout");
                     return View(GetLoginViewModel(_settings, _repository/*, authService*/));
                 }
@@ -221,27 +232,36 @@ namespace JabbR_Core.Controllers
                     return Redirect("~/");
                 }
 
-                try
-                {
+                //try
+                //{
                     var user = new ChatUser { Name = model.Name, UserName = model.Name, Email = model.Email, LastActivity = DateTime.UtcNow };
                     var result = await _userManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
                         await _userManager.AddClaimsAsync(user, new List<Claim>() { new Claim(JabbRClaimTypes.Identifier, user.Id) });
-                        // Send an email with this link
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                        await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                            $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+
+                        if (_settings.NewUserForceEmailConfirmation)
+                        {
+                            // Send an email with this link
+                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                            var callbackUrl = Url.Action("ConfirmEmail", "Account", new {userId = user.Id, code = code},
+                                protocol: HttpContext.Request.Scheme);
+                            await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                                $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                        }
                         return RedirectToLocal(returnUrl);
                     }
                     AddErrors(result);
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
+               // }
+               //We DONT want to show exception details to the client.
+               // catch (Exception ex)
+               // {
+                 //   ModelState.AddModelError(string.Empty, ex.Message);
+                //}
             }
 
             // If we got this far, something failed, redisplay form

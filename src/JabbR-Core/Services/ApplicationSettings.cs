@@ -73,6 +73,8 @@ namespace JabbR_Core.Services
 
         public HashSet<string> DisabledContentProviders { get; set; }
 
+        public bool NewUserForceEmailConfirmation { get; set; }
+
         public static bool TryValidateSettings(ApplicationSettings settings, out IDictionary<string, string> errors)
         {
             errors = new Dictionary<string, string>();
