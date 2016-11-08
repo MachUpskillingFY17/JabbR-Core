@@ -14,6 +14,7 @@ using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using JabbR_Core.ContentProviders.Core;
 
 namespace JabbR_Core.Hubs
 {
@@ -27,6 +28,7 @@ namespace JabbR_Core.Hubs
         private readonly ApplicationSettings _settings;
         private readonly IJabbrRepository _repository;
         private readonly IRecentMessageCache _recentMessageCache;
+        private readonly ContentProviderProcessor _providerProcessor;
 
         private static readonly TimeSpan _disconnectThreshold = TimeSpan.FromSeconds(10);
 
@@ -34,13 +36,15 @@ namespace JabbR_Core.Hubs
             IJabbrRepository repository,
             IOptions<ApplicationSettings> settings,
             IRecentMessageCache recentMessageCache,
-            IChatService chatService)
+            IChatService chatService,
+            ContentProviderProcessor providerProcessor)
         {
             // Request the injected object instances
             _repository = repository;
             _chatService = chatService;
             _recentMessageCache = recentMessageCache;
             _settings = settings.Value;
+            _providerProcessor = providerProcessor;
         }
 
         private string UserAgent
@@ -281,13 +285,13 @@ namespace JabbR_Core.Hubs
             }
 
             // Add mentions
-            //AddMentions(chatMessage);
+            AddMentions(chatMessage); 
 
-            //var urls = UrlExtractor.ExtractUrls(chatMessage.Content);
-            //if (urls.Count > 0)
-            //{
-            //    _resourceProcessor.ProcessUrls(urls, Clients, room.Name, chatMessage.Id);
-            //}
+            var urls = UrlExtractor.ExtractUrls(chatMessage.Content);
+            if (urls.Count > 0)
+            {
+                _providerProcessor.ProcessUrls(urls, Clients, room.Name, chatMessage.Id);
+            }
 
             return true;
         }
@@ -1061,6 +1065,60 @@ namespace JabbR_Core.Hubs
                 // Initialize the chat with the rooms the user is in
                 Clients.Caller.logOn(rooms, privateRooms, user.Preferences);
             }
+        }
+
+        private void AddMentions(ChatMessage message)
+        {
+            var mentionedUsers = new List<ChatUser>();
+            foreach (var userName in MentionExtractor.ExtractMentions(message.Content))
+            {
+                ChatUser mentionedUser = _repository.GetUserByName(userName);
+
+                // Don't create a mention if
+                // 1. If the mentioned user doesn't exist.
+                // 2. If you mention yourself
+                // 3. If you're mentioned in a private room that you don't have access to
+                // 4. You've already been mentioned in this message
+                if (mentionedUser == null ||
+                    mentionedUser == message.UserKeyNavigation ||
+                    (message.RoomKeyNavigation.Private && !mentionedUser.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).ToList().Contains(message.RoomKeyNavigation)) ||
+                    mentionedUsers.Contains(mentionedUser))
+                {
+                    continue;
+                }
+
+                // mark as read if ALL of the following
+                // 1. user is not offline
+                // 2. user is not AFK
+                // 3. user has been active within the last 10 minutes
+                // 4. user is currently in the room
+                bool markAsRead = mentionedUser.Status != (int)UserStatus.Offline
+                                  && !mentionedUser.IsAfk
+                                  && (DateTimeOffset.UtcNow - mentionedUser.LastActivity) < TimeSpan.FromMinutes(10)
+                                  && _repository.IsUserInRoom(_cache, mentionedUser, message.RoomKeyNavigation);
+
+                _chatService.AddNotification(mentionedUser, message, message.RoomKeyNavigation, markAsRead);
+
+                mentionedUsers.Add(mentionedUser);
+            }
+
+            if (mentionedUsers.Count > 0)
+            {
+                _repository.CommitChanges();
+            }
+
+            foreach (var user in mentionedUsers)
+            {
+                UpdateUnreadMentions(user);
+            }
+        }
+
+        private void UpdateUnreadMentions(ChatUser mentionedUser)
+        {
+            var unread = _repository.GetUnreadNotificationsCount(mentionedUser);
+
+            Clients.User(mentionedUser.Id)
+                   .updateUnreadNotifications(unread);
         }
     }
 

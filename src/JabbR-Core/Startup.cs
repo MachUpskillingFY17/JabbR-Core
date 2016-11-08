@@ -98,6 +98,7 @@ namespace JabbR_Core
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
+            services.AddSingleton<ContentProviderProcessor, ContentProviderProcessor>();
             //services.AddScoped<IMembershipService, MembershipService>();
 
             // Establish default settings from appsettings.json
@@ -124,15 +125,21 @@ namespace JabbR_Core
             // This code has no effects right now, Chat hubs aren't called via DI
             // in SignalR, so at the moment we can't control the same objects being 
             // passed to hubs and ChatService
-            services.AddTransient<Chat>(provider => 
+            services.AddTransient<Chat>(provider =>
             {
                 // This is never hit
                 var repository = provider.GetService<IJabbrRepository>();
                 var settings = provider.GetService<IOptions<ApplicationSettings>>();
                 var recentMessageCache = provider.GetService<IRecentMessageCache>();
                 var chatService = provider.GetService<IChatService>();
+                //An exception of type 'System.InvalidOperationException' occurred in 
+                //Microsoft.Extensions.DependencyInjection.dll but was not handled in user code
+                //Additional information: Unable to resolve service for type 
+                //'System.Collections.Generic.IList`1[JabbR_Core.ContentProviders.Core.IContentProvider]' 
+                //while attempting to activate 'JabbR_Core.ContentProviders.Core.ResourceProcessor'.
+                var processor = provider.GetService<ContentProviderProcessor>();
 
-                return new Chat(repository, settings, recentMessageCache, chatService);
+                return new Chat(repository, settings, recentMessageCache, chatService, processor);
             });
         }
 
