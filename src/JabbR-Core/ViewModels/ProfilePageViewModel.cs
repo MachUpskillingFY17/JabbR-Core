@@ -19,7 +19,7 @@ namespace JabbR_Core.ViewModels
             AfkNote = user.AfkNote;
             IsAfk = user.IsAfk;
             Flag = user.Flag;
-            //Country = ChatService.GetCountry(user.Flag);
+            Country = ChatService.GetCountry(user.Flag);
             LastActivity = user.LastActivity;
             IsAdmin = user.IsAdmin;
             SocialDetails = new SocialLoginViewModel(/*configuredProviders, */user.ChatUserIdentities);

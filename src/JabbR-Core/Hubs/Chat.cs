@@ -803,6 +803,8 @@ namespace JabbR_Core.Hubs
             {
                 Clients.Group(room.Name).changeFlag(userViewModel, room.Name);
             }
+            Clients.Caller.flagChanged(isFlagCleared, userViewModel.Country);
+
         }
 
         void INotificationService.ChangeTopic(ChatUser user, ChatRoom room)
