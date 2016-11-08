@@ -328,6 +328,15 @@ namespace JabbR_Core.Services
             return _users.SelectMany(u => u.ConnectedClients).FirstOrDefault(c => c.Id == clientId);
         }
 
+        public IQueryable<ChatUser> GetUsersByRoom(ChatRoom room)
+        {
+            /*var users = _db.ChatRoomUsers
+                    .Where(r => r.ChatRoomKey == room.Key)
+                    .Select(r => r.ChatUserKeyNavigation);*/
+
+            return null;
+        }
+
         public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
         {
             // Ineffcient since we don't have a messages collection

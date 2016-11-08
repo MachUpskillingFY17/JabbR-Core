@@ -1,6 +1,5 @@
 ﻿using System;
 using JabbR_Core.Data.Models;
-using Microsoft.AspNetCore.SignalR.Hubs;
 using JabbR_Core.Services;
 
 namespace JabbR_Core.Commands
@@ -23,8 +22,7 @@ namespace JabbR_Core.Commands
                 callingUser.Flag = isoCode;
             }
 
-            context.NotificationService.ChangeFlag(callingUser);
-            
+            context.NotificationService.ChangeFlag(callingUser);            
             context.Repository.CommitChanges();
         }
     }
