@@ -95,6 +95,7 @@ namespace JabbR_Core.Hubs
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
             //Delete this in the future (when auth is setup properly)
+
             var userViewModel = new UserViewModel(user);
             Clients.Caller.userNameChanged(userViewModel);
 
@@ -552,7 +553,7 @@ namespace JabbR_Core.Hubs
             string userId = Context.User.GetUserId();
 
             var userModel = new UserViewModel(user);
-
+            
             Clients.Caller.showUsersRoomList(userModel, user.Rooms.Select(r => r.ChatRoomKeyNavigation).Allowed(userId).Select(r => r.Name));
         }
 
@@ -810,6 +811,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.ChangeTopic(ChatUser user, ChatRoom room)
         {
+            Clients.Caller.topicChanged(room.Name, room.Topic ?? String.Empty, user.Name);
             Clients.Group(room.Name).topicChanged(room.Name, room.Topic ?? String.Empty, user.Name);
 
             // trigger a lobby update
@@ -892,6 +894,7 @@ namespace JabbR_Core.Hubs
             // notify all clients who can see the room
             if (!room.Private)
             {
+                Clients.Caller.updateRoom(roomViewModel);
                 Clients.All.updateRoom(roomViewModel);
             }
             else
