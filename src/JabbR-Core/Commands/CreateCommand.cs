@@ -47,11 +47,6 @@ namespace JabbR_Core.Commands
             context.Repository.CommitChanges();
 
             context.NotificationService.JoinRoom(callingUser, room);
-            ChatRoomOwners toAdd = new ChatRoomOwners();
-            toAdd.ChatRoomKey = room.Key;
-            toAdd.ChatUserId = callingUser.Id;
-
-            //callingUser.OwnedRooms.Add(toAdd);
         }
     }
 }

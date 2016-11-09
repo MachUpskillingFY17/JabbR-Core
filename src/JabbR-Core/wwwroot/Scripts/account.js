@@ -1,10 +1,4 @@
 ﻿(function ($) {
-    console.log("jquery ready - delete me");
-    $("#logoutLink").click(function () {
-        console.log("Logout clicked");
-        $("#logoutForm").submit();
-    });
-
     $('input.error').closest('.control-group').addClass('error');
 
     $('form').each(function () {

@@ -83,7 +83,6 @@ namespace JabbR_Core.Services
             LobbyRoomList = new List<LobbyRoomViewModel> { };
         }
 
-        public ChatRoom GetRoomById(int key) { return new ChatRoom(); }
         public IQueryable<ChatRoom> Rooms { get { return _rooms.AsQueryable(); } }
 
         public IQueryable<ChatUser> Users { get { return _users.AsQueryable(); } }
@@ -234,17 +233,22 @@ namespace JabbR_Core.Services
             return GetRoomByName(roomName);
         }
 
-        public IQueryable<ChatPrivateRoomUsers> GetAllowedRooms(ChatUser user)
+        public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
         {
             var allowedRooms = _rooms.Allowed(user.Id);
 
-            return null;
+            return _rooms
+                .Where(r =>
+                    (!r.Private) ||
+                    (r.Private && allowedRooms.Contains(r)))
+                .AsQueryable();
         }
 
-        public IQueryable<ChatRoomOwners> GetOwnedRooms(ChatUser user)
+        public IQueryable<ChatRoom> GetOwnedRooms(ChatUser user)
         {
             var rooms = _owner
                 .Where(r => r.ChatUserId == user.Id)
+                .Select(r => r.ChatRoomKeyNavigation)
                 .AsQueryable();
 
             return rooms;
@@ -380,10 +384,6 @@ namespace JabbR_Core.Services
         public void Reload(object entity)
         {
         }
-
-        IQueryable<ChatRoomOwners> IJabbrRepository.GetOwnedRooms(ChatUser user)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

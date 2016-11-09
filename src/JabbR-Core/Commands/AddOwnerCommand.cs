@@ -33,7 +33,6 @@ namespace JabbR_Core.Commands
             context.NotificationService.AddOwner(targetUser, targetRoom);
 
             context.Repository.CommitChanges();
-
         }
     }
 }
