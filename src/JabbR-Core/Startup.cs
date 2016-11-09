@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using JabbR_Core.Hubs;
 using JabbR_Core.Services;
@@ -27,6 +28,7 @@ using static JabbR_Core.Services.MessageServices;
 using JabbR_Core.Data.Logging;
 using Microsoft.AspNetCore.SignalR.Hubs;
 using JabbRCore.Data.InMemory;
+using Microsoft.Extensions.Logging.Console;
 
 namespace JabbR_Core
 {
@@ -69,6 +71,8 @@ namespace JabbR_Core
 
             bool inMem = false;
 
+            services.AddTransient<JabbrContext, JabbrContext>();
+
             bool.TryParse(_configuration["ApplicationSettings:InMemoryDatabase"], out inMem);
             if (!inMem)
             {
@@ -100,7 +104,7 @@ namespace JabbR_Core
 
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
-            services.AddScoped<IJabbrRepository, PersistedRepository>();
+            services.AddTransient<IJabbrRepository, PersistedRepository>();
             services.AddScoped<ApplicationSettings>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
@@ -127,17 +131,16 @@ namespace JabbR_Core
 
             //SignalR currently doesn't use DI to resolve hubs. This will allow it.
             services.AddSingleton<IHubActivator, ServicesHubActivator>();
-            // This code has no effects right now, Chat hubs aren't called via DI
-            // in SignalR, so at the moment we can't control the same objects being 
-            // passed to hubs and ChatService
+
             services.AddTransient<Chat>(provider =>
             {
-                // This is never hit
                 var repository = provider.GetService<IJabbrRepository>();
                 var settings = provider.GetService<IOptions<ApplicationSettings>>();
                 var recentMessageCache = provider.GetService<IRecentMessageCache>();
-                var chatService = provider.GetService<IChatService>();
-
+                var iCache = provider.GetService<ICache>();
+                var chatService = new ChatService(iCache, recentMessageCache, repository, settings.Value);
+                //var chatService = provider.GetService<IChatService>();
+                //Console.WriteLine($"Created ChatService:{chatService.GetHashCode()}");
                 return new Chat(repository, settings, recentMessageCache, chatService);
             });
         }
@@ -159,7 +162,24 @@ namespace JabbR_Core
             app.UseXContentTypeOptions();
 
 
-            loggerFactory.AddProvider(new FileLoggerProvider());
+            bool fileLogging = false;
+            bool consoleLogging = false;
+            bool.TryParse(_configuration["Logging:FileLogging"], out fileLogging);
+            bool.TryParse(_configuration["Logging:ConsoleLogging"], out consoleLogging);
+            if (fileLogging)
+            {
+                string logPath = _configuration["Logging:LogPath"];
+                if (!string.IsNullOrEmpty(logPath))
+                {
+                    loggerFactory.AddProvider(new FileLoggerProvider(_configuration, logPath));
+                }
+                else
+                {
+                    Console.WriteLine("File logging was enabled but the logpath wasn't set. Ignoring file logging.");
+                }
+            }
+            if (consoleLogging) loggerFactory.AddConsole(LogLevel.Debug);
+
             ////////////////////////////////////////////////////////////////
             // TODO: Authorize Attribute Re-routing to '~/Account/Login'
             //app.UseCookieAuthentication(new CookieAuthenticationOptions
@@ -179,7 +199,6 @@ namespace JabbR_Core
                 app.UseDatabaseErrorPage();
             }
 
-            loggerFactory.AddConsole();
             app.UseStaticFiles();
 
             app.UseIdentity();

@@ -27,8 +27,8 @@
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0-preview1-final",
     "Microsoft.NETCore.App": {
-      "version": "1.0.0",
-      "type": "platform"
+      "version": "1.0.0"//,
+      //"type": "platform"
     },
     "Moq": "4.6.38-alpha",
     "SendGrid.NetCore": "1.0.0-rtm-00002",

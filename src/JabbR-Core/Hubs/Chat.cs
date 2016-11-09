@@ -41,6 +41,7 @@ namespace JabbR_Core.Hubs
             _chatService = chatService;
             _recentMessageCache = recentMessageCache;
             _settings = settings.Value;
+            Console.WriteLine($"Created Chat Hub with HashCode {GetHashCode()} using Repository {_repository.GetHashCode()}");
         }
 
         private string UserAgent
@@ -67,6 +68,8 @@ namespace JabbR_Core.Hubs
 
             // Try to get the user from the client state
             ChatUser user = _repository.GetUserById(userId);
+
+            Console.WriteLine("Grabbed User from Repository " + _repository.GetHashCode());
 
             if (reconnecting)
             {
@@ -978,13 +981,16 @@ namespace JabbR_Core.Hubs
 
         protected override void Dispose(bool disposing)
         {
+            Console.WriteLine($"Disposing Chat hub: {GetHashCode()}");
             if (disposing)
             {
+                Console.WriteLine($"Chat hub {GetHashCode()} disposing Repository {_repository.GetHashCode()}");
                 // Let the DI Container handle disposing the repo
-                //_repository.Dispose();
+                _repository.Dispose();
             }
 
             base.Dispose(disposing);
+            Console.WriteLine($"Disposed Chat hub: {GetHashCode()}");
         }
 
         private void OnUserInitialize(ClientState clientState, ChatUser user, bool reconnecting)

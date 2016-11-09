@@ -210,12 +210,13 @@ namespace JabbR_Core.Controllers
 
             ViewData["ReturnUrl"] = returnUrl;
 
-            return View("register");
+            return View();
         }
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        //TODO - causing validation failure - added issue to fix
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
