@@ -22,10 +22,9 @@ namespace JabbR_Core.Data.Repositories
         IQueryable<ChatUser> GetRoomOwners(ChatRoom room);
         IQueryable<Notification> GetNotificationsByUser(ChatUser user);
         ChatMessage GetMessageById(string id);
-
         ChatUser GetUserById(string userId);
         ChatRoom GetRoomByName(string roomName);
-
+        ChatRoom GetRoomById(int key);
         ChatUser GetUserByName(string userName);
         ChatUser GetUserByClientId(string clientId);
         ChatUser GetUserByLegacyIdentity(string userIdentity);

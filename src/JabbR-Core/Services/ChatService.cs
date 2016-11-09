@@ -345,8 +345,8 @@ namespace JabbR_Core.Services
                 ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
-            }; 
-
+            };
+            
             room.Owners.Add(owner);
 
             // Update repositiory

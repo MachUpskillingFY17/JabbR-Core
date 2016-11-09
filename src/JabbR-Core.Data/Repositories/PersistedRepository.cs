@@ -10,7 +10,7 @@ namespace JabbR_Core.Data.Repositories
         private readonly JabbrContext _db;
 
         private static readonly Func<JabbrContext, string, ChatUser> getUserByName = (db, userName) => db.AspNetUsers.FirstOrDefault(u => u.Name == userName);
-        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.AspNetUsers.FirstOrDefault(u => u.Id == userId);
+        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.AspNetUsers.Include(u=> u.OwnedRooms).FirstOrDefault(u => u.Id == userId);
         private static readonly Func<JabbrContext, string, string, ChatUserIdentity> getIdentityByIdentity = (db, providerName, userIdentity) => db.ChatUserIdentities.Include(i => i.UserKeyNavigation).FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
         private static readonly Func<JabbrContext, string, ChatRoom> getRoomByName = (db, roomName) => db.ChatRooms.FirstOrDefault(r => r.Name == roomName);
         private static readonly Func<JabbrContext, string, ChatClient> getClientById = (db, clientId) => db.ChatClients.FirstOrDefault(c => c.Id == clientId);
@@ -86,7 +86,10 @@ namespace JabbR_Core.Data.Repositories
         public void Add(ChatRoomOwners owner)
         {
             _db.ChatRoomOwners.Add(owner);
+
+
             _db.SaveChanges();
+            
         }
         public void Add(ChatPrivateRoomUsers allowed)
         {
@@ -173,6 +176,10 @@ namespace JabbR_Core.Data.Repositories
         public ChatRoom GetRoomByName(string roomName)
         {
             return getRoomByName(_db, roomName);
+        }
+        public ChatRoom GetRoomById(int key)
+        {
+            return _db.ChatRooms.FirstOrDefault(r => r.Key == key);
         }
 
         public ChatMessage GetMessageById(string id)
@@ -270,7 +277,6 @@ namespace JabbR_Core.Data.Repositories
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
             // Add the relationship to the room's user list
             room.Users.Add(userroom);
             user.Rooms.Add(userroom);

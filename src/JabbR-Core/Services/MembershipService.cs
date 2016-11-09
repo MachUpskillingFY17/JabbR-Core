@@ -1,10 +1,10 @@
 ﻿//using System;
 //using System.Linq;
-//using JabbR_Core.Data.Models;
 //using System.Security.Claims;
-//using JabbR_Core.Infrastructure;
-//using JabbR_Core.Data.Repositories;
 //using System.Text.RegularExpressions;
+//using JabbR_Core.Infrastructure;
+//using JabbR_Core.Data.Models;
+//using JabbR_Core.Data.Repositories;
 
 //namespace JabbR_Core.Services
 //{
@@ -60,7 +60,7 @@
 
 //            var chatUserIdentity = new ChatUserIdentity
 //            {
-//                UserKeyNavigation = user,
+//                User = user,
 //                Email = email,
 //                Identity = identity,
 //                ProviderName = providerName
@@ -85,7 +85,7 @@
 //            var providerName = claimsPrincipal.GetIdentityProvider();
 
 //            // Link this new identity
-//            user.ChatUserIdentities.Add(new ChatUserIdentity
+//            user.Identities.Add(new ChatUserIdentity
 //            {
 //                Email = email,
 //                Identity = identity,
@@ -183,11 +183,10 @@
 
 //        public void RequestResetPassword(ChatUser user, int requestValidThroughInHours)
 //        {
-            
 //            user.RequestPasswordResetId = HttpServerUtility.UrlTokenEncode(_crypto.CreateToken(user.Name));
 //            user.RequestPasswordResetValidThrough = DateTimeOffset.UtcNow.AddHours(requestValidThroughInHours);
 //        }
-         
+
 //        public void ResetUserPassword(ChatUser user, string newPassword)
 //        {
 //            user.RequestPasswordResetId = null;
