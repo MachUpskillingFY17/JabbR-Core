@@ -259,7 +259,6 @@ namespace JabbR_Core.Hubs
             // Save changes
             _repository.CommitChanges();
 
-
             var messageViewModel = new MessageViewModel(chatMessage);
 
             if (clientMessage.Id == null)
@@ -807,6 +806,8 @@ namespace JabbR_Core.Hubs
             {
                 Clients.Group(room.Name).changeFlag(userViewModel, room.Name);
             }
+            Clients.Caller.flagChanged(isFlagCleared, userViewModel.Country);
+
         }
 
         void INotificationService.ChangeTopic(ChatUser user, ChatRoom room)
@@ -1069,6 +1070,7 @@ namespace JabbR_Core.Hubs
                 Clients.Caller.logOn(rooms, privateRooms, user.Preferences);
             }
         }
+
     }
 
 }
