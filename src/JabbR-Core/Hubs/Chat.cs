@@ -822,6 +822,7 @@ namespace JabbR_Core.Hubs
         {
             bool isWelcomeCleared = String.IsNullOrWhiteSpace(room.Welcome);
             var parsedWelcome = room.Welcome ?? String.Empty;
+            Clients.Caller.welcomeChanged(isWelcomeCleared, parsedWelcome);
             Clients.User(user.Id).welcomeChanged(isWelcomeCleared, parsedWelcome);
         }
 
