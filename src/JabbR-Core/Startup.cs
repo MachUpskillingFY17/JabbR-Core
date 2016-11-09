@@ -27,6 +27,9 @@ using static JabbR_Core.Services.MessageServices;
 using JabbR_Core.Data.Logging;
 using Microsoft.AspNetCore.SignalR.Hubs;
 using JabbR_Core.ContentProviders.Core;
+using JabbR_Core.ContentProviders;
+using System.Collections.Generic;
+using JabbR_Core.UploadHandlers;
 
 namespace JabbR_Core
 {
@@ -97,8 +100,6 @@ namespace JabbR_Core
             services.AddScoped<ApplicationSettings>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
-            services.AddScoped<IResourceProcessor, ResourceProcessor>();
-            services.AddSingleton<ContentProviderProcessor, ContentProviderProcessor>();
             //services.AddScoped<IMembershipService, MembershipService>();
 
             // Establish default settings from appsettings.json
@@ -119,6 +120,15 @@ namespace JabbR_Core
 
             services.AddTransient<IEmailSender, AuthMessageSender>();  
             services.Configure<AuthMessageSenderOptions>(_configuration);
+
+            // Register Content Providers and File Upload Handlers
+            services.AddTransient<IList<IContentProvider>>(provider => 
+                new List<IContentProvider>() { new GitHubIssuesContentProvider(), new GitHubIssueCommentsContentProvider(), new YouTubeContentProvider() });
+            //services.AddTransient<IList<IUploadHandler>>(provider =>
+            //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
+            services.AddScoped<IResourceProcessor, ResourceProcessor>();
+            services.AddSingleton<ContentProviderProcessor, ContentProviderProcessor>();
+
 
             //SignalR currently doesn't use DI to resolve hubs. This will allow it.
             services.AddSingleton<IHubActivator, ServicesHubActivator>();
@@ -152,7 +162,7 @@ namespace JabbR_Core
             //TODO: AJS FIX UNSAFEEVAL AFTER INCLUDING ANGULAR JS 
             app.UseCsp(options => 
             options.DefaultSources(s => s.Self())
-                    .ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com", "code.jquery.com").UnsafeEval())
+                    .ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com", "code.jquery.com", "api.github.com", "avatars.githubusercontent.com").UnsafeEval())
                     .StyleSources(s=> s.Self().UnsafeInline())
                     .ImageSources(s=> s.Self().CustomSources("secure.gravatar.com")));
             app.UseXXssProtection(option => option.EnabledWithBlockMode());
