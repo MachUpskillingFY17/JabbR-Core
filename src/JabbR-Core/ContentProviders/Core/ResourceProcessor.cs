@@ -71,8 +71,7 @@ namespace JabbR_Core.ContentProviders.Core
 
         private IList<IContentProvider> GetActiveContentProviders()
         {
-
-            return _contentProviders
+             return _contentProviders
                 .Where(cp => !_settings.DisabledContentProviders.Contains(cp.GetType().Name))
                 .ToList();
         }

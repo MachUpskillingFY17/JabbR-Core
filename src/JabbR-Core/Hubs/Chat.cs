@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using JabbR_Core.ContentProviders.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JabbR_Core.Hubs
 {
@@ -31,13 +32,20 @@ namespace JabbR_Core.Hubs
         private readonly ContentProviderProcessor _providerProcessor;
 
         private static readonly TimeSpan _disconnectThreshold = TimeSpan.FromSeconds(10);
+        private readonly IServiceScope _scope;
+
+        public Chat(IServiceScopeFactory factory)
+        {
+            _scope = factory.CreateScope();
+        }
 
         public Chat(
             IJabbrRepository repository,
             IOptions<ApplicationSettings> settings,
             IRecentMessageCache recentMessageCache,
             IChatService chatService,
-            ContentProviderProcessor providerProcessor)
+            ContentProviderProcessor providerProcessor,
+            IServiceScope scope)
         {
             // Request the injected object instances
             _repository = repository;
@@ -45,6 +53,8 @@ namespace JabbR_Core.Hubs
             _recentMessageCache = recentMessageCache;
             _settings = settings.Value;
             _providerProcessor = providerProcessor;
+            _scope = scope;
+            Console.WriteLine($"Created Chat Hub with HashCode {GetHashCode()} using Repository {_repository.GetHashCode()}");
         }
 
         private string UserAgent
@@ -71,6 +81,8 @@ namespace JabbR_Core.Hubs
 
             // Try to get the user from the client state
             ChatUser user = _repository.GetUserById(userId);
+
+            Console.WriteLine("Grabbed User from Repository " + _repository.GetHashCode());
 
             if (reconnecting)
             {
@@ -986,13 +998,17 @@ namespace JabbR_Core.Hubs
 
         protected override void Dispose(bool disposing)
         {
+            Console.WriteLine($"Disposing Chat hub: {GetHashCode()}");
             if (disposing)
             {
+                Console.WriteLine($"Chat hub {GetHashCode()} disposing Repository {_repository.GetHashCode()}");
                 // Let the DI Container handle disposing the repo
-                //_repository.Dispose();
+                 //_repository.Dispose();
+                //_scope.Dispose();
             }
 
             base.Dispose(disposing);
+            Console.WriteLine($"Disposed Chat hub: {GetHashCode()}");
         }
 
         private void OnUserInitialize(ClientState clientState, ChatUser user, bool reconnecting)

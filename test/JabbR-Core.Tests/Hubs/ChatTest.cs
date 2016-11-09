@@ -353,7 +353,7 @@ namespace JabbR_Core.Tests.Hubs
         public OptionsManager<ApplicationSettings> Settings { get; set; }
 
         public TestableChat(IJabbrRepository repository, OptionsManager<ApplicationSettings> settings, ChatService chatService, Mock<IConnection> mockConnection) 
-            : base(repository, settings, new Mock<RecentMessageCache>().Object, chatService, null)
+            : base(repository, settings, new Mock<RecentMessageCache>().Object, chatService, null, null)
         {
             Repository = repository;
             ChatService = chatService;

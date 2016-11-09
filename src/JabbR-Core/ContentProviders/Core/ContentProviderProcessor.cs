@@ -24,7 +24,7 @@ namespace JabbR_Core.ContentProviders.Core
                                 IHubConnectionContext<dynamic> clients,
                                 string roomName,
                                 string messageId)
-        {            
+        {
             var contentTasks = links.Select(_processor.ExtractResource).ToArray();
 
             Task.Factory.ContinueWhenAll(contentTasks, tasks =>
@@ -45,15 +45,12 @@ namespace JabbR_Core.ContentProviders.Core
                     // Update the message with the content
 
                     // REVIEW: Does it even make sense to get multiple results?
-                    using (_repository)
-                    {
-                        var message = _repository.GetMessageById(messageId);
+                    var message = _repository.GetMessageById(messageId);
 
-                        // Should this be an append?
-                        message.HtmlContent = task.Result.Content;
+                    // Should this be an append?
+                    message.HtmlContent = task.Result.Content;
 
-                        _repository.CommitChanges();
-                    }
+                    _repository.CommitChanges();
 
                     // Notify the room
                     clients.Group(roomName).addMessageContent(messageId, task.Result.Content, roomName);

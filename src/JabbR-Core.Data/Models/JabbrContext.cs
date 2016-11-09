@@ -7,7 +7,17 @@ namespace JabbR_Core.Data.Models
 {
     public partial class JabbrContext : IdentityDbContext<ChatUser>
     {
-        public JabbrContext(DbContextOptions<JabbrContext> options) : base(options) { }
+        public JabbrContext(DbContextOptions<JabbrContext> options) : base(options)
+        {
+            Console.WriteLine($"Created DbContext hash:{GetHashCode()}");
+        }
+
+        public override void Dispose()
+        {
+            Console.WriteLine("Disposed JabbrContext " + GetHashCode());
+            base.Dispose();
+            Console.WriteLine("Completed base.Dispose on JabbrContext " + GetHashCode());
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

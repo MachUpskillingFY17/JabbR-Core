@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using JabbR_Core.Hubs;
 using JabbR_Core.Services;
@@ -22,7 +24,6 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
 using static JabbR_Core.Services.MessageServices;
 using JabbR_Core.Data.Logging;
 using Microsoft.AspNetCore.SignalR.Hubs;
@@ -30,6 +31,9 @@ using JabbR_Core.ContentProviders.Core;
 using JabbR_Core.ContentProviders;
 using System.Collections.Generic;
 using JabbR_Core.UploadHandlers;
+using JabbRCore.Data.InMemory;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging.Console;
 
 namespace JabbR_Core
 {
@@ -46,14 +50,14 @@ namespace JabbR_Core
 
             if (env.IsDevelopment())
             {
-               builder.AddUserSecrets();
+                builder.AddUserSecrets();
             }
 
             builder.AddEnvironmentVariables();
 
             _configuration = builder.Build();
         }
-       
+
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
@@ -63,34 +67,41 @@ namespace JabbR_Core
             //
             // Store the connection string using the CLI tool. Include your actual username and password
             // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-           
+
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
             string connection = _configuration["connectionString"];
             //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=True";
             //If not running in Development (ie the env variable ASPNETCORE_ENVIRONMENT!=DEVELOPMENT) then the format to set at cmd line (on Windows)
             //set connectionString=Server=(localdb)\mssqllocaldb;Database=aspnet-application;Trusted_Connection=True;MultipleActiveResultSets=true
 
-            services.AddDbContext<JabbrContext>(options => /*options.UseInMemoryDatabase()*/ options.UseSqlServer(connection));
+            bool inMem = false;
 
-            //services.AddEntityFrameworkInMemoryDatabase();
-            //services.AddDbContext<JabbrContext>();
+            // services.AddTransient<JabbrContext, JabbrContext>();
 
-            // To get around the typeload exception because of transactions as per EF team emails.
-            //services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
-            //services.AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<JabbrContext>((serviceProvider, options) =>
-            //    {
-            //        options
-            //        .UseInternalServiceProvider(serviceProvider)
-            //        .UseInMemoryDatabase();
-            //    });
+            bool.TryParse(_configuration["ApplicationSettings:InMemoryDatabase"], out inMem);
+            if (!inMem)
+            {
+                services.AddDbContext<JabbrContext>(
+                    options => options.UseSqlServer(connection));
+            }
+            else
+            {
 
-            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
+                // To get around the typeload exception because of transactions as per EF team emails.
+                services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
+                services.AddEntityFrameworkInMemoryDatabase()
+                    .AddDbContext<JabbrContext>((serviceProvider, options) =>
+                    {
+                        options
+                        .UseInternalServiceProvider(serviceProvider)
+                        .UseInMemoryDatabase();
+                    });
+            }
 
             services.AddAuthorization();
             services.AddMvc(options =>
             {
-              //  options.Filters.Add(new RequireHttpsAttribute());
+                //  options.Filters.Add(new RequireHttpsAttribute());
             });
             services.AddSignalR();
 
@@ -114,12 +125,12 @@ namespace JabbR_Core
                 settings.ContentProviders = ContentProviderSetting.GetDefaultContentProviders();
             });
 
-            // Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
             services.AddIdentity<ChatUser, IdentityRole>()
                 .AddEntityFrameworkStores<JabbrContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddTransient<IEmailSender, AuthMessageSender>();  
+            services.AddTransient<IEmailSender, AuthMessageSender>();
             services.Configure<AuthMessageSenderOptions>(_configuration);
 
             // Register Content Providers and File Upload Handlers
@@ -133,25 +144,32 @@ namespace JabbR_Core
 
             //SignalR currently doesn't use DI to resolve hubs. This will allow it.
             services.AddSingleton<IHubActivator, ServicesHubActivator>();
-            // This code has no effects right now, Chat hubs aren't called via DI
-            // in SignalR, so at the moment we can't control the same objects being 
-            // passed to hubs and ChatService
             services.AddTransient<Chat>(provider =>
             {
-                // This is never hit
                 var repository = provider.GetService<IJabbrRepository>();
                 var settings = provider.GetService<IOptions<ApplicationSettings>>();
                 var recentMessageCache = provider.GetService<IRecentMessageCache>();
                 var chatService = provider.GetService<IChatService>();
-                //An exception of type 'System.InvalidOperationException' occurred in 
-                //Microsoft.Extensions.DependencyInjection.dll but was not handled in user code
-                //Additional information: Unable to resolve service for type 
-                //'System.Collections.Generic.IList`1[JabbR_Core.ContentProviders.Core.IContentProvider]' 
-                //while attempting to activate 'JabbR_Core.ContentProviders.Core.ResourceProcessor'.
                 var processor = provider.GetService<ContentProviderProcessor>();
 
-                return new Chat(repository, settings, recentMessageCache, chatService, processor);
+                return new Chat(repository, settings, recentMessageCache, chatService, processor, null);
+                //var factory = provider.GetRequiredService<IServiceScopeFactory>();
+                //var scope = factory.CreateScope();
+                //var sp = scope.ServiceProvider;
+                //var repository = sp.GetService<IJabbrRepository>();
+                //var settings = sp.GetService<IOptions<ApplicationSettings>>();
+                //var recentMessageCache = sp.GetService<IRecentMessageCache>();
+                //var chatService = sp.GetService<IChatService>();
+                //var processor = new ContentProviderProcessor(repository, sp.GetService<IResourceProcessor>());
+
+                ////Chat is responsible for disposing the scope
+                ////which in turn disposes all things passed in.
+                ////Hacky but seems the only solution at this time
+                ////as the system (at some time) disposes chat
+                //return new Chat(repository, settings, recentMessageCache, chatService, processor, scope);
             });
+
+           // return services.BuildServiceProvider(validateScopes: true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -161,9 +179,10 @@ namespace JabbR_Core
             app.UseHsts(options => options.MaxAge(days: 365));
 
             //TODO: AJS FIX UNSAFEEVAL AFTER INCLUDING ANGULAR JS 
-            app.UseCsp(options => 
+            app.UseCsp(options =>
             options.DefaultSources(s => s.Self())
-                    .ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com", "code.jquery.com", "api.github.com", "avatars.githubusercontent.com").UnsafeEval())
+                    .ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com", "code.jquery.com", "api.github.com", "avatars.githubusercontent.com",
+                                                               "twitter.com").UnsafeEval())
                     .StyleSources(s=> s.Self().UnsafeInline())
                     .ImageSources(s=> s.Self().CustomSources("secure.gravatar.com")));
             app.UseXXssProtection(option => option.EnabledWithBlockMode());
@@ -171,7 +190,26 @@ namespace JabbR_Core
             app.UseXContentTypeOptions();
 
 
-            loggerFactory.AddProvider(new FileLoggerProvider());
+            bool fileLogging = false;
+            bool consoleLogging = false;
+            bool.TryParse(_configuration["Logging:FileLogging"], out fileLogging);
+            bool.TryParse(_configuration["Logging:ConsoleLogging"], out consoleLogging);
+            if (fileLogging)
+            {
+                string logPath = _configuration["Logging:LogPath"];
+                if (!string.IsNullOrEmpty(logPath))
+                {
+                    loggerFactory.AddProvider(new FileLoggerProvider(_configuration, logPath));
+                }
+                else
+                {
+                    Console.WriteLine("File logging was enabled but the logpath wasn't set. Ignoring file logging.");
+                }
+            }
+
+            //
+            if (consoleLogging) loggerFactory.AddConsole(LogLevel.Debug);
+
             ////////////////////////////////////////////////////////////////
             // TODO: Authorize Attribute Re-routing to '~/Account/Login'
             //app.UseCookieAuthentication(new CookieAuthenticationOptions
@@ -191,7 +229,6 @@ namespace JabbR_Core
                 app.UseDatabaseErrorPage();
             }
 
-            loggerFactory.AddConsole();
             app.UseStaticFiles();
 
             app.UseIdentity();
