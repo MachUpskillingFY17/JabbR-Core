@@ -171,6 +171,8 @@ namespace JabbR_Core
             app.UseStaticFiles();
 
             app.UseIdentity();
+
+            // Facebook Social oAuth
             var facebookAppId = _configuration["Authentication:Facebook:AppId"];
             var facebookAppSecret = _configuration["Authentication:Facebook:AppSecret"];
             if (!string.IsNullOrEmpty(facebookAppId) && !string.IsNullOrEmpty(facebookAppSecret))
@@ -181,16 +183,20 @@ namespace JabbR_Core
                     AppSecret = facebookAppSecret
                 });
             }
-            //var microsoftAppId = _configuration["Authentication:Microsoft:AppId"];
-            //var microsoftAppSecret = _configuration["Authentication:Microsoft:AppSecret"];
-            //if (!string.IsNullOrEmpty(microsoftAppId) && !string.IsNullOrEmpty(microsoftAppSecret))
-            //{
-            //    app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
-            //    {
-            //        ClientId = microsoftAppId,
-            //        ClientSecret = microsoftAppSecret
-            //    });
-            //}
+
+            // Microsoft Social oAuth
+            var microsoftAppId = _configuration["Authentication:Microsoft:AppId"];
+            var microsoftAppSecret = _configuration["Authentication:Microsoft:AppSecret"];
+            if (!string.IsNullOrEmpty(microsoftAppId) && !string.IsNullOrEmpty(microsoftAppSecret))
+            {
+                app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
+                {
+                    ClientId = microsoftAppId,
+                    ClientSecret = microsoftAppSecret
+                });
+            }
+
+            // Google Social oAuth
             var googleAppId = _configuration["Authentication:Google:AppId"];
             var googleAppSecret = _configuration["Authentication:Google:AppSecret"];
             if (!string.IsNullOrEmpty(googleAppId) && !string.IsNullOrEmpty(googleAppSecret))
@@ -201,17 +207,18 @@ namespace JabbR_Core
                     ClientSecret = googleAppSecret
                 });
             }
-            //var twitterAppId = _configuration["Authentication:Twitter:AppId"];
-            //var twitterAppSecret = _configuration["Authentication:Twitter:AppSecret"];
-            //if (!string.IsNullOrEmpty(twitterAppId) && !string.IsNullOrEmpty(twitterAppSecret))
-            //{
-            //    app.UseTwitterAuthentication(new TwitterOptions()
-            //    {
-            //        ConsumerKey = twitterAppId,
-            //        ConsumerSecret = twitterAppSecret,
-            //    });
-            //}
 
+            // Twitter Social oAuth
+            var twitterAppId = _configuration["Authentication:Twitter:AppId"];
+            var twitterAppSecret = _configuration["Authentication:Twitter:AppSecret"];
+            if (!string.IsNullOrEmpty(twitterAppId) && !string.IsNullOrEmpty(twitterAppSecret))
+            {
+                app.UseTwitterAuthentication(new TwitterOptions()
+                {
+                    ConsumerKey = twitterAppId,
+                    ConsumerSecret = twitterAppSecret,
+                });
+            }
 
             app.UseMvcWithDefaultRoute();
             app.UseSignalR();
