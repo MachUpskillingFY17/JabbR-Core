@@ -14,6 +14,7 @@ using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JabbR_Core.Hubs
 {
@@ -29,18 +30,26 @@ namespace JabbR_Core.Hubs
         private readonly IRecentMessageCache _recentMessageCache;
 
         private static readonly TimeSpan _disconnectThreshold = TimeSpan.FromSeconds(10);
+        private readonly IServiceScope _scope;
+
+        public Chat(IServiceScopeFactory factory)
+        {
+            _scope = factory.CreateScope();
+        }
 
         public Chat(
             IJabbrRepository repository,
             IOptions<ApplicationSettings> settings,
             IRecentMessageCache recentMessageCache,
-            IChatService chatService)
+            IChatService chatService,
+            IServiceScope scope)
         {
             // Request the injected object instances
             _repository = repository;
             _chatService = chatService;
             _recentMessageCache = recentMessageCache;
             _settings = settings.Value;
+            _scope = scope;
             Console.WriteLine($"Created Chat Hub with HashCode {GetHashCode()} using Repository {_repository.GetHashCode()}");
         }
 
@@ -989,7 +998,8 @@ namespace JabbR_Core.Hubs
             {
                 Console.WriteLine($"Chat hub {GetHashCode()} disposing Repository {_repository.GetHashCode()}");
                 // Let the DI Container handle disposing the repo
-                _repository.Dispose();
+                // _repository.Dispose();
+                _scope.Dispose();
             }
 
             base.Dispose(disposing);

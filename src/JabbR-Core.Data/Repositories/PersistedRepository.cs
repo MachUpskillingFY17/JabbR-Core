@@ -156,13 +156,6 @@ namespace JabbR_Core.Data.Repositories
             _db.SaveChanges();
         }
 
-        public void Dispose()
-        {
-            //DI is handling context lifetime.
-            Console.WriteLine($"Disposing repository {GetHashCode()} and context {_db.GetHashCode()}");
-            _db.Dispose();
-        }
-
         public ChatUser GetUserById(string userId)
         {
             return getUserById(_db, userId);

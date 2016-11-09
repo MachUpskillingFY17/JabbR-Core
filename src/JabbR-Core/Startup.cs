@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using JabbR_Core.Hubs;
 using JabbR_Core.Services;
@@ -28,6 +29,7 @@ using static JabbR_Core.Services.MessageServices;
 using JabbR_Core.Data.Logging;
 using Microsoft.AspNetCore.SignalR.Hubs;
 using JabbRCore.Data.InMemory;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging.Console;
 
 namespace JabbR_Core
@@ -54,7 +56,7 @@ namespace JabbR_Core
         }
 
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // ***** PLEASE READ FOR DB CONTEXT SETUP ***** 
             // Use `dotnet user-secrets set key value` to save as an env variable
@@ -71,18 +73,16 @@ namespace JabbR_Core
 
             bool inMem = false;
 
-            services.AddTransient<JabbrContext, JabbrContext>();
+            // services.AddTransient<JabbrContext, JabbrContext>();
 
             bool.TryParse(_configuration["ApplicationSettings:InMemoryDatabase"], out inMem);
             if (!inMem)
             {
                 services.AddDbContext<JabbrContext>(
-                    options => /*options.UseInMemoryDatabase()*/ options.UseSqlServer(connection));
+                    options => options.UseSqlServer(connection));
             }
             else
             {
-                //services.AddEntityFrameworkInMemoryDatabase();
-                //services.AddDbContext<JabbrContext>();
 
                 // To get around the typeload exception because of transactions as per EF team emails.
                 services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
@@ -104,7 +104,7 @@ namespace JabbR_Core
 
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
-            services.AddTransient<IJabbrRepository, PersistedRepository>();
+            services.AddScoped<IJabbrRepository, PersistedRepository>();
             services.AddScoped<ApplicationSettings>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
@@ -134,15 +134,21 @@ namespace JabbR_Core
 
             services.AddTransient<Chat>(provider =>
             {
-                var repository = provider.GetService<IJabbrRepository>();
-                var settings = provider.GetService<IOptions<ApplicationSettings>>();
-                var recentMessageCache = provider.GetService<IRecentMessageCache>();
-                var iCache = provider.GetService<ICache>();
-                var chatService = new ChatService(iCache, recentMessageCache, repository, settings.Value);
-                //var chatService = provider.GetService<IChatService>();
-                //Console.WriteLine($"Created ChatService:{chatService.GetHashCode()}");
-                return new Chat(repository, settings, recentMessageCache, chatService);
+                var factory = provider.GetRequiredService<IServiceScopeFactory>();
+                var scope = factory.CreateScope();
+                var sp = scope.ServiceProvider;
+                var repository = sp.GetService<IJabbrRepository>();
+                var settings = sp.GetService<IOptions<ApplicationSettings>>();
+                var recentMessageCache = sp.GetService<IRecentMessageCache>();
+                var chatService = sp.GetService<IChatService>();
+                //Chat is responsible for disposing the scope
+                //which in turn disposes all things passed in.
+                //Hacky but seems the only solution at this time
+                //as the system (at some time) disposes chat
+                return new Chat(repository, settings, recentMessageCache, chatService, scope);
             });
+
+            return services.BuildServiceProvider(validateScopes: true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -178,6 +184,8 @@ namespace JabbR_Core
                     Console.WriteLine("File logging was enabled but the logpath wasn't set. Ignoring file logging.");
                 }
             }
+
+            //
             if (consoleLogging) loggerFactory.AddConsole(LogLevel.Debug);
 
             ////////////////////////////////////////////////////////////////
