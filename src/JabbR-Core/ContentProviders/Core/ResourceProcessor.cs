@@ -4,6 +4,7 @@ using JabbR_Core.Services;
 using System.Threading.Tasks;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.ContentProviders.Core
 {
@@ -13,10 +14,10 @@ namespace JabbR_Core.ContentProviders.Core
         private readonly ApplicationSettings _settings;
 
         public ResourceProcessor(IList<IContentProvider> contentProviders,
-                                 ApplicationSettings settings)
+                                 IOptions<ApplicationSettings> settings)
         {
             _contentProviders = contentProviders;
-            _settings = settings;
+            _settings = settings.Value;
         }
 
         public Task<ContentProviderResult> ExtractResource(string url)
@@ -33,7 +34,8 @@ namespace JabbR_Core.ContentProviders.Core
 
         private Task<ContentProviderResult> ExtractContent(ContentProviderHttpRequest request)
         {
-            var validProviders = GetActiveContentProviders().Where(c => c.IsValidContent(request.RequestUri))
+            var val = GetActiveContentProviders();
+            var validProviders =val.Where(c => c.IsValidContent(request.RequestUri))
                                                   .ToList();
 
             if (validProviders.Count == 0)
@@ -69,6 +71,7 @@ namespace JabbR_Core.ContentProviders.Core
 
         private IList<IContentProvider> GetActiveContentProviders()
         {
+
             return _contentProviders
                 .Where(cp => !_settings.DisabledContentProviders.Contains(cp.GetType().Name))
                 .ToList();

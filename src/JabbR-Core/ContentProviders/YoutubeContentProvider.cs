@@ -29,7 +29,7 @@ namespace JabbR_Core.ContentProviders
             )                 # End negative lookahead assertion.
             [?=&+%\w-]*       # Consume any URL (query) remainder.",
             RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-
+          
         public override string MediaFormatString
         {
             get

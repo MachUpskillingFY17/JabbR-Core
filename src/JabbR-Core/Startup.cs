@@ -97,7 +97,7 @@ namespace JabbR_Core
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IJabbrRepository, PersistedRepository>();
-            services.AddScoped<ApplicationSettings>();
+            services.AddSingleton<ApplicationSettings>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
             //services.AddScoped<IMembershipService, MembershipService>();
@@ -111,6 +111,7 @@ namespace JabbR_Core
                 settings.Version = Version.Parse("0.1");
                 settings.Time = DateTimeOffset.UtcNow.ToString();
                 settings.ClientLanguageResources = new ClientResourceManager().BuildClientResources();
+                settings.ContentProviders = ContentProviderSetting.GetDefaultContentProviders();
             });
 
             // Microsoft.AspNetCore.Identity.EntityFrameworkCore

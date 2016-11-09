@@ -277,6 +277,7 @@ namespace JabbR_Core.Hubs
             }
             else
             {
+                var test = Clients.OthersInGroup(room.Name);
                 // If the client did set an id then we need to give everyone the real id first
                 Clients.OthersInGroup(room.Name).addMessage(messageViewModel, room.Name);
 
@@ -285,7 +286,7 @@ namespace JabbR_Core.Hubs
             }
 
             // Add mentions
-            AddMentions(chatMessage); 
+            AddMentions(chatMessage);
 
             var urls = UrlExtractor.ExtractUrls(chatMessage.Content);
             if (urls.Count > 0)
