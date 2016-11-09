@@ -99,7 +99,7 @@ namespace JabbR_Core.Controllers
             var id = _context.HttpContext.User.GetUserId();
             ChatUser user = _repository.GetUserById(id);
 
-            return GetProfileView(user);
+            return GetProfileView(user, _repository);
         }
 
         [AllowAnonymous]
@@ -610,8 +610,16 @@ namespace JabbR_Core.Controllers
             }
         }
 
-        private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user)
+        private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user, IJabbrRepository repository)
         {
+            user.OwnedRooms = _repository.GetOwnedRooms(user).ToList();
+
+            foreach (var ownedRoom in user.OwnedRooms)
+            { 
+
+                ownedRoom.ChatRoomKeyNavigation = repository.GetRoomById(ownedRoom.ChatRoomKey);
+            }
+
             return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
         }
 

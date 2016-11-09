@@ -86,7 +86,10 @@ namespace JabbR_Core.Data.Repositories
         public void Add(ChatRoomOwners owner)
         {
             _db.ChatRoomOwners.Add(owner);
+
+
             _db.SaveChanges();
+            
         }
         public void Add(ChatPrivateRoomUsers allowed)
         {
@@ -174,26 +177,30 @@ namespace JabbR_Core.Data.Repositories
         {
             return getRoomByName(_db, roomName);
         }
+        public ChatRoom GetRoomById(int key)
+        {
+            return _db.ChatRooms.FirstOrDefault(r => r.Key == key);
+        }
 
         public ChatMessage GetMessageById(string id)
         {
             return _db.ChatMessages.FirstOrDefault(m => m.Id == id);
         }
 
-        public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
+        public IQueryable<ChatPrivateRoomUsers> GetAllowedRooms(ChatUser user)
         {
             // All public and private rooms the user can see.
-            return _db.ChatRooms
+            var rooms = _db.ChatPrivateRoomUsers
                 .Where(r =>
-                       (!r.Private) ||
-                       (r.Private && r.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
+                       (!r.ChatRoomKeyNavigation.Private) ||
+                       (r.ChatRoomKeyNavigation.Private && r.ChatRoomKeyNavigation.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
+            return rooms;
         }
 
-        public IQueryable<ChatRoom> GetOwnedRooms(ChatUser user)
+        public IQueryable<ChatRoomOwners> GetOwnedRooms(ChatUser user)
         {
             var rooms = _db.ChatRoomOwners
-                .Where(r => r.ChatUserId == user.Id)
-                .Select(r => r.ChatRoomKeyNavigation);
+                .Where(r => r.ChatUserId == user.Id);
 
             return rooms;
         }
@@ -270,7 +277,6 @@ namespace JabbR_Core.Data.Repositories
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
             // Add the relationship to the room's user list
             room.Users.Add(userroom);
             user.Rooms.Add(userroom);
@@ -372,6 +378,5 @@ namespace JabbR_Core.Data.Repositories
         {
             _db.Entry(entity).Reload();
         }
-
     }
 }
