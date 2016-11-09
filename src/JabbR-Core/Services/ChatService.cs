@@ -345,13 +345,18 @@ namespace JabbR_Core.Services
                 ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
-            };
-            
+            }; 
+
             room.Owners.Add(owner);
+            //user.OwnedRooms.Add(owner);
 
             // Update repositiory
             _repository.Add(room);
-            _repository.CommitChanges();
+          //  _repository.Add(owner);
+
+            //Debug.WriteLine(name);
+            //Debug.WriteLine(user.Name);
+            //Debug.WriteLine(user.Id);
 
             return room;
         }

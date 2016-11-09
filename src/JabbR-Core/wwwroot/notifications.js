@@ -1,6 +1,6 @@
 ﻿(function ($, utility) {
     "use strict";
-
+    
     var notificationsMode = $('#notifications-container').data('mode'),
         templates = {
             multiline: $('#multiline-content-template')
