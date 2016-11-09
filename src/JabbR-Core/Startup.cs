@@ -59,30 +59,14 @@ namespace JabbR_Core
             //
             // Store the connection string using the CLI tool. Include your actual username and password
             // >dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext pass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-           
+
             // Reference the Configuration API with the key you defined, and your env variable will be referenced.
-            string connection = _configuration["connectionString"];
             //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=True";
             //If not running in Development (ie the env variable ASPNETCORE_ENVIRONMENT!=DEVELOPMENT) then the format to set at cmd line (on Windows)
             //set connectionString=Server=(localdb)\mssqllocaldb;Database=aspnet-application;Trusted_Connection=True;MultipleActiveResultSets=true
-
+            string connection = _configuration["connectionString"];
             services.AddDbContext<JabbrContext>(options => /*options.UseInMemoryDatabase()*/ options.UseSqlServer(connection));
-
-            //services.AddEntityFrameworkInMemoryDatabase();
-            //services.AddDbContext<JabbrContext>();
-
-            // To get around the typeload exception because of transactions as per EF team emails.
-            //services.AddScoped<InMemoryTransactionManager, TestInMemoryTransactionManager>();
-            //services.AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<JabbrContext>((serviceProvider, options) =>
-            //    {
-            //        options
-            //        .UseInternalServiceProvider(serviceProvider)
-            //        .UseInMemoryDatabase();
-            //    });
-
-            //services.AddDbContext<JabbrContext>(options => options.UseSqlServer(connection));
-
+           
             services.AddAuthorization();
             services.AddMvc(options =>
             {
@@ -175,27 +159,54 @@ namespace JabbR_Core
             app.UseStaticFiles();
 
             app.UseIdentity();
-            app.UseFacebookAuthentication(new FacebookOptions()
-            {
-                AppId = _configuration["Authentication:Facebook:AppId"],
-                AppSecret = _configuration["Authentication:Facebook:AppSecret"]
-            });
-            //app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
-            //{
-            //    ClientId = _configuration["Authentication:Microsoft:AppId"],
-            //    ClientSecret = _configuration["Authentication:Microsoft:AppSecret"]
-            //});
-            app.UseGoogleAuthentication(new GoogleOptions()
-            {
-                ClientId = _configuration["Authentication:Google:AppId"],
-                ClientSecret = _configuration["Authentication:Google:AppSecret"]
-            });
-            //app.UseTwitterAuthentication(new TwitterOptions()
-            //{
-            //    ConsumerKey = _configuration["Authentication:Twitter:AppId"],
-            //    ConsumerSecret = _configuration["Authentication:Twitter:AppSecret"],
-            //});
 
+            // Facebook Social oAuth
+            var facebookAppId = _configuration["Authentication:Facebook:AppId"];
+            var facebookAppSecret = _configuration["Authentication:Facebook:AppSecret"];
+            if (!string.IsNullOrEmpty(facebookAppId) && !string.IsNullOrEmpty(facebookAppSecret))
+            {
+                app.UseFacebookAuthentication(new FacebookOptions()
+                {
+                    AppId = facebookAppId,
+                    AppSecret = facebookAppSecret
+                });
+            }
+
+            // Microsoft Social oAuth
+            var microsoftAppId = _configuration["Authentication:Microsoft:AppId"];
+            var microsoftAppSecret = _configuration["Authentication:Microsoft:AppSecret"];
+            if (!string.IsNullOrEmpty(microsoftAppId) && !string.IsNullOrEmpty(microsoftAppSecret))
+            {
+                app.UseMicrosoftAccountAuthentication(new MicrosoftAccountOptions()
+                {
+                    ClientId = microsoftAppId,
+                    ClientSecret = microsoftAppSecret
+                });
+            }
+
+            // Google Social oAuth
+            var googleAppId = _configuration["Authentication:Google:AppId"];
+            var googleAppSecret = _configuration["Authentication:Google:AppSecret"];
+            if (!string.IsNullOrEmpty(googleAppId) && !string.IsNullOrEmpty(googleAppSecret))
+            {
+                app.UseGoogleAuthentication(new GoogleOptions()
+                {
+                    ClientId = googleAppId,
+                    ClientSecret = googleAppSecret
+                });
+            }
+
+            // Twitter Social oAuth
+            var twitterAppId = _configuration["Authentication:Twitter:AppId"];
+            var twitterAppSecret = _configuration["Authentication:Twitter:AppSecret"];
+            if (!string.IsNullOrEmpty(twitterAppId) && !string.IsNullOrEmpty(twitterAppSecret))
+            {
+                app.UseTwitterAuthentication(new TwitterOptions()
+                {
+                    ConsumerKey = twitterAppId,
+                    ConsumerSecret = twitterAppSecret,
+                });
+            }
 
             app.UseMvcWithDefaultRoute();
             app.UseSignalR();
