@@ -18,6 +18,7 @@ namespace JabbR_Core.Commands
 
             callingUser.AfkNote = String.IsNullOrWhiteSpace(message) ? null : message;
             callingUser.IsAfk = true;
+            callingUser.Status = (int)UserStatus.Inactive;
 
             context.NotificationService.ChangeAfk(callingUser);
 
