@@ -2,6 +2,7 @@
 using JabbR_Core.Data.Models;
 using JabbR_Core.Services;
 using Microsoft.AspNetCore.SignalR;
+using System.Linq;
 
 namespace JabbR_Core.Commands
 {
@@ -19,6 +20,14 @@ namespace JabbR_Core.Commands
             var name = MembershipService.NormalizeUserName(args[0]);
 
             ChatUser user = context.Repository.GetUserByName(name);
+
+            user.AllowedRooms = context.Repository.GetAllowedRooms(user).ToList();
+
+            foreach (var allowedRooms in user.AllowedRooms)
+            {
+
+                allowedRooms.ChatRoomKeyNavigation = context.Repository.GetRoomById(allowedRooms.ChatRoomKey);
+            }
 
             if (user == null)
             {
