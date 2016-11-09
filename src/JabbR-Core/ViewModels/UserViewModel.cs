@@ -1,5 +1,6 @@
 ﻿using System;
 using JabbR_Core.Data.Models;
+using JabbR_Core.Services;
 
 namespace JabbR_Core.ViewModels
 {
@@ -15,7 +16,7 @@ namespace JabbR_Core.ViewModels
             AfkNote = user.AfkNote;
             IsAfk = user.IsAfk;
             Flag = user.Flag;
-            //Country = ChatService.GetCountry(user.Flag);
+            Country = ChatService.GetCountry(user.Flag);
             LastActivity = user.LastActivity;
             IsAdmin = user.IsAdmin;
         }

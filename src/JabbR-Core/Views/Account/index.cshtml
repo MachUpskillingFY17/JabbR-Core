@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="~/css/themes/default/Chat.css" />
     <link href="~/css/emoji20.css" rel="stylesheet" />
 
+   @Html.Partial("Partials/Templates/ModalMessage");
+    
 </head>
 <body class="user-profile">
     <section id="page" role="application">
@@ -52,7 +54,13 @@
                                 <li><a class="" title="@LanguageResources.Client_JabbrSettings" href="@Url.Content("~/administration")" target="_self"><i class="icon-cog"></i></a></li>
                             }
                             <li><a class="help" aria-haspopup="true" title="@LanguageResources.Client_DisplayHelp"><i class="icon-question-sign"></i></a></li>
-                            <li><a class="logout" title="@LanguageResources.Client_SignOut"><i class="icon-arrow-right"></i></a></li>
+                            <li>
+                                <a id="logoutLink" class="logout" title="@LanguageResources.Client_SignOut" >
+                                    <form style="height: 1px" asp-controller="Account" asp-action="Logoff" method="post" id="logoutForm">
+                                        <i class="icon-arrow-right"></i>
+                                    </form>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -106,7 +114,7 @@
                                         <div class="controls">
                                            @if (userModel.Country != null)
                                             {
-                                                <span class="input-medium uneditable-input"><span>atsignuserModel.Country</span> <i class="flag flag-atsignuserModel.Flag"></i></span>
+                                                <span class="input-medium uneditable-input"><span>@userModel.Country</span> <i class="flag flag-@userModel.Flag"></i></span>
 }
                                             else
                                             {
@@ -207,6 +215,9 @@
     <script src="@Url.Content("~/Scripts/jquery-2.0.3.min.js")"></script>
     <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
     <script src="@Url.Content("~/Scripts/accounttabs.js")">    </script>
+    <script type="text/javascript" src="~/Scripts/account.js"></script>
+    <script src="~/js/libraries.js"></script>
+
 
 </body>
 </html>

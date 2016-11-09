@@ -13,18 +13,18 @@ namespace JabbR_Core.ViewModels
         {
             Name = user.Name;
             Hash = user.Hash;
-            //Active = user.Status == (int)UserStatus.Active;
-            //Status = ((UserStatus)user.Status).ToString();
+            Active = user.Status == (int)UserStatus.Active;
+            Status = ((UserStatus)user.Status).ToString();
             Note = user.Note;
             AfkNote = user.AfkNote;
             IsAfk = user.IsAfk;
             Flag = user.Flag;
-            //Country = ChatService.GetCountry(user.Flag);
+            Country = ChatService.GetCountry(user.Flag);
             LastActivity = user.LastActivity;
             IsAdmin = user.IsAdmin;
             SocialDetails = new SocialLoginViewModel(/*configuredProviders, */user.ChatUserIdentities);
             //HasPassword = user.HasUserNameAndPasswordCredentials();
-            OwnedRooms = user.OwnedRooms.Select(r => r.ChatRoomKeyNavigation).OrderBy(e => e.Name).ToArray(); 
+            OwnedRooms = user.OwnedRooms.Select(r => r.ChatRoomKeyNavigation).OrderBy(e => e.Name).ToArray();
         }
 
         public bool HasPassword { get; private set; }

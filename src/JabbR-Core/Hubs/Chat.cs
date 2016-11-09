@@ -95,12 +95,12 @@ namespace JabbR_Core.Hubs
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
             //Delete this in the future (when auth is setup properly)
+
             var userViewModel = new UserViewModel(user);
             Clients.Caller.userNameChanged(userViewModel);
 
             OnUserInitialize(clientState, user, reconnecting);
         }
-
         public List<LobbyRoomViewModel> GetRooms()
         {
             //return _lobbyRoomList;
@@ -258,7 +258,6 @@ namespace JabbR_Core.Hubs
 
             // Save changes
             _repository.CommitChanges();
-
 
             var messageViewModel = new MessageViewModel(chatMessage);
 
@@ -476,6 +475,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.AddOwner(ChatUser targetUser, ChatRoom targetRoom)
         {
+            //Clients.Caller(targetUser.Id).makeOwner(targetRoom.Name);
             // Tell this client it's an owner
             Clients.User(targetUser.Id).makeOwner(targetRoom.Name);
 
@@ -494,6 +494,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.RemoveOwner(ChatUser targetUser, ChatRoom targetRoom)
         {
+            //Clients.Caller(targetUser.Id).demoteOwner(targetRoom.Name);
             // Tell this client it's no longer an owner
             Clients.User(targetUser.Id).demoteOwner(targetRoom.Name);
 
@@ -713,6 +714,8 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.NudgeUser(ChatUser user, ChatUser targetUser)
         {
+            //Clients.Caller(targetUser.Id).nudge(user.Name, targetUser.Name, null);
+            Clients.Caller.nudge(user.Name, targetUser.Name, null);
             // Send a nudge message to the sender and the sendee
             Clients.User(targetUser.Id).nudge(user.Name, targetUser.Name, null);
 
@@ -721,6 +724,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.NudgeRoom(ChatRoom room, ChatUser user)
         {
+            Clients.Caller.nudge(user.Name, null, room.Name);
             Clients.Group(room.Name).nudge(user.Name, null, room.Name);
         }
 
@@ -802,6 +806,8 @@ namespace JabbR_Core.Hubs
             {
                 Clients.Group(room.Name).changeFlag(userViewModel, room.Name);
             }
+            Clients.Caller.flagChanged(isFlagCleared, userViewModel.Country);
+
         }
 
         void INotificationService.ChangeTopic(ChatUser user, ChatRoom room)
@@ -817,6 +823,7 @@ namespace JabbR_Core.Hubs
         {
             bool isWelcomeCleared = String.IsNullOrWhiteSpace(room.Welcome);
             var parsedWelcome = room.Welcome ?? String.Empty;
+            Clients.Caller.welcomeChanged(isWelcomeCleared, parsedWelcome);
             Clients.User(user.Id).welcomeChanged(isWelcomeCleared, parsedWelcome);
         }
 
@@ -827,6 +834,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.AddAdmin(ChatUser targetUser)
         {
+            //Clients.Caller(targetUser.Id).makeAdmin();
             // Tell this client it's an owner
             Clients.User(targetUser.Id).makeAdmin();
 
@@ -844,6 +852,7 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.RemoveAdmin(ChatUser targetUser)
         {
+            //Clients.Caller(targetUser.Id).demoteAdmin();
             // Tell this client it's no longer an owner
             Clients.User(targetUser.Id).demoteAdmin();
 
@@ -1061,6 +1070,7 @@ namespace JabbR_Core.Hubs
                 Clients.Caller.logOn(rooms, privateRooms, user.Preferences);
             }
         }
+
     }
 
 }

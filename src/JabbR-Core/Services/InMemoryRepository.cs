@@ -83,6 +83,7 @@ namespace JabbR_Core.Services
             LobbyRoomList = new List<LobbyRoomViewModel> { };
         }
 
+        public ChatRoom GetRoomById(int key) { return new ChatRoom(); }
         public IQueryable<ChatRoom> Rooms { get { return _rooms.AsQueryable(); } }
 
         public IQueryable<ChatUser> Users { get { return _users.AsQueryable(); } }
@@ -326,6 +327,15 @@ namespace JabbR_Core.Services
         public ChatClient GetClientById(string clientId, bool includeUser = false)
         {
             return _users.SelectMany(u => u.ConnectedClients).FirstOrDefault(c => c.Id == clientId);
+        }
+
+        public IQueryable<ChatUser> GetUsersByRoom(ChatRoom room)
+        {
+            /*var users = _db.ChatRoomUsers
+                    .Where(r => r.ChatRoomKey == room.Key)
+                    .Select(r => r.ChatUserKeyNavigation);*/
+
+            return null;
         }
 
         public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
