@@ -17,8 +17,8 @@ namespace JabbR_Core.Data.Repositories
         IQueryable<ChatUser> SearchUsers(string name);
         IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room);
         IQueryable<ChatMessage> GetPreviousMessages(string messageId);
-        IQueryable<ChatRoom> GetAllowedRooms(ChatUser user);
-        IQueryable<ChatRoom> GetOwnedRooms(ChatUser user);
+        IQueryable<ChatPrivateRoomUsers> GetAllowedRooms(ChatUser user);
+        IQueryable<ChatRoomOwners> GetOwnedRooms(ChatUser user);
         IQueryable<ChatUser> GetRoomOwners(ChatRoom room);
         IQueryable<Notification> GetNotificationsByUser(ChatUser user);
         

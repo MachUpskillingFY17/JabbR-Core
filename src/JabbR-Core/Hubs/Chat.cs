@@ -684,7 +684,7 @@ namespace JabbR_Core.Hubs
                 Name = user.Name,
                 OwnedRooms = user.OwnedRooms
                     .Select(r => r.ChatRoomKeyNavigation)
-                    .Allowed(userId)
+                    //.Allowed(userId)
                     .Where(r => !r.Closed)
                     .Select(r => r.Name),
                 Status = ((UserStatus)user.Status).ToString(),
