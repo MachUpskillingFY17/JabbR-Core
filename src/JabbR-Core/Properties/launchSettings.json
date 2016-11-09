@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "https://localhost:44302/",
+      "applicationUrl": "https://jabbrcore.net:44302/",
       "sslPort": 44302
     }
   },
