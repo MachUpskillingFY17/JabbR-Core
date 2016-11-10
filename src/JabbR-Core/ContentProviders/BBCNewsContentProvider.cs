@@ -40,17 +40,6 @@ namespace JabbR_Core.ContentProviders
                 info.Description = ExtractUsingRegex(new Regex(@"<meta\s.*name=""Description"".*content=""(.*)"".*/>"), pageContext);
                 info.ImageURL = ExtractUsingRegex(new Regex(@"<meta.*property=""og:image"".*content=""(.*)"".*/>"), pageContext);
                 info.PageURL = request.RequestUri.AbsoluteUri;
-                //using (var responseStream = response.GetResponseStream())
-                //{
-                //    using (var sr = new StreamReader(responseStream))
-                //    {
-                //        var pageContext = WebUtility.HtmlDecode(sr.ReadToEnd());
-                //        info.Title = ExtractUsingRegex(new Regex(@"<meta\s.*property=""og:title"".*content=""(.*)"".*/>"), pageContext);
-                //        info.Description = ExtractUsingRegex(new Regex(@"<meta\s.*name=""Description"".*content=""(.*)"".*/>"), pageContext);
-                //        info.ImageURL = ExtractUsingRegex(new Regex(@"<meta.*property=""og:image"".*content=""(.*)"".*/>"), pageContext);
-                //        info.PageURL = request.RequestUri.AbsoluteUri;
-                //    }
-                //}
 
                 return info;
             });
@@ -78,7 +67,8 @@ namespace JabbR_Core.ContentProviders
 
         public override bool IsValidContent(Uri uri)
         {
-            return uri.AbsoluteUri.StartsWith("http://www.bbc.co.uk/news", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(uri.Host, "www.bbc.com", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(uri.Host, "www.bbc.co.uk", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
