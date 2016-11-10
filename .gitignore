@@ -188,7 +188,10 @@ ClientBin/
 *~
 *.dbmdl
 *.dbproj.schemaview
-*.pfx
+
+#removed to add testCert for SSL Hosting - app should work out of the box for test hosting   
+#*.pfx
+
 *.publishsettings
 node_modules/
 orleans.codegen.cs

@@ -4,7 +4,7 @@ using JabbR_Core.Data.Models;
 
 namespace JabbR_Core.Data.Repositories
 {
-    public interface IJabbrRepository : IDisposable
+    public interface IJabbrRepository
     {
         IQueryable<ChatRoom> Rooms { get; }
         IQueryable<ChatUser> Users { get; }

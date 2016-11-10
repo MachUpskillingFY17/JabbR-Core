@@ -411,7 +411,7 @@ namespace JabbR_Core.Services
 
         public void UpdateActivity(ChatUser user, string clientId, string userAgent)
         {
-            user.Status = (int)UserStatus.Active;
+                user.Status = (int)UserStatus.Active;
             user.LastActivity = DateTime.UtcNow;
 
             ChatClient client = AddClient(user, clientId, userAgent);

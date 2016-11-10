@@ -20,6 +20,7 @@ namespace JabbR_Core.Data.Repositories
         public PersistedRepository(JabbrContext db)
         {
             _db = db;
+            Console.WriteLine($"Created repository {GetHashCode()} with Context Hash {db.GetHashCode()}");
         }
 
         public IQueryable<ChatRoom> Rooms
@@ -156,11 +157,6 @@ namespace JabbR_Core.Data.Repositories
         public void CommitChanges()
         {
             _db.SaveChanges();
-        }
-
-        public void Dispose()
-        {
-            //_db.Dispose();
         }
 
         public ChatUser GetUserById(string userId)
@@ -309,6 +305,7 @@ namespace JabbR_Core.Data.Repositories
 
         public void Add(ChatClient client)
         {
+            Console.WriteLine("Adding ChatClient with Repository " + GetHashCode());
             _db.ChatClients.Add(client);
             _db.SaveChanges();
         }

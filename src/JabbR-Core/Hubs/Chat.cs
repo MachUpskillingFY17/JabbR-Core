@@ -14,6 +14,8 @@ using JabbR_Core.Data.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using JabbR_Core.ContentProviders.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JabbR_Core.Hubs
 {
@@ -27,20 +29,32 @@ namespace JabbR_Core.Hubs
         private readonly ApplicationSettings _settings;
         private readonly IJabbrRepository _repository;
         private readonly IRecentMessageCache _recentMessageCache;
+        private readonly ContentProviderProcessor _providerProcessor;
 
         private static readonly TimeSpan _disconnectThreshold = TimeSpan.FromSeconds(10);
+        private readonly IServiceScope _scope;
+
+        public Chat(IServiceScopeFactory factory)
+        {
+            _scope = factory.CreateScope();
+        }
 
         public Chat(
             IJabbrRepository repository,
             IOptions<ApplicationSettings> settings,
             IRecentMessageCache recentMessageCache,
-            IChatService chatService)
+            IChatService chatService,
+            ContentProviderProcessor providerProcessor,
+            IServiceScope scope)
         {
             // Request the injected object instances
             _repository = repository;
             _chatService = chatService;
             _recentMessageCache = recentMessageCache;
             _settings = settings.Value;
+            _providerProcessor = providerProcessor;
+            _scope = scope;
+            Console.WriteLine($"Created Chat Hub with HashCode {GetHashCode()} using Repository {_repository.GetHashCode()}");
         }
 
         private string UserAgent
@@ -67,6 +81,8 @@ namespace JabbR_Core.Hubs
 
             // Try to get the user from the client state
             ChatUser user = _repository.GetUserById(userId);
+
+            Console.WriteLine("Grabbed User from Repository " + _repository.GetHashCode());
 
             if (reconnecting)
             {
@@ -271,6 +287,7 @@ namespace JabbR_Core.Hubs
             }
             else
             {
+                var test = Clients.OthersInGroup(room.Name);
                 // If the client did set an id then we need to give everyone the real id first
                 Clients.OthersInGroup(room.Name).addMessage(messageViewModel, room.Name);
 
@@ -281,11 +298,11 @@ namespace JabbR_Core.Hubs
             // Add mentions
             AddMentions(chatMessage);
 
-            //var urls = UrlExtractor.ExtractUrls(chatMessage.Content);
-            //if (urls.Count > 0)
-            //{
-            //    _resourceProcessor.ProcessUrls(urls, Clients, room.Name, chatMessage.Id);
-            //}
+            var urls = UrlExtractor.ExtractUrls(chatMessage.Content);
+            if (urls.Count > 0)
+            {
+                _providerProcessor.ProcessUrls(urls, Clients, room.Name, chatMessage.Id);
+            }
 
             return true;
         }
@@ -989,13 +1006,17 @@ namespace JabbR_Core.Hubs
 
         protected override void Dispose(bool disposing)
         {
+            Console.WriteLine($"Disposing Chat hub: {GetHashCode()}");
             if (disposing)
             {
+                Console.WriteLine($"Chat hub {GetHashCode()} disposing Repository {_repository.GetHashCode()}");
                 // Let the DI Container handle disposing the repo
-                //_repository.Dispose();
+                 //_repository.Dispose();
+                //_scope.Dispose();
             }
 
             base.Dispose(disposing);
+            Console.WriteLine($"Disposed Chat hub: {GetHashCode()}");
         }
 
         private void OnUserInitialize(ClientState clientState, ChatUser user, bool reconnecting)
@@ -1085,7 +1106,7 @@ namespace JabbR_Core.Hubs
                 // 4. You've already been mentioned in this message
                 if (mentionedUser == null ||
                     mentionedUser == message.UserKeyNavigation ||
-                    (message.RoomKeyNavigation.Private && !mentionedUser.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(message.RoomKeyNavigation)) ||
+                    (message.RoomKeyNavigation.Private && !mentionedUser.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).ToList().Contains(message.RoomKeyNavigation)) ||
                     mentionedUsers.Contains(mentionedUser))
                 {
                     continue;
@@ -1094,7 +1115,8 @@ namespace JabbR_Core.Hubs
                 // mark as read if ALL of the following
                 // 1. user is not offline
                 // 2. user is not AFK
-                // 3. user is currently in the room
+                // 3. user has been active within the last 10 minutes
+                // 4. user is currently in the room
                 bool markAsRead = false;//!mentionedUser.IsAfk
                                   //&& _repository.IsUserInRoom(_cache, mentionedUser, message.RoomKeyNavigation);
 
@@ -1121,7 +1143,6 @@ namespace JabbR_Core.Hubs
             Clients.User(mentionedUser.Id)
                    .updateUnreadNotifications(unread);
         }
-
     }
 
 }
