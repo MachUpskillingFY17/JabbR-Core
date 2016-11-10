@@ -4,6 +4,7 @@
 //using System.Threading.Tasks;
 //using JabbR_Core.Infrastructure;
 //using JabbR_Core.ContentProviders.Core;
+//using System.Net.Http;
 
 //namespace JabbR_Core.ContentProviders
 //{
@@ -38,7 +39,8 @@
 
 //        private Task<PageInfo> ExtractFromResponse(ContentProviderHttpRequest request)
 //        {
-//            return Http.GetAsync(request.RequestUri).Then(response =>
+//            HttpClient client = new HttpClient();
+//            return client.GetAsync(request.RequestUri).Then(response =>
 //            {
 //                var info = new PageInfo();
 

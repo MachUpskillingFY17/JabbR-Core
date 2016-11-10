@@ -4,6 +4,7 @@
 //using JabbR_Core.Infrastructure;
 //using System.Text.RegularExpressions;
 //using JabbR_Core.ContentProviders.Core;
+//using System.Net.Http;
 
 //namespace JabbR_Core.ContentProviders
 //{
@@ -54,7 +55,8 @@
 //        private static Task<dynamic> FetchDinner(int dinnerId)
 //        {
 //            string url = String.Format(_nerdDinnerODdataFeedServiceDinnerQueryFormat, dinnerId);
-//            return Http.GetJsonAsync(url);
+//            HttpClient client = new HttpClient();
+//            return client.GetJsonAsync(url);
 //        }
 
 //        protected string ExtractParameter(Uri responseUri)

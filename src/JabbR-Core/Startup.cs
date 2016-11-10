@@ -140,7 +140,9 @@ namespace JabbR_Core
                                                new YouTubeContentProvider(),
                                                new ImageContentProvider(provider.GetService<UploadProcessor>()),
                                                new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>()),
-                                               new BBCContentProvider()});
+                                               new BBCContentProvider(),
+                                               new ImgurContentProvider(),
+                                               new SpotifyContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();

@@ -2,6 +2,7 @@
 //using System.Threading.Tasks;
 //using JabbR_Core.Infrastructure;
 //using JabbR_Core.ContentProviders.Core;
+//using System.Net.Http;
 
 //namespace JabbR_Core.ContentProviders
 //{
@@ -22,7 +23,8 @@
 //            // where we will only have the url -- this call gets the json information
 //            // on the slide deck and that package happens to already contain the embed code (.html)
 //            var url = String.Format(_oEmbedUrl, request.RequestUri.AbsoluteUri);
-//            return Http.GetJsonAsync(url).Then(slideShareData =>
+//            HttpClient client = new HttpClient();
+//            return client.GetJsonAsync(url).Then(slideShareData =>
 //            {
 //                string html = slideShareData.html;
 //                return new ContentProviderResult()

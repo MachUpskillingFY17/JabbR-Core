@@ -5,6 +5,7 @@
 //using JabbR_Core.Infrastructure;
 //using System.Text.RegularExpressions;
 //using JabbR_Core.ContentProviders.Core;
+//using System.Net.Http;
 
 //namespace JabbR_Core.ContentProviders
 //{
@@ -67,8 +68,8 @@
 //        private Task<dynamic> FetchPackage(string packageName)
 //        {
 //            var url = String.Format(_nugetFeedURL, packageName);
-
-//            return Http.GetJsonAsync(url);
+//            HttpClient client = new HttpClient();
+//            return client.GetJsonAsync(url);
 //        }
 
 //        protected string ExtractPackageName(Uri responseUri)

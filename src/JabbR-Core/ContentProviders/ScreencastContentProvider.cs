@@ -4,6 +4,7 @@
 //using System.Threading.Tasks;
 //using JabbR_Core.Infrastructure;
 //using JabbR_Core.ContentProviders.Core;
+//using System.Net.Http;
 
 //namespace JabbR_Core.ContentProviders
 //{
@@ -34,8 +35,8 @@
 //        {
 //            //Force https for the url
 //            var builder = new UriBuilder(request.RequestUri) { Scheme = "https" };
-
-//            return Http.GetAsync(builder.Uri).Then(response =>
+//            HttpClient client = new HttpClient();
+//            return client.GetAsync(builder.Uri).Then(response =>
 //            {
 //                var pageInfo = new PageInfo();
 //                using (Stream responseStream = response.GetResponseStream())
