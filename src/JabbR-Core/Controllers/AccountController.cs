@@ -238,7 +238,7 @@ namespace JabbR_Core.Controllers
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
                     }
-                    return RedirectToLocal(returnUrl);
+                    return View("RegisterConfirmation");
                 }
                 AddErrors(result);
             }
@@ -514,6 +514,16 @@ namespace JabbR_Core.Controllers
         public IActionResult ForgotPasswordConfirmation()
         {
             return View();
+        }
+
+        //
+        // Used for comfirmation pages to redirect to Login
+        // GET: /Account/LoginRedirect
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult LoginRedirect()
+        {
+            return this.Redirect("~/account/login");
         }
 
         //
