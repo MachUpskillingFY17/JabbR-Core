@@ -139,7 +139,8 @@ namespace JabbR_Core
                                                new GitHubIssueCommentsContentProvider(),
                                                new YouTubeContentProvider(),
                                                new ImageContentProvider(provider.GetService<UploadProcessor>()),
-                                               new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>())});
+                                               new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>()),
+                                               new BBCContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
@@ -187,9 +188,15 @@ namespace JabbR_Core
             app.UseCsp(options =>
             options.DefaultSources(s => s.Self())
                     .ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com", "code.jquery.com", "api.github.com", "avatars.githubusercontent.com",
-                                                               "twitter.com").UnsafeEval())
-                    .StyleSources(s=> s.Self().UnsafeInline())
-                    .ImageSources(s=> s.Self().CustomSources("secure.gravatar.com")));
+                                                               "*.twitter.com", "cdn.syndication.twimg.com").UnsafeEval())
+                    .StyleSources(s => s.Self().CustomSources("platform.twitter.com").UnsafeInline())
+                    .ImageSources(s => s.CustomSources("*", "data:"))
+                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com"))
+                    .ObjectSources(s => s.CustomSources("*.youtube.com")));
+                    // Left out to support many image sources
+                    // Uncomment to restrict image sources including data:image elements
+                    //.ImageSources(s=> s.Self().CustomSources("secure.gravatar.com", "syndication.twitter.com", "platform.twitter.com", "pbs.twimg.com",
+                                                             //"avatars.githubusercontent.com")));
             app.UseXXssProtection(option => option.EnabledWithBlockMode());
             app.UseXfo(options => options.Deny());
             app.UseXContentTypeOptions();
