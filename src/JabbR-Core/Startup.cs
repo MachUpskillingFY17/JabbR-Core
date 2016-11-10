@@ -142,7 +142,10 @@ namespace JabbR_Core
                                                new BBCContentProvider(),
                                                new ImgurContentProvider(),
                                                new SpotifyContentProvider(),
-                                               new _9gagContentProvider()});
+                                               new _9gagContentProvider(),
+                                               new GoogleDocsFormProvider(),
+                                               new GoogleDocsPresentationsContentProvider(),
+                                               new GoogleMapsContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
