@@ -5,6 +5,7 @@
 //using JabbR_Core.Infrastructure;
 //using System.Text.RegularExpressions;
 //using JabbR_Core.ContentProviders.Core;
+//using System.Net.Http;
 
 //namespace JabbR_Core.ContentProviders
 //{
@@ -27,7 +28,8 @@
 
 //        private Task<string> ExtractIFrameCode(ContentProviderHttpRequest request)
 //        {
-//            return Http.GetAsync(request.RequestUri).Then(response =>
+//            HttpClient client = new HttpClient();
+//            return client.GetAsync(request.RequestUri).Then(response =>
 //            {
 //                using (var responseStream = response.GetResponseStream())
 //                {

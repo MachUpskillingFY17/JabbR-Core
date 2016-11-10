@@ -35,7 +35,8 @@ namespace JabbR_Core.ContentProviders
                 //{
                 //    Trace.TraceInformation("Http.GetAsync(" + request.RequestUri + ")");
 
-                //    var response = await WebUtility.GetAsync(request.RequestUri)
+                //    HttpClient client = new HttpClient();
+                //    var response = await client.GetAsync(request.RequestUri)
                 //                             .ConfigureAwait(continueOnCapturedContext: false);
 
                 //    string fileName = Path.GetFileName(request.RequestUri.LocalPath);

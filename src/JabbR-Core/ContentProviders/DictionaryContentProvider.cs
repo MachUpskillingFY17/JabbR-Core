@@ -39,7 +39,7 @@
 //        private Task<PageInfo> ExtractFromResponse(ContentProviderHttpRequest request)
 //        {
 //            HttpClient client = new HttpClient();
-//            return .GetAsync(request.RequestUri).Then(response =>
+//            return client.GetAsync(request.RequestUri).Then(response =>
 //            {
 //                var pageInfo = new PageInfo();
 //                using (var responseStream = response.GetResponseStream())
