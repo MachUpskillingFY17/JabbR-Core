@@ -12,7 +12,7 @@
             notificationId = $this.data('notificationId');
 
         ev.preventDefault();
-        
+
         if ($this.hasClass('disabled')) {
             return false;
         }

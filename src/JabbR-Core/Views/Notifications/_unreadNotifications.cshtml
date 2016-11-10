@@ -12,7 +12,7 @@
             @if (!notification.Read) { 
             <li data-notification-id="@notification.NotificationKey" class="notification-item @(!notification.Read ? "notification-unread" : "")">
                 
-                    <a href="#" title="@LanguageResources.Notifications_MarkAsRead" class="pull-right js-mark-as-read" data-action-url="@Url.Content("~/notifications/markasread")" data-notification-id="@notification.NotificationKey">
+                    <a href="#" title="@LanguageResources.Notifications_MarkAsRead" class="pull-right js-mark-as-read" id="click" data-action-url="@Url.Content("~/notifications/markasread")" data-notification-id="@notification.NotificationKey">
                         <i class="icon-large icon-ok-circle"></i>
                     </a>
                 
@@ -35,4 +35,3 @@
 {
     <p id="no-notifications" class="well well-large">@LanguageResources.Notifications_NoUnread</p>
 }
-
