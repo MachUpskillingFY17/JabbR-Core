@@ -52,11 +52,13 @@
 //            return TaskAsyncHelper.FromResult<ContentProviderResult>(null);
 //        }
 
-//        private static Task<dynamic> FetchDinner(int dinnerId)
+//        private static async Task<dynamic> FetchDinner(int dinnerId)
 //        {
 //            string url = String.Format(_nerdDinnerODdataFeedServiceDinnerQueryFormat, dinnerId);
 //            HttpClient client = new HttpClient();
-//            return client.GetJsonAsync(url);
+//            var temp = await client.GetJson(url);
+//            temp.RequestMessage.Content
+//            return temp;
 //        }
 
 //        protected string ExtractParameter(Uri responseUri)
