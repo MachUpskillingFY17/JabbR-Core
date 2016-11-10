@@ -4,6 +4,7 @@ using JabbR_Core.Services;
 using System.Threading.Tasks;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 
 namespace JabbR_Core.UploadHandlers
 {
@@ -11,9 +12,9 @@ namespace JabbR_Core.UploadHandlers
     {
         private readonly ApplicationSettings _appSettings;
 
-        public UploadProcessor(ApplicationSettings settings)
+        public UploadProcessor(IOptions<ApplicationSettings> settings)
         {
-            _appSettings = settings;
+            _appSettings = settings.Value; 
         }
 
         //public async Task<UploadResult> HandleUpload(string fileName, string contentType, Stream stream, long contentLength)

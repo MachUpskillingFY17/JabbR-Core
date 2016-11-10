@@ -134,12 +134,17 @@ namespace JabbR_Core
             services.Configure<AuthMessageSenderOptions>(_configuration);
 
             // Register Content Providers and File Upload Handlers
-            services.AddTransient<IList<IContentProvider>>(provider => 
-                new List<IContentProvider>() { new GitHubIssuesContentProvider(), new GitHubIssueCommentsContentProvider(), new YouTubeContentProvider() });
+            services.AddTransient<IList<IContentProvider>>(provider =>
+                new List<IContentProvider>() { new GitHubIssuesContentProvider(),
+                                               new GitHubIssueCommentsContentProvider(),
+                                               new YouTubeContentProvider(),
+                                               new ImageContentProvider(provider.GetService<UploadProcessor>()),
+                                               new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>())});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
             services.AddSingleton<ContentProviderProcessor, ContentProviderProcessor>();
+            services.AddScoped<UploadProcessor>();
 
 
             //SignalR currently doesn't use DI to resolve hubs. This will allow it.
