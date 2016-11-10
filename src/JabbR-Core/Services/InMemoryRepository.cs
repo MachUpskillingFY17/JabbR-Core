@@ -83,6 +83,7 @@ namespace JabbR_Core.Services
             LobbyRoomList = new List<LobbyRoomViewModel> { };
         }
 
+        public ChatRoom GetRoomById(int key) { return new ChatRoom(); }
         public IQueryable<ChatRoom> Rooms { get { return _rooms.AsQueryable(); } }
 
         public IQueryable<ChatUser> Users { get { return _users.AsQueryable(); } }
