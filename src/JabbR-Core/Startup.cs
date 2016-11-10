@@ -80,6 +80,7 @@ namespace JabbR_Core
             services.AddScoped<ApplicationSettings>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
+            services.AddScoped<IChatNotificationService, ChatNotificationService>();
             //services.AddScoped<IMembershipService, MembershipService>();
 
             // Establish default settings from appsettings.json
