@@ -141,7 +141,8 @@ namespace JabbR_Core
                                                new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>()),
                                                new BBCContentProvider(),
                                                new ImgurContentProvider(),
-                                               new SpotifyContentProvider()});
+                                               new SpotifyContentProvider(),
+                                               new _9gagContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
