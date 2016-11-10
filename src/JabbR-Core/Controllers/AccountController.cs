@@ -613,11 +613,14 @@ namespace JabbR_Core.Controllers
 
         private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user, IJabbrRepository repository)
         {
-            foreach(var ownedRoom in user.OwnedRooms)
-            {
+            user.OwnedRooms = _repository.GetOwnedRooms(user).ToList();
+
+            foreach (var ownedRoom in user.OwnedRooms)
+            { 
+
                 ownedRoom.ChatRoomKeyNavigation = repository.GetRoomById(ownedRoom.ChatRoomKey);
             }
-            
+
             return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
         }
 

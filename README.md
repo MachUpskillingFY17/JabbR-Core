@@ -2,7 +2,7 @@
 ---
 This is an open source, cross platform version of David Fowler's [JabbR](https://github.com/JabbR/JabbR) running on .NET Core.
 
-## Setting up for local development
+## Setting up for Local Development
  For security, connection strings and other sensitive information must be stored in environment variables.
  - You can easily read and write these key-value pairs using the `dotnet user-secrets` command
    - You must first add a reference to `Microsoft.Extensions.Configuration.UserSecrets` in your `project.json`
@@ -34,10 +34,12 @@ Alternatively, if you want to use [LocalDB, an alternative built in database](ht
 can run the same command as above, but with a simpler connection string like so
 
 ```bash
-$ dotnet user-secrets set "connectionString" "Server=(localdb)\\mssqllocaldb;Database=aspnet-application;Trusted_Connection=True;MultipleActiveResultSets=true"
+$ dotnet user-secrets set "connectionString" "Server=(localdb)\mssqllocaldb;Database=JabbRCore;Trusted_Connection=True;MultipleActiveResultSets=true"
 ```
 
-## How to access your stored user secrets
+Note that this command will double escape the back slash in the connection string for you, so you only need to enter one as shown above.
+
+## How to Access your Stored User Secrets
 
 In your `Startup.cs` file, you can access the Configuration API easily by creating an `IConfigurationRoot` object instance.
 This is created for you in the Visual Studio template project for a .NET Core Web Application, as below. 
@@ -77,6 +79,37 @@ public void ConfigureServices(IServiceCollection services)
 
 The above command will set the key `connectionString` to an environment variable containing the given database connection string.
 We've used the structure of a connection string hosted on Azure, but **you will have to use your own**
+
+## Configuring Social Authentication
+
+If you want your users to have the option to autenticate via external providers such as Facebook, Google, Twitter and Microsoft 
+you will need to obtain API keys from these providers and configure them as user secrets. We will use Facebook as an example.
+
+Find out how to obtain API keys [here.](https://docs.asp.net/en/latest/security/authentication/sociallogins.html)
+
+Once you have the AppID and AppSecret for each provider set them as user secrets using 
+
+```bash
+$ dotnet user-secrets set "Authentication:<ProviderName>:AppId" "<AppId>"
+$ dotnet user-secrets set "Authentication:<ProviderName>:AppSecret" "<AppSecret>"
+```
+
+Then enable the middleware for each provider by installing the proper NuGet package `Microsoft.AspNetCore.Authentication.<ProviderName>`.
+
+Lastly, configure the options for each provider in your Configure() method of Startup.cs as shown below.
+
+```csharp
+var facebookAppId = _configuration["Authentication:Facebook:AppId"];
+var facebookAppSecret = _configuration["Authentication:Facebook:AppSecret"];
+if (!string.IsNullOrEmpty(facebookAppId) && !string.IsNullOrEmpty(facebookAppSecret))
+{
+    app.UseFacebookAuthentication(new FacebookOptions()
+    {
+        AppId = facebookAppId,
+        AppSecret = facebookAppSecret
+    });
+}
+```
 
 ## NOTE
 

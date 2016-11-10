@@ -275,7 +275,6 @@ namespace JabbR_Core.Hubs
             // Save changes
             _repository.CommitChanges();
 
-
             var messageViewModel = new MessageViewModel(chatMessage);
 
             if (clientMessage.Id == null)
@@ -702,7 +701,7 @@ namespace JabbR_Core.Hubs
                 Name = user.Name,
                 OwnedRooms = user.OwnedRooms
                     .Select(r => r.ChatRoomKeyNavigation)
-                    .Allowed(userId)
+                    //.Allowed(userId)
                     .Where(r => !r.Closed)
                     .Select(r => r.Name),
                 Status = ((UserStatus)user.Status).ToString(),
@@ -824,6 +823,8 @@ namespace JabbR_Core.Hubs
             {
                 Clients.Group(room.Name).changeFlag(userViewModel, room.Name);
             }
+            Clients.Caller.flagChanged(isFlagCleared, userViewModel.Country);
+
         }
 
         void INotificationService.ChangeTopic(ChatUser user, ChatRoom room)
@@ -839,6 +840,7 @@ namespace JabbR_Core.Hubs
         {
             bool isWelcomeCleared = String.IsNullOrWhiteSpace(room.Welcome);
             var parsedWelcome = room.Welcome ?? String.Empty;
+            Clients.Caller.welcomeChanged(isWelcomeCleared, parsedWelcome);
             Clients.User(user.Id).welcomeChanged(isWelcomeCleared, parsedWelcome);
         }
 
@@ -1115,10 +1117,8 @@ namespace JabbR_Core.Hubs
                 // 2. user is not AFK
                 // 3. user has been active within the last 10 minutes
                 // 4. user is currently in the room
-                bool markAsRead = mentionedUser.Status != (int)UserStatus.Offline
-                                  && !mentionedUser.IsAfk
-                                  && (DateTimeOffset.UtcNow - mentionedUser.LastActivity) < TimeSpan.FromMinutes(10)
-                                  && _repository.IsUserInRoom(_cache, mentionedUser, message.RoomKeyNavigation);
+                bool markAsRead = false;//!mentionedUser.IsAfk
+                                  //&& _repository.IsUserInRoom(_cache, mentionedUser, message.RoomKeyNavigation);
 
                 _chatService.AddNotification(mentionedUser, message, message.RoomKeyNavigation, markAsRead);
 

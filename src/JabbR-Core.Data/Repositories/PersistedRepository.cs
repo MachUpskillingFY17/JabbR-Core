@@ -10,7 +10,7 @@ namespace JabbR_Core.Data.Repositories
         private readonly JabbrContext _db;
 
         private static readonly Func<JabbrContext, string, ChatUser> getUserByName = (db, userName) => db.AspNetUsers.FirstOrDefault(u => u.Name == userName);
-        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.AspNetUsers.Include(u=> u.OwnedRooms).FirstOrDefault(u => u.Id == userId);
+        private static readonly Func<JabbrContext, string, ChatUser> getUserById = (db, userId) => db.AspNetUsers.FirstOrDefault(u => u.Id == userId);
         private static readonly Func<JabbrContext, string, string, ChatUserIdentity> getIdentityByIdentity = (db, providerName, userIdentity) => db.ChatUserIdentities.Include(i => i.UserKeyNavigation).FirstOrDefault(u => u.Identity == userIdentity && u.ProviderName == providerName);
         private static readonly Func<JabbrContext, string, ChatRoom> getRoomByName = (db, roomName) => db.ChatRooms.FirstOrDefault(r => r.Name == roomName);
         private static readonly Func<JabbrContext, string, ChatClient> getClientById = (db, clientId) => db.ChatClients.FirstOrDefault(c => c.Id == clientId);
@@ -183,20 +183,20 @@ namespace JabbR_Core.Data.Repositories
             return _db.ChatMessages.FirstOrDefault(m => m.Id == id);
         }
 
-        public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
+        public IQueryable<ChatPrivateRoomUsers> GetAllowedRooms(ChatUser user)
         {
             // All public and private rooms the user can see.
-            return _db.ChatRooms
+            var rooms = _db.ChatPrivateRoomUsers
                 .Where(r =>
-                       (!r.Private) ||
-                       (r.Private && r.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
+                       (!r.ChatRoomKeyNavigation.Private) ||
+                       (r.ChatRoomKeyNavigation.Private && r.ChatRoomKeyNavigation.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
+            return rooms;
         }
 
-        public IQueryable<ChatRoom> GetOwnedRooms(ChatUser user)
+        public IQueryable<ChatRoomOwners> GetOwnedRooms(ChatUser user)
         {
             var rooms = _db.ChatRoomOwners
-                .Where(r => r.ChatUserId == user.Id)
-                .Select(r => r.ChatRoomKeyNavigation);
+                .Where(r => r.ChatUserId == user.Id);
 
             return rooms;
         }
@@ -375,6 +375,5 @@ namespace JabbR_Core.Data.Repositories
         {
             _db.Entry(entity).Reload();
         }
-
     }
 }

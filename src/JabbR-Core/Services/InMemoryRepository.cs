@@ -234,22 +234,17 @@ namespace JabbR_Core.Services
             return GetRoomByName(roomName);
         }
 
-        public IQueryable<ChatRoom> GetAllowedRooms(ChatUser user)
+        public IQueryable<ChatPrivateRoomUsers> GetAllowedRooms(ChatUser user)
         {
             var allowedRooms = _rooms.Allowed(user.Id);
 
-            return _rooms
-                .Where(r =>
-                    (!r.Private) ||
-                    (r.Private && allowedRooms.Contains(r)))
-                .AsQueryable();
+            return null;
         }
 
-        public IQueryable<ChatRoom> GetOwnedRooms(ChatUser user)
+        public IQueryable<ChatRoomOwners> GetOwnedRooms(ChatUser user)
         {
             var rooms = _owner
                 .Where(r => r.ChatUserId == user.Id)
-                .Select(r => r.ChatRoomKeyNavigation)
                 .AsQueryable();
 
             return rooms;
@@ -329,6 +324,15 @@ namespace JabbR_Core.Services
             return _users.SelectMany(u => u.ConnectedClients).FirstOrDefault(c => c.Id == clientId);
         }
 
+        public IQueryable<ChatUser> GetUsersByRoom(ChatRoom room)
+        {
+            /*var users = _db.ChatRoomUsers
+                    .Where(r => r.ChatRoomKey == room.Key)
+                    .Select(r => r.ChatUserKeyNavigation);*/
+
+            return null;
+        }
+
         public IQueryable<ChatMessage> GetPreviousMessages(string messageId)
         {
             // Ineffcient since we don't have a messages collection
@@ -385,6 +389,10 @@ namespace JabbR_Core.Services
         public void Reload(object entity)
         {
         }
-        
+
+        IQueryable<ChatRoomOwners> IJabbrRepository.GetOwnedRooms(ChatUser user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

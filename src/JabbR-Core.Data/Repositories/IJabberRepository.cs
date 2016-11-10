@@ -17,10 +17,11 @@ namespace JabbR_Core.Data.Repositories
         IQueryable<ChatUser> SearchUsers(string name);
         IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room);
         IQueryable<ChatMessage> GetPreviousMessages(string messageId);
-        IQueryable<ChatRoom> GetAllowedRooms(ChatUser user);
-        IQueryable<ChatRoom> GetOwnedRooms(ChatUser user);
+        IQueryable<ChatPrivateRoomUsers> GetAllowedRooms(ChatUser user);
+        IQueryable<ChatRoomOwners> GetOwnedRooms(ChatUser user);
         IQueryable<ChatUser> GetRoomOwners(ChatRoom room);
         IQueryable<Notification> GetNotificationsByUser(ChatUser user);
+        
         ChatMessage GetMessageById(string id);
         ChatUser GetUserById(string userId);
         ChatRoom GetRoomByName(string roomName);
@@ -31,7 +32,7 @@ namespace JabbR_Core.Data.Repositories
         ChatUser GetUserByIdentity(string providerName, string userIdentity);
         ChatUser GetUserByRequestResetPasswordId(string userName, string requestResetPasswordId);
         Notification GetNotificationById(int notificationId);
-
+       
         ChatClient GetClientById(string clientId, bool includeUser = false);
 
         void AddUserRoom(ChatUser user, ChatRoom room);
