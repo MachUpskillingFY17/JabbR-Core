@@ -141,7 +141,8 @@ namespace JabbR_Core
                                                new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>()),
                                                new BBCContentProvider(),
                                                new ImgurContentProvider(),
-                                               new SpotifyContentProvider()});
+                                               new SpotifyContentProvider(),
+                                               new _9gagContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
@@ -192,7 +193,7 @@ namespace JabbR_Core
                                                                "*.twitter.com", "cdn.syndication.twimg.com").UnsafeEval())
                     .StyleSources(s => s.Self().CustomSources("platform.twitter.com").UnsafeInline())
                     .ImageSources(s => s.CustomSources("*", "data:"))
-                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com"))
+                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com", "*.spotify.com"))
                     .ObjectSources(s => s.CustomSources("*.youtube.com")));
                     // Left out to support many image sources
                     // Uncomment to restrict image sources including data:image elements

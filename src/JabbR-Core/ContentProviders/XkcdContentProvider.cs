@@ -5,6 +5,7 @@
 //using System.Threading.Tasks;
 //using JabbR_Core.Infrastructure;
 //using JabbR_Core.ContentProviders.Core;
+//using System.Net.Http;
 
 //namespace JabbR_Core.ContentProviders
 //{
@@ -31,7 +32,7 @@
 
 //                return new ContentProviderResult
 //                {
-//                    Content = String.Format(ContentFormat, request.RequestUri.ToString(),  pageInfo.ImageUrl, pageInfo.Description),
+//                    Content = String.Format(ContentFormat, request.RequestUri.ToString(), pageInfo.ImageUrl, pageInfo.Description),
 //                    Title = pageInfo.Title
 //                };
 //            });
@@ -39,30 +40,49 @@
 
 //        private Task<XkcdContentProvider.XkcdComicInfo> ExtractFromResponse(ContentProviderHttpRequest request)
 //        {
-//            return Http.GetAsync(request.RequestUri).Then(response =>
+//            HttpClient client = new HttpClient();
+//            return client.GetAsync(request.RequestUri).Then(async response =>
 //            {
 //                var comicInfo = new XkcdComicInfo();
+//                response.EnsureSuccessStatusCode();
 
-//                using (var responseStream = response.GetResponseStream())
+//                var responseContent = await response.Content.ReadAsStringAsync();
+
+//                var htmlDocument = new HtmlDocument(); 
+//                htmlDocument.Load(responseContent);
+//                htmlDocument.OptionFixNestedTags = true;
+
+//                var comic = htmlDocument.DocumentNode.SelectSingleNode("//div[@id='comic']/img");
+
+//                if (comic == null)
 //                {
-//                    var htmlDocument = new htmlDocument();
-//                    htmlDocument.Load(responseStream);
-//                    htmlDocument.OptionFixNestedTags = true;
-
-//                    var comic = htmlDocument.DocumentNode.SelectSingleNode("//div[@id='comic']/img");
-                                            
-//                    if (comic == null)
-//                    {
-//                        return null;
-//                    }
-
-//                    comicInfo.Title = comic.Attributes["alt"].Value;
-//                    comicInfo.ImageUrl = comic.Attributes["src"].Value;
-//                    comicInfo.Description = comic.Attributes["title"].Value;
-
+//                    return null;
 //                }
 
+//                comicInfo.Title = comic.Attributes["alt"].Value;
+//                comicInfo.ImageUrl = comic.Attributes["src"].Value;
+//                comicInfo.Description = comic.Attributes["title"].Value;
+
 //                return comicInfo;
+//                //using (var responseStream = response.GetResponseStream())
+//                //{
+//                //    var htmlDocument = new htmlDocument();
+//                //    htmlDocument.Load(responseStream);
+//                //    htmlDocument.OptionFixNestedTags = true;
+
+//                //    var comic = htmlDocument.DocumentNode.SelectSingleNode("//div[@id='comic']/img");
+
+//                //    if (comic == null)
+//                //    {
+//                //        return null;
+//                //    }
+
+//                //    comicInfo.Title = comic.Attributes["alt"].Value;
+//                //    comicInfo.ImageUrl = comic.Attributes["src"].Value;
+//                //    comicInfo.Description = comic.Attributes["title"].Value;
+//                //}
+
+//                //return comicInfo;
 //            });
 //        }
 

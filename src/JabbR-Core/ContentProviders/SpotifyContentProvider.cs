@@ -25,7 +25,7 @@ namespace JabbR_Core.ContentProviders
 
         public override bool IsValidContent(Uri uri)
         {
-            return uri.AbsoluteUri.StartsWith("http://open.spotify.com/", StringComparison.CurrentCultureIgnoreCase);
+            return string.Equals(uri.Host, "play.spotify.com", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
