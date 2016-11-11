@@ -78,17 +78,17 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#allNotifications" data-toggle="tab">@LanguageResources.Notifications_AllNotifications</a>
+                        <a href="#AllNotifications" data-toggle="tab">@LanguageResources.Notifications_AllNotifications</a>
                     </li>
                 </ul>
                 <div class="tab-content">
                   <!-- if (notificationsViewModel.Notifications.Count > 0)
                     {-->
-                        <div class="account-details tab-pane active" id="unreadNotifications">
-                            @Html.Partial("_unreadNotifications", notificationsViewModel)
+                        <div class="account-details tab-pane active" id="UnreadNotifications">
+                            @Html.Partial("_UnreadNotifications", notificationsViewModel)
                         </div>
-                        <div class="account-details tab-pane hide" id="allNotifications">
-                            @Html.Partial("_allNotifications", notificationsViewModel)
+                        <div class="account-details tab-pane hide" id="AllNotifications">
+                            @Html.Partial("_AllNotifications", notificationsViewModel)
                         </div>
                   <!--  }
                     <!--if (notificationsViewModel.Notifications.Count == 0)

@@ -2,21 +2,21 @@
 @using System.Linq;
 @model LoginViewModel
 @{
-    Layout = "_layout.cshtml"; 
+    Layout = "_Layout.cshtml"; 
     //var hasSocialProviders = Model.SocialDetails.ConfiguredProviders.Any();
 }
 
 <div class="row-fluid">
     <div class="span6"> <!-- atsignif (!hasSocialProviders) {<text>offset3</text>}"--->
         <div class="usernamepassword-auth"> <!-- atsignif(hasSocialProviders) {<text>auth-divider</text>}"-->
-          @Html.Partial("_username"/*, Model*/)
+          @Html.Partial("_Username"/*, Model*/)
         </div>
     </div>
   <!-- atsignif(hasSocialProviders) 
     {-->
       <div class="span6">
           <div class="social-auth">
-            @Html.Partial("_social", Model.SocialDetails)
+            @Html.Partial("_Social", Model.SocialDetails)
           </div>
       </div>
    <!--}--> 
