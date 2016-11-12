@@ -133,7 +133,7 @@ namespace JabbR_Core.Controllers
                     if (!await _userManager.IsEmailConfirmedAsync(user))
                     {
                         ModelState.AddModelError(null, "Email address has not been verified yet.");
-                        return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                        return View(GetLoginViewModel(_settings, _repository);
                     }
                 }
 
@@ -157,18 +157,18 @@ namespace JabbR_Core.Controllers
                     // user account locked out
                     // TODO: Future implemtation of Lockout View
                     // return View("Lockout");
-                    return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                    return View(GetLoginViewModel(_settings, _repository));
                 }
                 else
                 {
                     // If we got this far, something failed, redisplay form
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                    return View(GetLoginViewModel(_settings, _repository));
                 }
             }
 
             // If we got this far, something failed, redisplay form
-            return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+            return View(GetLoginViewModel(_settings, _repository));
         }
 
         //
@@ -346,7 +346,7 @@ namespace JabbR_Core.Controllers
             return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });//, errors });
 
             //ModelState.AddModelError(string.Empty, "Error changing password.");
-            //return GetProfileView(/*_authService, */user);
+            //return GetProfileView(user);
         }
 
         //
@@ -581,7 +581,7 @@ namespace JabbR_Core.Controllers
             return View();
         }
 
-        private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user, IJabbrRepository repository)
+        private dynamic GetProfileView(ChatUser user, IJabbrRepository repository)
         {
             user.OwnedRooms = _repository.GetOwnedRooms(user).ToList();
 
@@ -591,11 +591,10 @@ namespace JabbR_Core.Controllers
                 ownedRoom.ChatRoomKeyNavigation = repository.GetRoomById(ownedRoom.ChatRoomKey);
             }
 
-            return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
+            return View(new ProfilePageViewModel(user));
         }
 
-        private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
-                                                 IJabbrRepository repository)
+        private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings, IJabbrRepository repository)
         {
             ChatUser user = null;
 
@@ -605,7 +604,7 @@ namespace JabbR_Core.Controllers
                 user = _repository.GetUserById(id);
             }
 
-            var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
+            var viewModel = new LoginViewModel(applicationSettings, user != null ? user.ChatUserIdentities : null);
             return viewModel;
         }
 
