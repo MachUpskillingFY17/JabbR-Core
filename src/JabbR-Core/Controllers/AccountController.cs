@@ -133,7 +133,7 @@ namespace JabbR_Core.Controllers
                     if (!await _userManager.IsEmailConfirmedAsync(user))
                     {
                         ModelState.AddModelError(null, "Email address has not been verified yet.");
-                        return View(GetLoginViewModel(_settings, _repository);
+                        return View(GetLoginViewModel(_settings, _repository));
                     }
                 }
 
