@@ -87,6 +87,7 @@ namespace JabbR_Core.Hubs
             if (reconnecting)
             {
                 // If the user was marked as offline then mark them inactive
+
                 if (user.Status == (int)UserStatus.Offline)
                 {
                     user.Status = (int)UserStatus.Inactive;
@@ -721,12 +722,15 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.Invite(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
         {
+            Clients.Caller.sendInvite(user.Name, targetUser.Name, targetRoom.Name);
 
             // Send the invite message to the sendee
             Clients.User(targetUser.Id).sendInvite(user.Name, targetUser.Name, targetRoom.Name);
 
             // Send the invite notification to the sender
             Clients.User(user.Id).sendInvite(user.Name, targetUser.Name, targetRoom.Name);
+
+           // Clients.Caller.invite(user.Name, targetUser.Name, targetRoom.Name);
         }
 
         void INotificationService.NudgeUser(ChatUser user, ChatUser targetUser)
