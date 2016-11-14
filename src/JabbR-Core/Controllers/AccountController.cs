@@ -114,7 +114,7 @@ namespace JabbR_Core.Controllers
         // POST: /Account/Login
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             // check if the user IsAuthenticated
@@ -126,16 +126,15 @@ namespace JabbR_Core.Controllers
 
             if (ModelState.IsValid)
             {
-
-                if (_settings.NewUserForceEmailConfirmation)
-                {
-                    var user = await _userManager.FindByNameAsync(model.Username);
-                    if (!await _userManager.IsEmailConfirmedAsync(user))
-                    {
-                        ModelState.AddModelError(null, "Email address has not been verified yet.");
-                        return View(GetLoginViewModel(_settings, _repository));
-                    }
-                }
+                //if (_settings.NewUserForceEmailConfirmation)
+                //{
+                //    var user = await _userManager.FindByNameAsync(model.Username);
+                //    if (!await _userManager.IsEmailConfirmedAsync(user))
+                //    {
+                //        ModelState.AddModelError(null, "Email address has not been verified yet.");
+                //        return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                //    }
+                //}
 
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
@@ -250,6 +249,7 @@ namespace JabbR_Core.Controllers
                             protocol: HttpContext.Request.Scheme);
                         await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
                             $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                         //await _signInManager.SignInAsync(user, isPersistent: false);
                     }
                     else
                     {
@@ -519,7 +519,7 @@ namespace JabbR_Core.Controllers
             {
                 // Find existing user with a matching email address
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                if (user == null /*|| !(await _userManager.IsEmailConfirmedAsync(user))*/)
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
