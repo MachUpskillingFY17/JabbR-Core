@@ -239,22 +239,13 @@ namespace JabbR_Core.Controllers
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
                     }
-                    //return View("RegisterConfirmation");
-                    return this.Redirect("~/Account/RegisterConfirmation");
+                    return View("RegisterConfirmation");
                 }
                 AddErrors(result);
             }
 
             // If we got this far, something failed, redisplay form
             return View(model);
-        }
-
-        // GET: /Account/RegisterConfirmation
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult RegisterConfirmation()
-        {
-            return View();
         }
 
         //[HttpPost]
@@ -501,8 +492,7 @@ namespace JabbR_Core.Controllers
                 if (user == null /*|| !(await _userManager.IsEmailConfirmedAsync(user))*/)
                 {
                     // Don't reveal that the user does not exist or is not confirmed
-                    //return View("ForgotPasswordConfirmation");
-                    return this.Redirect("~/Account/ForgotPasswordConfirmation");
+                    return View("ForgotPasswordConfirmation");
                 }
 
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
@@ -511,7 +501,7 @@ namespace JabbR_Core.Controllers
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-                return this.Redirect("~/Account/ForgotPasswordConfirmation");
+                return View("ForgotPasswordConfirmation");
             }
 
             // If we got this far, something failed, redisplay form
