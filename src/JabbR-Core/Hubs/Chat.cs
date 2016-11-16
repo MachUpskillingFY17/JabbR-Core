@@ -87,6 +87,7 @@ namespace JabbR_Core.Hubs
             if (reconnecting)
             {
                 // If the user was marked as offline then mark them inactive
+
                 if (user.Status == (int)UserStatus.Offline)
                 {
                     user.Status = (int)UserStatus.Inactive;
