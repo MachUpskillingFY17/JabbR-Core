@@ -48,13 +48,17 @@ Type /? - to show the full list of JabbR Commands
 
 #### Content Provider Support
 Inline image and content support for your favorite sites:
-- Twitter
-- 9gag
 - BBC News
-- GitHub Issues
+- Dictionary.com 
+- GitHub (issues and comments)
 - Imgur
+- Slideshare
+- Soundcloud 
 - Spotify
+- Twitter
+- Xkcd
 - Youtube
+- 9gag
 
 
 ## Setting up for Local Development
@@ -138,7 +142,7 @@ We've used the structure of a connection string hosted on Azure, but **you will 
 ## Configuring Social Authentication
 
 If you want your users to have the option to autenticate via external providers such as Facebook, Google, Twitter and Microsoft 
-you will need to obtain API keys from these providers and configure them as user secrets. We will use Facebook as an example.
+you will need to obtain API keys from these providers and configure them as user secrets.
 
 Find out how to obtain API keys [here.](https://docs.asp.net/en/latest/security/authentication/sociallogins.html)
 
@@ -147,23 +151,6 @@ Once you have the AppID and AppSecret for each provider set them as user secrets
 ```bash
 $ dotnet user-secrets set "Authentication:<ProviderName>:AppId" "<AppId>"
 $ dotnet user-secrets set "Authentication:<ProviderName>:AppSecret" "<AppSecret>"
-```
-
-Then enable the middleware for each provider by installing the proper NuGet package `Microsoft.AspNetCore.Authentication.<ProviderName>`.
-
-Lastly, configure the options for each provider in your Configure() method of Startup.cs as shown below.
-
-```csharp
-var facebookAppId = _configuration["Authentication:Facebook:AppId"];
-var facebookAppSecret = _configuration["Authentication:Facebook:AppSecret"];
-if (!string.IsNullOrEmpty(facebookAppId) && !string.IsNullOrEmpty(facebookAppSecret))
-{
-    app.UseFacebookAuthentication(new FacebookOptions()
-    {
-        AppId = facebookAppId,
-        AppSecret = facebookAppSecret
-    });
-}
 ```
 
 ## NOTE
@@ -194,7 +181,7 @@ To run the .NET CLI test runner, type `dotnet test` and press enter. It should r
 We used xUnit to write our tests. A verbose guide on writing tests for .Net Core with xUnit can be found 
 [here](https://xunit.github.io/docs/getting-started-dotnet-core.html).
 Basically:
- - A reference to xUnit should already be in the project.json of the JabbR-Core.Tests library. 
+ - A reference to xUnit is already in the project.json of the JabbR-Core.Tests library. 
  - Make sure your class has a using statement for xUnit. (`using Xunit;`)
  - Tests should use the `[Fact]` tag and always have an assertion statement. 
  - You can also write Theories, which are tests that are true for a particular set of data. 
