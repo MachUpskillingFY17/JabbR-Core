@@ -136,33 +136,43 @@ namespace JabbR_Core.Controllers
                 //    }
                 //}
 
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                // 3rd paramater (isPersisted:) holds cookie after browser is closed
-                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
+                // Check if user.isBanned
+                var user = await _userManager.FindByNameAsync(model.Username);
+                if (user.IsBanned)
                 {
-                    // user logged in
-                    // Redirect to home page - Lobby
-                    return this.Redirect("~/");
+                    return View("UserBannedNotification");
                 }
-                if (result.RequiresTwoFactor)
-                {
-                    // TODO: Future implemntation
-                    // return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    // user account locked out
-                    // TODO: Future implemtation of Lockout View
-                    // return View("Lockout");
-                    return View(GetLoginViewModel(_settings, _repository));
-                }
+                // If not, attempt to sign in with form credientials
                 else
                 {
-                    // If we got this far, something failed, redisplay form
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(GetLoginViewModel(_settings, _repository));
+                    // This doesn't count login failures towards account lockout
+                    // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                    // 3rd paramater (isPersisted:) holds cookie after browser is closed
+                    var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        // user logged in
+                        // Redirect to home page - Lobby
+                        return this.Redirect("~/");
+                    }
+                    if (result.RequiresTwoFactor)
+                    {
+                        // TODO: Future implemntation
+                        // return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                    }
+                    if (result.IsLockedOut)
+                    {
+                        // user account locked out
+                        // TODO: Future implemtation of Lockout View
+                        // return View("Lockout");
+                        return View(GetLoginViewModel(_settings, _repository));
+                    }
+                    else
+                    {
+                        // If we got this far, something failed, redisplay form
+                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                        return View(GetLoginViewModel(_settings, _repository));
+                    }
                 }
             }
 
