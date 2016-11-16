@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  jabbr-core:
+    image: user/jabbr-core${TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80"
