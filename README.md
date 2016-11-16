@@ -122,7 +122,7 @@ if (!string.IsNullOrEmpty(facebookAppId) && !string.IsNullOrEmpty(facebookAppSec
 [Learn more about safe storage of user secrets in .NET](https://docs.asp.net/en/latest/fundamentals/configuration.html)
 
 ## Testing
-----
+
 ### To Run
 
 You can run the written tests from either Visual Studio or your Console. 
