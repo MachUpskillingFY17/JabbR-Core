@@ -8,10 +8,53 @@ Further documentation below on
 [configuring social authentication](#configuring-social-authentication), and
 [testing](#testing).
 
-JabbR is a chat application similar to IRC, built with ASP.NET Core, using SignalR and Entity Framework.
 ## Features and commands
+JabbR is a chat application similar to IRC, built with ASP.NET Core, using SignalR and Entity Framework.
 
+#### Commands
+Currently ported is a number of custom commands. 
 
+Join and leave a room. 
+```
+/join [roomName]
+/leave [roomName]
+```
+Find users. 
+```
+Type /who without parameters to list who's in the room.
+/who [userName]
+/where [userName]
+```
+Set a status. Use Afk to set your away message.
+```
+Type /note "Status message" to set your status message, and /note to clear it. 
+/afk "Away message"
+/flag [countryAbreviation] to set your country.
+```
+Personalize your room.
+```
+/topic "Set the topic"
+/welcome "Set the welcome command"
+```
+Make a meme!
+```
+/meme [memeName] "top-text" "bottom-text"
+The top and bottom text is optional, make sure any space between words is denoted with a dash. 
+```
+If you ever get lost,
+```
+Type /? - to show the full list of JabbR Commands
+```
+
+#### Content Provider Support
+Inline image and content support for your favorite sites:
+- Twitter
+- 9gag
+- BBC News
+- GitHub Issues
+- Imgur
+- Spotify
+- Youtube
 
 
 ## Setting up for Local Development
