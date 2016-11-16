@@ -508,14 +508,14 @@ namespace JabbR_Core.Controllers
                 try
                 {
                     
-                // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
-                // Send an email with this link
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-                    //return View("ForgotPasswordConfirmation");
-                return this.Redirect("~/Account/ForgotPasswordConfirmation");
+                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
+                    // Send an email with this link
+                    var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    await _emailSender.SendEmailAsync(model.Email, "Reset Password",
+                       $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+                        //return View("ForgotPasswordConfirmation");
+                    return this.Redirect("~/Account/ForgotPasswordConfirmation");
                 }
                 catch (Exception ex)
                 {
@@ -524,7 +524,7 @@ namespace JabbR_Core.Controllers
 
             }
             // If we got this far, something failed, redisplay form
-            return View(model);
+            return this.Redirect("~/Account/ForgotPassword");
         }
 
         //
