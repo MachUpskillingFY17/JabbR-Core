@@ -1,6 +1,19 @@
 ## Welcome to the port of JabbR to ASP.NET Core
 ---
-This is an open source, cross platform version of David Fowler's [JabbR](https://github.com/JabbR/JabbR) running on .NET Core.
+This is an open source, cross platform version of David Fowler's [JabbR](https://github.com/JabbR/JabbR) running on .NET Core. 
+
+Further documentation below on 
+[setting up for local development](#Setting-up-for-Local-Development), 
+[accessing stored user secrets](#How-to-Access-your-Stored-User-Secrets),
+[configuring social authentication](#Configuring-Social-Authentication), and
+[testing](#Testing).
+
+JabbR is a chat application similar to IRC, built with ASP.NET Core, using SignalR and Entity Framework.
+## Features and commands
+
+
+
+
 
 ## Setting up for Local Development
  For security, connection strings and other sensitive information must be stored in environment variables.
