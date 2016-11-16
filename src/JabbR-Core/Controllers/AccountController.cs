@@ -520,10 +520,11 @@ namespace JabbR_Core.Controllers
                 catch (Exception ex)
                 {
                     //return Content(ex.ToString());
-                    return View(model);
+                    //return View(model);
+                    return this.Redirect("~/Account/ForgotPassword");
                 }
-
             }
+
             // If we got this far, something failed, redisplay form
             return this.Redirect("~/Account/ForgotPassword");
         }
