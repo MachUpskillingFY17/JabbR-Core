@@ -495,6 +495,9 @@ namespace JabbR_Core.Controllers
                     return View("ForgotPasswordConfirmation");
                 }
 
+                try
+                {
+                    
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
                 // Send an email with this link
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -502,8 +505,13 @@ namespace JabbR_Core.Controllers
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
                 return View("ForgotPasswordConfirmation");
-            }
+                }
+                catch (Exception ex)
+                {
+                    return Content(ex.ToString());
+                }
 
+            }
             // If we got this far, something failed, redisplay form
             return View(model);
         }
