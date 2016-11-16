@@ -134,25 +134,30 @@ namespace JabbR_Core
 
             // Register Content Providers and File Upload Handlers
             services.AddTransient<IList<IContentProvider>>(provider =>
-                new List<IContentProvider>() { new GitHubIssuesContentProvider(),
-                                               new GitHubIssueCommentsContentProvider(),
-                                               new YouTubeContentProvider(),
-                                               new ImageContentProvider(provider.GetService<UploadProcessor>()),
-                                               new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>()),
+                new List<IContentProvider>() { new AudioContentProvider(),
+                                               new BashQDBContentProvider(),
                                                new BBCContentProvider(),
-                                               new ImgurContentProvider(),
-                                               new SpotifyContentProvider(),
-                                               new _9gagContentProvider(),
+                                               new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>()),
+                                               new DictionaryContentProvider(),
+                                               new GitHubIssuesContentProvider(),
+                                               new GitHubIssueCommentsContentProvider(),
                                                new GoogleDocsFormProvider(),
                                                new GoogleDocsPresentationsContentProvider(),
                                                new GoogleMapsContentProvider(),
-                                               new UrbanDictionaryContentProvider(),
+                                               new ImageContentProvider(provider.GetService<UploadProcessor>()),
+                                               new ImgurContentProvider(),
                                                new NerdDinnerContentProvider(),
                                                new NugetNuggetContentProvider(),
+                                               new ScreencastContentProvider(),
                                                new SlideShareContentProvider(),
                                                new SoundCloudContentProvider(),
+                                               new SpotifyContentProvider(),
+                                               new UrbanDictionaryContentProvider(),
+                                               new UserVoiceContentProvider(),
                                                new UStreamContentProvider(),
-                                               new UserVoiceContentProvider()});
+                                               new XkcdContentProvider(),
+                                               new YouTubeContentProvider(),
+                                               new _9gagContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
