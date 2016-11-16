@@ -10,7 +10,14 @@ namespace JabbR_Core.ContentProviders
     {
         public override IEnumerable<string> Domains
         {
-            get { yield return "http://maps.google.com"; }
+            get
+            {
+                yield return "http://maps.google.com";
+                yield return "https://maps.google.com";
+                yield return "http://www.google.com/maps";
+                yield return "https://www.google.com/maps";
+            }
+
         }
 
         public override string MediaFormatString

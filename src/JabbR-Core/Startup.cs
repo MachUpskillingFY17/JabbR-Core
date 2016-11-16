@@ -145,7 +145,10 @@ namespace JabbR_Core
                                                new _9gagContentProvider(),
                                                new GoogleDocsFormProvider(),
                                                new GoogleDocsPresentationsContentProvider(),
-                                               new GoogleMapsContentProvider()});
+                                               new GoogleMapsContentProvider(),
+                                               new UrbanDictionaryContentProvider(),
+                                               new NerdDinnerContentProvider(),
+                                               new NugetNuggetContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
@@ -195,8 +198,8 @@ namespace JabbR_Core
                     .ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com", "code.jquery.com", "api.github.com", "avatars.githubusercontent.com",
                                                                "*.twitter.com", "cdn.syndication.twimg.com").UnsafeEval())
                     .StyleSources(s => s.Self().CustomSources("platform.twitter.com").UnsafeInline())
-                    .ImageSources(s => s.CustomSources("*", "data:"))
-                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com", "*.spotify.com"))
+                    .ImageSources(s => s.CustomSources("*", "data:", "nerddinner.com"))
+                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com", "*.spotify.com", "*.bing.com"))
                     .ObjectSources(s => s.CustomSources("*.youtube.com")));
                     // Left out to support many image sources
                     // Uncomment to restrict image sources including data:image elements
