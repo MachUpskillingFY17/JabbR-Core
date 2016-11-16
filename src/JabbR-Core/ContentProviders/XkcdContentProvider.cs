@@ -48,7 +48,7 @@
 
 //                var responseContent = await response.Content.ReadAsStringAsync();
 
-//                var htmlDocument = new HtmlDocument(); 
+//                var htmlDocument = new HtmlDocument();
 //                htmlDocument.Load(responseContent);
 //                htmlDocument.OptionFixNestedTags = true;
 
@@ -64,25 +64,25 @@
 //                comicInfo.Description = comic.Attributes["title"].Value;
 
 //                return comicInfo;
-//                //using (var responseStream = response.GetResponseStream())
-//                //{
-//                //    var htmlDocument = new htmlDocument();
-//                //    htmlDocument.Load(responseStream);
-//                //    htmlDocument.OptionFixNestedTags = true;
+//                using (var responseStream = response.GetResponseStream())
+//                {
+//                    var htmlDocument = new htmlDocument();
+//                    htmlDocument.Load(responseStream);
+//                    htmlDocument.OptionFixNestedTags = true;
 
-//                //    var comic = htmlDocument.DocumentNode.SelectSingleNode("//div[@id='comic']/img");
+//                    var comic = htmlDocument.DocumentNode.SelectSingleNode("//div[@id='comic']/img");
 
-//                //    if (comic == null)
-//                //    {
-//                //        return null;
-//                //    }
+//                    if (comic == null)
+//                    {
+//                        return null;
+//                    }
 
-//                //    comicInfo.Title = comic.Attributes["alt"].Value;
-//                //    comicInfo.ImageUrl = comic.Attributes["src"].Value;
-//                //    comicInfo.Description = comic.Attributes["title"].Value;
-//                //}
+//                    comicInfo.Title = comic.Attributes["alt"].Value;
+//                    comicInfo.ImageUrl = comic.Attributes["src"].Value;
+//                    comicInfo.Description = comic.Attributes["title"].Value;
+//                }
 
-//                //return comicInfo;
+//                return comicInfo;
 //            });
 //        }
 

@@ -148,7 +148,11 @@ namespace JabbR_Core
                                                new GoogleMapsContentProvider(),
                                                new UrbanDictionaryContentProvider(),
                                                new NerdDinnerContentProvider(),
-                                               new NugetNuggetContentProvider()});
+                                               new NugetNuggetContentProvider(),
+                                               new SlideShareContentProvider(),
+                                               new SoundCloudContentProvider(),
+                                               new UStreamContentProvider(),
+                                               new UserVoiceContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
             services.AddScoped<IResourceProcessor, ResourceProcessor>();
@@ -199,8 +203,9 @@ namespace JabbR_Core
                                                                "*.twitter.com", "cdn.syndication.twimg.com").UnsafeEval())
                     .StyleSources(s => s.Self().CustomSources("platform.twitter.com").UnsafeInline())
                     .ImageSources(s => s.CustomSources("*", "data:", "nerddinner.com"))
-                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com", "*.spotify.com", "*.bing.com"))
-                    .ObjectSources(s => s.CustomSources("*.youtube.com")));
+                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com", "*.spotify.com", "*.bing.com", "w.soundcloud.com", "www.slideshare.net"))
+                    .ObjectSources(s => s.CustomSources("*.youtube.com"))
+                    .FontSources(s => s.CustomSources("public.slidesharecdn.com")));
                     // Left out to support many image sources
                     // Uncomment to restrict image sources including data:image elements
                     //.ImageSources(s=> s.Self().CustomSources("secure.gravatar.com", "syndication.twitter.com", "platform.twitter.com", "pbs.twimg.com",
