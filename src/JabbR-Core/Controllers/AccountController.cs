@@ -12,11 +12,9 @@ using Microsoft.AspNetCore.Http;
 using JabbR_Core.Infrastructure;
 using System.Collections.Generic;
 using JabbR_Core.Data.Repositories;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace JabbR_Core.Controllers
@@ -29,21 +27,20 @@ namespace JabbR_Core.Controllers
 
         private readonly IJabbrRepository _repository;
         private readonly IEmailSender _emailSender;
+        private readonly IHttpContextAccessor _context;
 
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
-        private IHttpContextAccessor _context;
 
         public AccountController(
+            IJabbrRepository repository,
+            IEmailSender emailsender,
+            IHttpContextAccessor context,
             UserManager<ChatUser> userManager,
             SignInManager<ChatUser> signInManager,
-            IHttpContextAccessor context,
-            IJabbrRepository repository,
-            IOptions<ApplicationSettings> settings,
-            IEmailSender emailsender
+            IOptions<ApplicationSettings> settings
             )
         {
-
             _context = context;
             _settings = settings.Value;
             _repository = repository;
@@ -52,6 +49,8 @@ namespace JabbR_Core.Controllers
             _emailSender = emailsender;
         }
 
+        //
+        // GET: Account/Index
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Index(ManageMessageId? message = null, string otherMessages = "")
@@ -76,7 +75,6 @@ namespace JabbR_Core.Controllers
             {
                 // return Forbidden view
                 Response.StatusCode = 403; // HttpStatusCode.Forbidden
-                //return this.Redirect("~/Account/Forbidden/");
                 return this.Redirect("~/Account/Login/");
 
             }
@@ -88,6 +86,9 @@ namespace JabbR_Core.Controllers
             return GetProfileView(user, _repository);
         }
 
+        //
+        // GET: /Account/Forbidden
+        [HttpGet]
         [AllowAnonymous]
         public IActionResult Forbidden()
         {
@@ -106,7 +107,7 @@ namespace JabbR_Core.Controllers
                 // if so, no reason to login. Redirect to home page.
                 return this.Redirect("~/");
             }
-            return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+            return View(GetLoginViewModel(_settings, _repository));
         }
 
         //
@@ -125,7 +126,6 @@ namespace JabbR_Core.Controllers
 
             if (ModelState.IsValid)
             {
-
                 //if (_settings.NewUserForceEmailConfirmation)
                 //{
                 //    var user = await _userManager.FindByNameAsync(model.Username);
@@ -136,40 +136,62 @@ namespace JabbR_Core.Controllers
                 //    }
                 //}
 
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                // 3rd paramater (isPersisted:) holds cookie after browser is closed
-                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
+                // Check if user.isBanned
+                var user = await _userManager.FindByNameAsync(model.Username);
+                if (user.IsBanned)
                 {
-                    // user logged in
-                    // Redirect to home page - Lobby
-                    return this.Redirect("~/");
+                    return View("UserBannedNotification");
                 }
-                if (result.RequiresTwoFactor)
-                {
-                    // TODO: Future implemntation
-                    // return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    // user account locked out
-                    // TODO: Future implemtation of Lockout View
-                    // return View("Lockout");
-                    return View(GetLoginViewModel(_settings, _repository/*, authService*/));
-                }
+                // If not, attempt to sign in with form credientials
                 else
                 {
-                    // If we got this far, something failed, redisplay form
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+                    // This doesn't count login failures towards account lockout
+                    // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                    // 3rd paramater (isPersisted:) holds cookie after browser is closed
+                    var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        // user logged in
+                        // Redirect to home page - Lobby
+                        return this.Redirect("~/");
+                    }
+                    if (result.RequiresTwoFactor)
+                    {
+                        // TODO: Future implemntation
+                        // return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                    }
+                    if (result.IsLockedOut)
+                    {
+                        // user account locked out
+                        // TODO: Future implemtation of Lockout View
+                        // return View("Lockout");
+                        return View(GetLoginViewModel(_settings, _repository));
+                    }
+                    else
+                    {
+                        // If we got this far, something failed, redisplay form
+                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                        return View(GetLoginViewModel(_settings, _repository));
+                    }
                 }
             }
 
             // If we got this far, something failed, redisplay form
-            return View(GetLoginViewModel(_settings, _repository/*, authService*/));
+            return View(GetLoginViewModel(_settings, _repository));
         }
 
+        //
+        // GET: /Account/LoginRedirect
+        // Used for comfirmation pages (register and email) to redirect to Login
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult LoginRedirect()
+        {
+            return this.Redirect("~/account/login");
+        }
+
+        //
+        // POST: /Account/LogOff
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOff()
@@ -180,6 +202,8 @@ namespace JabbR_Core.Controllers
             return this.Redirect("~/account/login");
         }
 
+        //
+        // GET: /Account/Register
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
@@ -199,6 +223,8 @@ namespace JabbR_Core.Controllers
             return View();
         }
 
+        //
+        // POST: /Account/Register
         [HttpPost]
         [AllowAnonymous]
         //TODO - causing validation failure - added issue to fix
@@ -288,6 +314,8 @@ namespace JabbR_Core.Controllers
         //    return View(HttpStatusCode.BadRequest);
         //}
 
+        //
+        // POST: /Account/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)//string oldPassword, string password, string confirmPassword)
@@ -337,14 +365,15 @@ namespace JabbR_Core.Controllers
             return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });//, errors });
 
             //ModelState.AddModelError(string.Empty, "Error changing password.");
-            //return GetProfileView(/*_authService, */user);
+            //return GetProfileView(user);
         }
 
+        //
+        // POST: /Account/ChangeUsername
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeUsername(ChangeUsernameViewModel model)
         {
-
             if (!User.Identity.IsAuthenticated)
             {
                 return View(HttpStatusCode.Forbidden);
@@ -384,6 +413,8 @@ namespace JabbR_Core.Controllers
 
         }
 
+        //
+        // POST: /Account/ExternalLogin
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -395,6 +426,8 @@ namespace JabbR_Core.Controllers
             return Challenge(properties, provider);
         }
 
+        //
+        // POST: /Account/ExternalLoginCallback
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
@@ -430,6 +463,8 @@ namespace JabbR_Core.Controllers
             }
         }
 
+        //
+        // POST: /Account/ExternalLoginConfirmation
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -462,6 +497,7 @@ namespace JabbR_Core.Controllers
             return View(model);
         }
 
+        //
         // GET: /Account/ConfirmEmail
         [HttpGet]
         [AllowAnonymous]
@@ -480,6 +516,7 @@ namespace JabbR_Core.Controllers
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
+        //
         // GET: /Account/ForgotPassword
         [HttpGet]
         [AllowAnonymous]
@@ -490,6 +527,7 @@ namespace JabbR_Core.Controllers
 
         //
         // POST: /Account/ForgotPassword
+        // Only matching and confirmed email address will be sent a change password link
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -497,6 +535,7 @@ namespace JabbR_Core.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Find existing user with a matching email address
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user == null /*|| !(await _userManager.IsEmailConfirmedAsync(user))*/)
                 {
@@ -504,10 +543,8 @@ namespace JabbR_Core.Controllers
                     //return View("ForgotPasswordConfirmation");
                     return this.Redirect("~/Account/ForgotPasswordConfirmation");
                 }
-
                 try
                 {
-                    
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
                     // Send an email with this link
                     var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -528,26 +565,7 @@ namespace JabbR_Core.Controllers
             // If we got this far, something failed, redisplay form
             return this.Redirect("~/Account/ForgotPassword");
         }
-
-        //
-        // GET: /Account/ForgotPasswordConfirmation
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ForgotPasswordConfirmation()
-        {
-            return View();
-        }
-
-        //
-        // Used for comfirmation pages to redirect to Login
-        // GET: /Account/LoginRedirect
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult LoginRedirect()
-        {
-            return this.Redirect("~/account/login");
-        }
-
+       
         //
         // GET: /Account/ResetPassword
         [HttpGet]
@@ -592,36 +610,7 @@ namespace JabbR_Core.Controllers
             return View();
         }
 
-        private void ValidatePassword(string password, string confirmPassword)
-        {
-            if (String.IsNullOrEmpty(password))
-            {
-                //this.AddValidationError("password", LanguageResources.Authentication_PassRequired);
-            }
-
-            if (!String.Equals(password, confirmPassword))
-            {
-                //this.AddValidationError("confirmPassword", LanguageResources.Authentication_PassNonMatching);
-            }
-        }
-
-        private void ValidateUsername(string username, string confirmUsername)
-        {
-            /*  if (String.IsNullOrEmpty(username))
-          {
-              this.AddValidationError("confirmUsername", LanguageResources.Authentication_NameNonMatching);
-          }*/
-
-            var changeUsername = new RegularExpressionAttribute(username);
-            if (!changeUsername.IsValid(confirmUsername)) //(String.IsNullOrEmpty(username))
-            {
-                changeUsername.FormatErrorMessage(LanguageResources.Authentication_NameNonMatching);
-                // IsValid("usernam")
-                //this.AddValidationError("username", LanguageResources.Authentication_NameRequired);
-            }
-        }
-
-        private dynamic GetProfileView(/*IAuthenticationService authService,*/ ChatUser user, IJabbrRepository repository)
+        private dynamic GetProfileView(ChatUser user, IJabbrRepository repository)
         {
             user.OwnedRooms = _repository.GetOwnedRooms(user).ToList();
 
@@ -631,11 +620,10 @@ namespace JabbR_Core.Controllers
                 ownedRoom.ChatRoomKeyNavigation = repository.GetRoomById(ownedRoom.ChatRoomKey);
             }
 
-            return View(new ProfilePageViewModel(user/*, authService.GetProviders()*/));
+            return View(new ProfilePageViewModel(user));
         }
 
-        private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings,
-                                                 IJabbrRepository repository)
+        private LoginViewModel GetLoginViewModel(ApplicationSettings applicationSettings, IJabbrRepository repository)
         {
             ChatUser user = null;
 
@@ -645,7 +633,7 @@ namespace JabbR_Core.Controllers
                 user = _repository.GetUserById(id);
             }
 
-            var viewModel = new LoginViewModel(applicationSettings, /*authService.GetProviders(),*/ user != null ? user.ChatUserIdentities : null);
+            var viewModel = new LoginViewModel(applicationSettings, user != null ? user.ChatUserIdentities : null);
             return viewModel;
         }
 
@@ -694,7 +682,6 @@ namespace JabbR_Core.Controllers
             ErrorChangeUsername,
             WrongPassword,
             CustomMessage
-
         }
     }
 }
