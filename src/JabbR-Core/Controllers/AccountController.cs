@@ -519,7 +519,8 @@ namespace JabbR_Core.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return Content(ex.ToString());
+                    //return Content(ex.ToString());
+                    return View(model);
                 }
 
             }
