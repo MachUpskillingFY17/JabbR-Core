@@ -209,9 +209,9 @@ namespace JabbR_Core
                     .StyleSources(s => s.Self().CustomSources("platform.twitter.com").UnsafeInline())
                     .ImageSources(s => s.CustomSources("*", "data:", "nerddinner.com"))
                     //.FrameSources(s => s.CustomSources())
-                    //.ChildSources(s => s.CustomSources("www.bing.com", "*.twitter.com", "*.youtube.com", "*.spotify.com", "*.bing.com", "w.soundcloud.com", 
-                    //                                   "www.slideshare.net"))
-                    .ChildSources(s => s.CustomSources("*"))
+                    .ChildSources(s => s.CustomSources("www.bing.com", "*.twitter.com", "*.youtube.com", "*.spotify.com", "*.bing.com", "w.soundcloud.com",
+                                                       "www.slideshare.net"))
+                    //.ChildSources(s => s.CustomSources("*"))
                     .ObjectSources(s => s.CustomSources("*.youtube.com"))
                     .FontSources(s => s.CustomSources("public.slidesharecdn.com")));
                     // Left out to support many image sources
