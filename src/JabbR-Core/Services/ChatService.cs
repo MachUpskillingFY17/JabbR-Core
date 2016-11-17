@@ -849,25 +849,8 @@ namespace JabbR_Core.Services
             // Make the room private
             targetRoom.Private = true;
 
-            // Create ChatPrivateRoomUsers object to represent this relationship
-            var isAllowed = new ChatPrivateRoomUsers()
-            {
-                ChatRoomKey = targetRoom.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = targetRoom,
-                ChatUserKeyNavigation = user
-            };
-
-            // Add the creator to the allowed list
-            targetRoom.AllowedUsers.Add(isAllowed);
-
-            // Add the room to the users' list
-            user.AllowedRooms.Add(isAllowed);
-
-            // Update db 
-            _repository.Add(isAllowed);
-
             // Make all users in the current room allowed
+            bool isUserOnline = false;
             foreach (var u in targetRoom.Users.Online())
             {
                 // Create ChatPrivateRoomUsers object to represent this relationship
@@ -879,9 +862,31 @@ namespace JabbR_Core.Services
                     ChatUserKeyNavigation = u
                 };
 
+                // Add the relationship to the user, room, and repository
                 u.AllowedRooms.Add(uIsAllowed);
                 targetRoom.AllowedUsers.Add(uIsAllowed);
                 _repository.Add(uIsAllowed);
+
+                // Check to see if the calling user is in the online users list
+                if(u == user)
+                {
+                    isUserOnline = true;
+                }
+            }
+            
+            // If the calling user wasn't already added, add them now
+            if (!isUserOnline)
+            {
+                var isAllowed = new ChatPrivateRoomUsers()
+                {
+                    ChatRoomKey = targetRoom.Key,
+                    ChatUserId = user.Id,
+                    ChatRoomKeyNavigation = targetRoom,
+                    ChatUserKeyNavigation = user
+                };
+                targetRoom.AllowedUsers.Add(isAllowed);
+                user.AllowedRooms.Add(isAllowed);
+                _repository.Add(isAllowed);
             }
 
             _repository.CommitChanges();
