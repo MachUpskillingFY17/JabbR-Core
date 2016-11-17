@@ -530,10 +530,12 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.ChangeGravatar(ChatUser user)
         {
-            Clients.Caller.hash = user.Hash;
+            //Clients.Caller.hash = user.Hash;
 
             // Update the calling client
             Clients.User(user.Id).gravatarChanged(user.Hash);
+            Clients.Caller.gravatarChanged(user.Hash);
+
 
             // Create the view model
             var userViewModel = new UserViewModel(user);
@@ -542,6 +544,7 @@ namespace JabbR_Core.Hubs
             foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).changeGravatar(userViewModel, room.Name);
+                Clients.Caller.changeGravatar(userViewModel, room.Name);
             }
         }
 
