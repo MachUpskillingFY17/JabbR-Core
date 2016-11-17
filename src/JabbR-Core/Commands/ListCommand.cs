@@ -21,7 +21,7 @@ namespace JabbR_Core.Commands
             ChatRoom room = context.Repository.VerifyRoom(roomName);
 
             // ensure the user could join the room if they wanted to
-            callingUser.EnsureAllowed(room);
+            callingUser.EnsureAllowed(room, context.Repository);
 
             var names = context.Repository.GetOnlineUsers(room).Select(s => s.Name);
 

@@ -563,6 +563,7 @@ namespace JabbR_Core.Hubs
         void INotificationService.PostNotification(ChatRoom room, ChatUser user, string message)
         {
             Clients.User(user.Id).postNotification(message, room.Name);
+            Clients.Caller.postNotification(message, room.Name);
         }
 
         void INotificationService.ListRooms(ChatUser user)

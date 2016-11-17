@@ -185,6 +185,7 @@ namespace JabbR_Core.Data.Repositories
         {
             // All public and private rooms the user can see.
             var rooms = _db.ChatPrivateRoomUsers
+                .Include(r => r.ChatRoomKeyNavigation)
                 .Where(r =>
                        (!r.ChatRoomKeyNavigation.Private) ||
                        (r.ChatRoomKeyNavigation.Private && r.ChatRoomKeyNavigation.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
@@ -194,6 +195,7 @@ namespace JabbR_Core.Data.Repositories
         public IQueryable<ChatRoomOwners> GetOwnedRooms(ChatUser user)
         {
             var rooms = _db.ChatRoomOwners
+                .Include(r => r.ChatRoomKeyNavigation)
                 .Where(r => r.ChatUserId == user.Id);
 
             return rooms;
@@ -207,6 +209,7 @@ namespace JabbR_Core.Data.Repositories
 
             return owners;
         }
+
 
         public IQueryable<Notification> GetNotificationsByUser(ChatUser user)
         {
@@ -373,5 +376,6 @@ namespace JabbR_Core.Data.Repositories
         {
             _db.Entry(entity).Reload();
         }
+
     }
 }
