@@ -29,11 +29,11 @@ namespace JabbR_Core.Tests.Services
         {
             // Set up the db context and repository
             _options = new DbContextOptionsBuilder<JabbrContext>();
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            _options.UseSqlServer(connection);
+            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRChatTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            _options.UseInMemoryDatabase(connection);
             DbContextOptions<JabbrContext> options = _options.Options;
             _context = new JabbrContext(options);
-            _repository = new InMemoryRepository(_context);
+            _repository = new Repository(_context);
 
             _recentMessageCache = new RecentMessageCache();
 

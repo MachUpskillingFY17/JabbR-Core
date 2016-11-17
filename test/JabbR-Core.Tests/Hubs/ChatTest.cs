@@ -35,11 +35,17 @@ namespace JabbR_Core.Tests.Hubs
         private IJabbrRepository _repository;
         private IRecentMessageCache _recentMessageCache;
         private OptionsManager<ApplicationSettings> _settings;
+        private DbContextOptionsBuilder<JabbrContext> _options;
+
         public ChatTest()
         {
             // Fetch new instances of the required objects
-            _context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            _repository = new InMemoryRepository(_context);
+            _options = new DbContextOptionsBuilder<JabbrContext>();
+            string dbConnection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRChatTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            _options.UseInMemoryDatabase(dbConnection); // .UseSqlServer(connection);
+            DbContextOptions<JabbrContext> options = _options.Options;
+            _context = new JabbrContext(options);
+            _repository = new Repository(_context);
 
             _cache = new DefaultCache();
             _recentMessageCache = new RecentMessageCache();
