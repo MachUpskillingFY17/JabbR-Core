@@ -74,7 +74,11 @@ namespace JabbR_Core.ContentProviders
             return uri.AbsoluteUri.StartsWith("http://nerddinner.com/", StringComparison.OrdinalIgnoreCase)
                || uri.AbsoluteUri.StartsWith("http://www.nerddinner.com/", StringComparison.OrdinalIgnoreCase)
                || uri.AbsoluteUri.StartsWith("http://nrddnr.com/", StringComparison.OrdinalIgnoreCase)
-               || uri.AbsoluteUri.StartsWith("http://www.nrddnr.com/", StringComparison.OrdinalIgnoreCase);
+               || uri.AbsoluteUri.StartsWith("http://www.nrddnr.com/", StringComparison.OrdinalIgnoreCase)
+               || uri.AbsoluteUri.StartsWith("https://nerddinner.com/", StringComparison.OrdinalIgnoreCase)
+               || uri.AbsoluteUri.StartsWith("https://www.nerddinner.com/", StringComparison.OrdinalIgnoreCase)
+               || uri.AbsoluteUri.StartsWith("https://nrddnr.com/", StringComparison.OrdinalIgnoreCase)
+               || uri.AbsoluteUri.StartsWith("https://www.nrddnr.com/", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
