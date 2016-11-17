@@ -87,8 +87,6 @@ namespace JabbR_Core.Data.Repositories
         public void Add(ChatRoomOwners owner)
         {
             _db.ChatRoomOwners.Add(owner);
-
-
             _db.SaveChanges();
             
         }

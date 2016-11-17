@@ -609,6 +609,9 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = unspecialUser
             };
+            room.Owners.Add(cro);
+            unspecialUser.OwnedRooms.Add(cro);
+            _repository.Add(cro);
             ChatRoomOwners cro2 = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -616,11 +619,8 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-            room.Owners.Add(cro);
-            unspecialUser.OwnedRooms.Add(cro);
             room.Owners.Add(cro2);
             user.OwnedRooms.Add(cro2);
-            _repository.Add(cro);
             _repository.Add(cro2);
 
             Assert.Throws<HubException>(() => chatService.RemoveOwner(unspecialUser, user, room));
@@ -843,6 +843,9 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
+            user.OwnedRooms.Add(cro);
+            room.Owners.Add(cro);
+            _repository.Add(cro);
             ChatRoomOwners cro2 = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -850,11 +853,8 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
-            user.OwnedRooms.Add(cro);
-            room.Owners.Add(cro);
             targetUser.OwnedRooms.Add(cro2);
             room.Owners.Add(cro2);
-            _repository.Add(cro);
             _repository.Add(cro2);
 
             // Add both users to the room
@@ -1037,12 +1037,12 @@ namespace JabbR_Core.Tests.Services
                 Name = "foo",
                 IsAdmin = true
             };
+            _repository.Add(admin);
             var otherAdmin = new ChatUser
             {
                 Name = "foo2",
                 IsAdmin = true
             };
-            _repository.Add(admin);
             _repository.Add(otherAdmin);
 
             // Create a room
