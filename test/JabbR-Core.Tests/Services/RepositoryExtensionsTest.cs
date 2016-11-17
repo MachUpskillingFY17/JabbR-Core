@@ -27,21 +27,20 @@ namespace JabbR_Core.Tests.Services
         {
             // Set up the db context
             _options = new DbContextOptionsBuilder<JabbrContext>();
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            _options.UseSqlServer(connection);
+            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRRepoTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            _options.UseInMemoryDatabase<JabbrContext>(connection); // .UseSqlServer(connection);
             DbContextOptions<JabbrContext> options = _options.Options;
             _context = new JabbrContext(options);
 
-            _repository = new InMemoryRepository(_context);
+            // Delete the database and recreate a clean one to prepare for the next test
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+
+            _repository = new Repository(_context);
             _principal = new ClaimsPrincipal();
             _cache = new DefaultCache();
-
-            // For now, Jane is hardcoded as a user in the InMemoryRepository
-            // Remove Jane for consistency in testing
-            var jane = _repository.GetUserByName("Jane");
-            _repository.Remove(jane);
         }
-        
+
         // Tests
         // public static ChatUser GetLoggedInUser(this IJabbrRepository repository, ClaimsPrincipal principal)
         [Fact]
@@ -86,9 +85,6 @@ namespace JabbR_Core.Tests.Services
             // Test to see if same ChatUser is returned
             //Assert.Equal(user, _repository.GetUser(_principal));
 
-            // Clean up
-            _repository.Remove(user);
-
             Console.WriteLine("\tRepositoryExtensionTest.GetUserSuccessfully: Complete");
         }
 
@@ -129,11 +125,6 @@ namespace JabbR_Core.Tests.Services
             // Test to see if only "Online" users are returned IQueryable.ToList()
             Assert.Equal(queryableControl, _repository.Users.ToList().Online().OrderBy(u => u.Name));
 
-            // Clean up
-            _repository.Remove(userOnline1);
-            _repository.Remove(userOnline2);
-            _repository.Remove(userOffline1);
-
             Console.WriteLine("\tRepositoryExtensionTest.OnlineUsers: Complete");
         }
 
@@ -173,11 +164,6 @@ namespace JabbR_Core.Tests.Services
 
             // Test to see if only "Online" users are returned IEnum.ToList()
             Assert.Equal(queryableControl, _repository.Users.ToList().Online().OrderBy(u => u.Name));
-
-            // Clean up
-            _repository.Remove(userOnline1);
-            _repository.Remove(userOnline2);
-            _repository.Remove(userOffline1);
 
             Console.WriteLine("\tRepositoryExtensionTest.OnlineUsers: Complete");
         }
@@ -223,23 +209,17 @@ namespace JabbR_Core.Tests.Services
             {
                 Id = "123"
             };
-
             _repository.Add(user1);
 
-            var allowed = new ChatPrivateRoomUsers();
-            allowed.ChatUserKeyNavigation = user1;
-
+            var allowed = new ChatPrivateRoomUsers()
+            {
+                ChatUserKeyNavigation = user1
+            };
             roomPrivate.AllowedUsers.Add(allowed);
             user1.AllowedRooms.Add(allowed);
+            _repository.Add(allowed);
 
             Assert.Equal(controlList, _repository.Rooms.Allowed("123").ToList().OrderBy(r => r.Name));
-
-            // Clean up
-            _repository.Remove(roomPublic);
-            _repository.Remove(roomPrivate);
-            _repository.Remove(user1);
-            roomPrivate.AllowedUsers.Remove(allowed);
-            user1.AllowedRooms.Remove(allowed);
 
             Console.WriteLine("\tRepositoryExtensionTest.AllowedUsersSuccess: Complete");
         }
@@ -248,12 +228,13 @@ namespace JabbR_Core.Tests.Services
         [Fact]
         public void VerifyUserRoomTest()
         {
-            var user1 = new ChatUser(); // null
+            var user1 = new ChatUser();
+            _repository.Add(user1);
 
             var testRoom = new ChatRoom()
             {
                 Name = "testRoom"
-            }; // null
+            }; 
 
             // test HubException with empty string parameter
             Assert.Throws<HubException>(() => _repository.VerifyUserRoom(_cache, user1, ""));
@@ -267,19 +248,15 @@ namespace JabbR_Core.Tests.Services
             //repository.IsUserInRoom(cache, user, room) uses cache, FAILS -- NOT IMPLEMENTED -- Possibly DI of Repo
             //Assert.Throws<HubException>(() => _repository.VerifyUserRoom(_cache, user1, "testRoom"));
 
-            // Clean up
-            _repository.Remove(testRoom);
-            _repository.RemoveUserRoom(user1, testRoom);
-
             Console.WriteLine("\tRepositoryExtensionTest.VerifyUserRoomTest: Complete");
         }
 
-        // public static bool IsUserInRoom(this IJabbrRepository repository, ICache cache, ChatUser user, ChatRoom room)
-        //[Fact]
-        public void UsUserInRoomTest()
-        {
-            // Posibly DI of Report
-        }
+        //// public static bool IsUserInRoom(this IJabbrRepository repository, ICache cache, ChatUser user, ChatRoom room)
+        ////[Fact]
+        //public void UsUserInRoomTest()
+        //{
+        //    // Posibly DI of Report
+        //}
 
         // public static ChatUser VerifyUserId(this IJabbrRepository repository, string userId)
         [Fact]
@@ -297,9 +274,6 @@ namespace JabbR_Core.Tests.Services
 
             // test if user is returned
             Assert.Equal(userTest, _repository.VerifyUserId("123"));
-
-            // Clean up
-            _repository.Remove(userTest);
 
             Console.WriteLine("\tRepositoryExtensionTest.VerifyUserIdTest: Complete");
         }
@@ -332,12 +306,9 @@ namespace JabbR_Core.Tests.Services
             roomTest.Closed = false;
             Assert.Equal(roomTest, _repository.VerifyRoom("roomTest"));
 
-            // Clean up
-            _repository.Remove(roomTest);
-
             Console.WriteLine("\tRepositoryExtensionTest.VerifyRoomTest: Complete");
         }
-    
+
         //public static ChatUser VerifyUser(this IJabbrRepository repository, string userName)
         [Fact]
         public void VerifyUserTest()
@@ -356,33 +327,31 @@ namespace JabbR_Core.Tests.Services
             // test if user returns as expected
             Assert.Equal(userTest, _repository.VerifyUser("userTest"));
 
-            // Clean up
-            _repository.Remove(userTest);
             Console.WriteLine("\tRepositoryExtensionTest.VerifyUserTest: Complete");
         }
 
-        // public static int GetUnreadNotificationsCount(this IJabbrRepository repository, ChatUser user)
-        public void GetUnreadNotificationCount()
-        {
-            throw new NotImplementedException();
-        }
+        //// public static int GetUnreadNotificationsCount(this IJabbrRepository repository, ChatUser user)
+        //public void GetUnreadNotificationCount()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        // public static IQueryable<Notification> Unread(this IQueryable<Notification> source)
-        public void Unread()
-        {
-            throw new NotImplementedException();
-        }
+        //// public static IQueryable<Notification> Unread(this IQueryable<Notification> source)
+        //public void Unread()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        //public static IQueryable<Notification> ByRoom(this IQueryable<Notification> source, string roomName)
-        public void ByRoom()
-        {
-            throw new NotImplementedException();
-        }
+        ////public static IQueryable<Notification> ByRoom(this IQueryable<Notification> source, string roomName)
+        //public void ByRoom()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        // public static IList<string> GetAllowedClientIds(this IJabbrRepository repository, ChatRoom room)
-        public void GetAllowedClientIds()
-        {
-            throw new NotImplementedException();
-        }
+        //// public static IList<string> GetAllowedClientIds(this IJabbrRepository repository, ChatRoom room)
+        //public void GetAllowedClientIds()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

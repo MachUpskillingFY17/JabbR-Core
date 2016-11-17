@@ -29,13 +29,16 @@ namespace JabbR_Core.Tests.Services
         {
             // Set up the db context and repository
             _options = new DbContextOptionsBuilder<JabbrContext>();
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            _options.UseSqlServer(connection);
+            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRChatServiceTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            _options.UseInMemoryDatabase<JabbrContext>(connection);
             DbContextOptions<JabbrContext> options = _options.Options;
             _context = new JabbrContext(options);
-            _repository = new InMemoryRepository(_context);
-
+            _repository = new Repository(_context);
             _recentMessageCache = new RecentMessageCache();
+
+            // Delete the database and recreate a clean one to prepare for the next test
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
 
             var setups = new List<IConfigureOptions<MemoryCacheOptions>>();
             //var action = new Action<ApplicationSettings>(s => s = _settings);
@@ -61,9 +64,6 @@ namespace JabbR_Core.Tests.Services
 
             Assert.Throws<HubException>(() => chatService.AddRoom(user, "Lobby"));
             Assert.Throws<HubException>(() => chatService.AddRoom(user, "LObbY"));
-
-            _repository.Remove(user);
-
         }
 
         [Fact]
@@ -78,8 +78,6 @@ namespace JabbR_Core.Tests.Services
             _repository.Add(user);
 
             Assert.Throws<HubException>(() => chatService.AddRoom(user, "Invalid name"));
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -100,8 +98,6 @@ namespace JabbR_Core.Tests.Services
             var falseChatService = new ChatService(_cache, _recentMessageCache, _repository, settings);
 
             Assert.Throws<HubException>(() => falseChatService.AddRoom(user, "NewRoom"));
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -129,9 +125,6 @@ namespace JabbR_Core.Tests.Services
             Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
             Assert.Same(room.CreatorKeyNavigation, user);
             Assert.True(user.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            _repository.Remove(user);
-
         }
 
         [Fact]
@@ -144,7 +137,6 @@ namespace JabbR_Core.Tests.Services
             _repository.Add(user);
 
             Assert.Throws<HubException>(() => chatService.AddRoom(user, "Invalid.name"));
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -164,8 +156,6 @@ namespace JabbR_Core.Tests.Services
             Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).Contains(user));
             Assert.Same(room.CreatorKeyNavigation, user);
             Assert.True(user.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            _repository.Remove(user);
         }
 
         //JoinRoom tests
@@ -181,13 +171,12 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room"
             };
+            _repository.Add(room);
 
             chatService.JoinRoom(user, room, null);
 
             Assert.True(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.True(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -203,6 +192,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             ChatPrivateRoomUsers cr = new ChatPrivateRoomUsers()
             {
@@ -211,16 +201,14 @@ namespace JabbR_Core.Tests.Services
                 ChatUserKeyNavigation = user,
                 ChatRoomKeyNavigation = room
             };
-
             room.AllowedUsers.Add(cr);
             user.AllowedRooms.Add(cr);
+            _repository.Add(cr);
 
             chatService.JoinRoom(user, room, null);
 
             Assert.True(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.True(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -236,10 +224,9 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             Assert.Throws<HubException>(() => chatService.JoinRoom(user, room, null));
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -256,20 +243,14 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             chatService.JoinRoom(user, room, null);
 
             Assert.True(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.True(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
-
-            _repository.Remove(user);
         }
 
-
-
-
-        //UpdateActivity tests: FAILS
-        //user.ConnectedClients isn't getting updated and will be null until DI in ChatService is implemented
         [Fact]
         public void CanUpdateActivity()
         {
@@ -291,8 +272,6 @@ namespace JabbR_Core.Tests.Services
             Assert.Same(user, clients[0].UserKeyNavigation);
             Assert.Null(user.AfkNote);
             Assert.False(user.IsAfk);
-
-            _repository.Remove(user);
         }
 
         //LeaveRoom tests
@@ -310,24 +289,12 @@ namespace JabbR_Core.Tests.Services
             };
             _repository.Add(room);
 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-
-            room.Users.Add(cr);
-            user.Rooms.Add(cr);
+            _repository.AddUserRoom(user, room);
 
             chatService.LeaveRoom(user, room);
 
             Assert.False(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
-
-            _repository.Remove(user);
-            _repository.Remove(room);
         }
 
         //AddMessage tests
@@ -347,24 +314,13 @@ namespace JabbR_Core.Tests.Services
             _repository.Add(room);
 
             //create user/room relationship
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            room.Users.Add(cr);
-            user.Rooms.Add(cr);
+            _repository.AddUserRoom(user, room);
 
             ChatMessage message = chatService.AddMessage(user, room, Guid.NewGuid().ToString(), "Content");
 
             Assert.NotNull(message);
             Assert.Same(message, room.ChatMessages.First());
             Assert.Equal("Content", message.Content);
-
-            _repository.Remove(user);
-            _repository.Remove(room);
         }
 
 
@@ -384,23 +340,9 @@ namespace JabbR_Core.Tests.Services
             };
             _repository.Add(room);
 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            _repository.Add(cr);
-
-            room.Users.Add(cr);
-            user.Rooms.Add(cr);
+            _repository.AddUserRoom(user, room);
 
             Assert.Throws<HubException>(() => chatService.AddOwner(user, user, room));
-
-            _repository.Remove(user);
-            _repository.Remove(room);
-            _repository.Remove(cr);
         }
 
         [Fact]
@@ -415,14 +357,9 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room"
             };
+            _repository.Add(room);
 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
+            _repository.AddUserRoom(user, room);
 
             ChatRoomOwners cro = new ChatRoomOwners()
             {
@@ -431,14 +368,11 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
-            room.Users.Add(cr);
             room.Owners.Add(cro);
             user.OwnedRooms.Add(cro);
-            user.Rooms.Add(cr);
+            _repository.Add(cro);
 
             Assert.Throws<HubException>(() => chatService.AddOwner(user, user, room));
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -465,6 +399,7 @@ namespace JabbR_Core.Tests.Services
                 CreatorKeyNavigation = oldOwner,
                 CreatorId = oldOwner.Id
             };
+            _repository.Add(room);
 
             // Now that both the original owner and room have been created, add the owner relationship
             ChatRoomOwners cro = new ChatRoomOwners()
@@ -476,6 +411,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(cro);
             oldOwner.OwnedRooms.Add(cro);
+            _repository.Add(cro);
 
             // Try to add a new owner
             chatService.AddOwner(oldOwner, newOwner, room);
@@ -483,10 +419,6 @@ namespace JabbR_Core.Tests.Services
             // Verify owner was added
             Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(newOwner));
             Assert.True(newOwner.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            // Clean up data from the repository
-            _repository.Remove(oldOwner);
-            _repository.Remove(newOwner);
         }
 
         [Fact]
@@ -508,14 +440,10 @@ namespace JabbR_Core.Tests.Services
                 Private = true,
                 CreatorKeyNavigation = oldOwner
             };
+            _repository.Add(room);
+
             // Now that both the original owner and room have been created, add the owner relationship
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = oldOwner.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = oldOwner
-            };
+            _repository.AddUserRoom(oldOwner, room);
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -523,11 +451,9 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = oldOwner
             };
-
             room.Owners.Add(cro);
             oldOwner.OwnedRooms.Add(cro);
-            oldOwner.Rooms.Add(cr);
-            room.Users.Add(cr);
+            _repository.Add(cro);
 
             //Allow new owner into room
             ChatPrivateRoomUsers userAllowed = new ChatPrivateRoomUsers()
@@ -537,18 +463,14 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = newOwner
             };
-
             newOwner.AllowedRooms.Add(userAllowed);
             room.AllowedUsers.Add(userAllowed);
+            _repository.Add(userAllowed);
 
             chatService.AddOwner(oldOwner, newOwner, room);
 
-
             Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(newOwner));
             Assert.True(newOwner.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            _repository.Remove(oldOwner);
-            _repository.Remove(newOwner);
         }
 
         [Fact]
@@ -572,15 +494,10 @@ namespace JabbR_Core.Tests.Services
                 Private = true,
                 CreatorKeyNavigation = oldOwner
             };
+            _repository.Add(room);
 
             // Now that both the original owner and room have been created, add the owner relationship
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = oldOwner.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = oldOwner
-            };
+            _repository.AddUserRoom(oldOwner, room);
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -588,12 +505,9 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = oldOwner
             };
-
-            room.Owners.Add(cro);
             oldOwner.OwnedRooms.Add(cro);
-            oldOwner.Rooms.Add(cr);
-            room.Users.Add(cr);
-
+            room.Owners.Add(cro);
+            _repository.Add(cro);
 
             chatService.AddOwner(oldOwner, allowedUsr, room);
 
@@ -601,9 +515,6 @@ namespace JabbR_Core.Tests.Services
             Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(allowedUsr));
             Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(allowedUsr));
             Assert.True(allowedUsr.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            _repository.Remove(oldOwner);
-            _repository.Remove(allowedUsr);
         }
 
         [Fact]
@@ -626,27 +537,15 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 CreatorKeyNavigation = admin
             };
+            _repository.Add(room);
 
             //create user/room relationship 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-
-            admin.Rooms.Add(cr);
-            room.Users.Add(cr);
-
+            _repository.AddUserRoom(admin, room);
 
             chatService.AddOwner(admin, user, room);
 
             Assert.True(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
             Assert.True(user.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            _repository.Remove(admin);
-            _repository.Remove(user);
         }
 
         //RemoveOwner tests
@@ -657,47 +556,25 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "foo"
             };
-
             var targetUser = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(user);
             _repository.Add(targetUser);
+
             var room = new ChatRoom
             {
                 Name = "Room",
+                CreatorKeyNavigation = user
             };
-
-            room.CreatorKeyNavigation = user;
+            _repository.Add(room);
 
             //Add both users to room
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            ChatRoomUsers crtrgt = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = targetUser.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = targetUser
-            };
-
-            user.Rooms.Add(cr);
-            targetUser.Rooms.Add(crtrgt);
-            room.Users.Add(cr);
-            room.Users.Add(crtrgt);
-
+            _repository.AddUserRoom(user, room);
+            _repository.AddUserRoom(targetUser, room);
 
             Assert.Throws<HubException>(() => chatService.RemoveOwner(user, targetUser, room));
-
-            _repository.Remove(user);
-            _repository.Remove(targetUser);
         }
 
         [Fact]
@@ -707,39 +584,22 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "foo"
             };
-
             var user = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(unspecialUser);
             _repository.Add(user);
+
             var room = new ChatRoom
             {
                 Name = "Room",
             };
+            _repository.Add(room);
+
             //add unspecialUser and user relationships to room
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = unspecialUser.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = unspecialUser
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-
-            unspecialUser.Rooms.Add(cr);
-            user.Rooms.Add(cr2);
-
-            room.Users.Add(cr);
-            room.Users.Add(cr2);
+            _repository.AddUserRoom(user, room);
+            _repository.AddUserRoom(unspecialUser, room);
 
             //Make both owners
             ChatRoomOwners cro = new ChatRoomOwners()
@@ -749,6 +609,9 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = unspecialUser
             };
+            room.Owners.Add(cro);
+            unspecialUser.OwnedRooms.Add(cro);
+            _repository.Add(cro);
             ChatRoomOwners cro2 = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -756,18 +619,11 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
-            room.Owners.Add(cro);
-            unspecialUser.OwnedRooms.Add(cro);
-
             room.Owners.Add(cro2);
             user.OwnedRooms.Add(cro2);
+            _repository.Add(cro2);
 
             Assert.Throws<HubException>(() => chatService.RemoveOwner(unspecialUser, user, room));
-
-            _repository.Remove(unspecialUser);
-            _repository.Remove(user);
-
         }
 
         [Fact]
@@ -778,38 +634,18 @@ namespace JabbR_Core.Tests.Services
                 Name = "foo",
                 IsAdmin = true
             };
-
             var user = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(admin);
             _repository.Add(user);
+
             var room = new ChatRoom
             {
                 Name = "Room",
             };
-            //Create user/room relationship 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            admin.Rooms.Add(cr);
-            user.Rooms.Add(cr2);
-
-            room.Users.Add(cr);
-            room.Users.Add(cr2);
+            _repository.Add(room);
 
             //Create owner
             ChatRoomOwners cro = new ChatRoomOwners()
@@ -821,14 +657,16 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(cro);
             user.OwnedRooms.Add(cro);
+            _repository.Add(cro);
+
+            //Create user/room relationship 
+            _repository.AddUserRoom(admin, room);
+            _repository.AddUserRoom(user, room);
 
             chatService.RemoveOwner(admin, user, room);
 
             Assert.False(room.Owners.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
             Assert.False(user.OwnedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            _repository.Remove(admin);
-            _repository.Remove(user);
         }
 
 
@@ -841,11 +679,14 @@ namespace JabbR_Core.Tests.Services
                 Name = "foo"
             };
             _repository.Add(user);
+
             var room = new ChatRoom
             {
                 Name = "Room",
                 CreatorKeyNavigation = user
             };
+            _repository.Add(room);
+
             //Add owner and user/room relationships
             ChatRoomOwners cro = new ChatRoomOwners()
             {
@@ -854,23 +695,12 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-
             room.Owners.Add(cro);
             user.OwnedRooms.Add(cro);
-            user.Rooms.Add(cr);
-            room.Users.Add(cr);
 
+            _repository.AddUserRoom(user, room);
 
-            Assert.Throws<HubException>(() => chatService.KickUser(user, user, room));
-
-            _repository.Remove(user);
+            Assert.Throws<HubException>(() => chatService.KickUser(user, user, room));;
         }
 
         [Fact]
@@ -880,43 +710,23 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "foo"
             };
-
             var targetUser = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(user);
             _repository.Add(targetUser);
+
             var room = new ChatRoom
             {
                 Name = "Room",
             };
+            _repository.Add(room);
 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = targetUser.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = targetUser
-            };
-
-            user.Rooms.Add(cr);
-            targetUser.Rooms.Add(cr2);
-            room.Users.Add(cr);
-            room.Users.Add(cr2);
+            _repository.AddUserRoom(user, room);
+            _repository.AddUserRoom(targetUser, room);
 
             Assert.Throws<HubException>(() => chatService.KickUser(user, targetUser, room));
-
-            _repository.Remove(user);
-            _repository.Remove(targetUser);
         }
 
         [Fact]
@@ -926,7 +736,6 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "foo"
             };
-
             var targetUser = new ChatUser
             {
                 Name = "foo2"
@@ -939,14 +748,8 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 CreatorKeyNavigation = user
             };
+            _repository.Add(room);
 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -956,14 +759,11 @@ namespace JabbR_Core.Tests.Services
             };
             user.OwnedRooms.Add(cro);
             room.Owners.Add(cro);
-            user.Rooms.Add(cr);
-            room.Users.Add(cr);
+            _repository.Add(cro);
+
+            _repository.AddUserRoom(user, room);
 
             Assert.Throws<HubException>(() => chatService.KickUser(user, targetUser, room));
-
-            // Clean up
-            _repository.Add(user);
-            _repository.Add(targetUser);
         }
 
         [Fact]
@@ -973,33 +773,20 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "foo"
             };
-
             var targetUser = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(user);
             _repository.Add(targetUser);
+
             var room = new ChatRoom
             {
                 Name = "Room",
             };
+            _repository.Add(room);
+
             //Add user/room and owner relationships
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = targetUser.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = targetUser
-            };
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -1014,45 +801,41 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
-
             user.OwnedRooms.Add(cro);
             room.Owners.Add(cro);
-
             targetUser.OwnedRooms.Add(cro2);
             room.Owners.Add(cro2);
 
-            user.Rooms.Add(cr);
-            targetUser.Rooms.Add(cr2);
-            room.Users.Add(cr);
-            room.Users.Add(cr2);
+            _repository.AddUserRoom(user, room);
+            _repository.AddUserRoom(targetUser, room);
 
             Assert.Throws<HubException>(() => chatService.KickUser(user, targetUser, room));
-            _repository.Remove(user);
-            _repository.Remove(targetUser);
         }
 
         [Fact]
         public void DoesNotThrowIfCreatorKicksOwner()
         {
+            // Create two users
             var user = new ChatUser
             {
                 Name = "foo"
             };
-
             var targetUser = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(user);
             _repository.Add(targetUser);
+
+            // Create a room
             var room = new ChatRoom
             {
                 Name = "Room",
                 CreatorKeyNavigation = user
             };
+            _repository.Add(room);
 
-            //create relationships
+            // Add both users as room owners
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -1060,6 +843,9 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
+            user.OwnedRooms.Add(cro);
+            room.Owners.Add(cro);
+            _repository.Add(cro);
             ChatRoomOwners cro2 = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -1067,127 +853,77 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = targetUser
             };
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = targetUser.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = targetUser
-            };
-
-            user.OwnedRooms.Add(cro);
-            room.Owners.Add(cro);
-
             targetUser.OwnedRooms.Add(cro2);
             room.Owners.Add(cro2);
+            _repository.Add(cro2);
 
-            user.Rooms.Add(cr);
-            targetUser.Rooms.Add(cr2);
-            room.Users.Add(cr);
-            room.Users.Add(cr2);
+            // Add both users to the room
+            _repository.AddUserRoom(user, room);
+            _repository.AddUserRoom(targetUser, room);
 
             chatService.KickUser(user, targetUser, room);
 
             Assert.False(targetUser.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(targetUser));
-
-            _repository.Remove(user);
-            _repository.Remove(targetUser);
         }
 
         [Fact]
         public void AdminCanKickUser()
         {
+            // Create two users
             var admin = new ChatUser
             {
                 Name = "foo",
                 IsAdmin = true
             };
-
             var user = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(admin);
             _repository.Add(user);
+
+            // Create a room
             var room = new ChatRoom
             {
                 Name = "Room",
             };
+            _repository.Add(room);
 
             //add user/room relationships 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            admin.Rooms.Add(cr2);
-            user.Rooms.Add(cr);
-            room.Users.Add(cr2);
-            room.Users.Add(cr);
+            _repository.AddUserRoom(user, room);
+            _repository.AddUserRoom(admin, room);
 
             chatService.KickUser(admin, user, room);
 
             Assert.False(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
-
-            _repository.Remove(admin);
-            _repository.Remove(user);
-
         }
 
         [Fact]
         public void DoesNotThrowIfAdminKicksOwner()
         {
+            // Create two users
             var admin = new ChatUser
             {
                 Name = "foo",
                 IsAdmin = true
             };
-
             var user = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(admin);
             _repository.Add(user);
+
+            // Add a room
             var room = new ChatRoom
             {
                 Name = "Room"
             };
-            //Add relationships
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
+            _repository.Add(room);
+
+            // Add the room owner
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -1195,23 +931,18 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
             user.OwnedRooms.Add(cro);
             room.Owners.Add(cro);
+            _repository.Add(cro);
 
-            admin.Rooms.Add(cr2);
-            user.Rooms.Add(cr);
-            room.Users.Add(cr2);
-            room.Users.Add(cr);
-
+            //Add relationships
+            _repository.AddUserRoom(user, room);
+            _repository.AddUserRoom(admin, room);
 
             chatService.KickUser(admin, user, room);
 
             Assert.False(user.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
-
-            _repository.Remove(admin);
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -1222,12 +953,10 @@ namespace JabbR_Core.Tests.Services
                 Name = "foo",
                 IsAdmin = true
             };
-
             var creator = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(admin);
             _repository.Add(creator);
 
@@ -1236,7 +965,9 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 CreatorKeyNavigation = creator
             };
-            //create relationships
+            _repository.Add(room);
+
+            // Set up the room owner
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -1244,37 +975,18 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = creator
             };
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = creator.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = creator
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-
             creator.OwnedRooms.Add(cro);
             room.Owners.Add(cro);
+            _repository.Add(cro);
 
-            admin.Rooms.Add(cr2);
-            creator.Rooms.Add(cr);
-            room.Users.Add(cr2);
-            room.Users.Add(cr);
+            // Add the users to the room
+            _repository.AddUserRoom(creator, room);
+            _repository.AddUserRoom(admin, room);
 
             chatService.KickUser(admin, creator, room);
 
             Assert.False(creator.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(creator));
-
-            _repository.Remove(admin);
-            _repository.Remove(creator);
-
         }
 
         [Fact]
@@ -1285,18 +997,18 @@ namespace JabbR_Core.Tests.Services
                 Name = "foo",
                 IsAdmin = true
             };
-
             var owner = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(admin);
             _repository.Add(owner);
+
             var room = new ChatRoom
             {
                 Name = "Room",
             };
+            _repository.Add(room);
 
             //create relationships
             ChatRoomOwners cro = new ChatRoomOwners()
@@ -1306,83 +1018,48 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = owner
             };
-
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = owner.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = owner
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-
             owner.OwnedRooms.Add(cro);
             room.Owners.Add(cro);
+            _repository.Add(cro);
 
-            admin.Rooms.Add(cr2);
-            owner.Rooms.Add(cr);
-            room.Users.Add(cr2);
-            room.Users.Add(cr);
+            _repository.AddUserRoom(admin, room);
+            _repository.AddUserRoom(owner, room);
 
             Assert.Throws<HubException>(() => chatService.KickUser(owner, admin, room));
-            _repository.Remove(admin);
-            _repository.Remove(owner);
         }
 
         [Fact]
         public void AdminCanKickAdmin()
         {
+            // Add two admins
             var admin = new ChatUser
             {
                 Name = "foo",
                 IsAdmin = true
             };
-
+            _repository.Add(admin);
             var otherAdmin = new ChatUser
             {
                 Name = "foo2",
                 IsAdmin = true
             };
-
-            _repository.Add(admin);
             _repository.Add(otherAdmin);
 
+            // Create a room
             var room = new ChatRoom
             {
                 Name = "Room"
             };
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            ChatRoomUsers cr2 = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = otherAdmin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = otherAdmin
-            };
-            admin.Rooms.Add(cr);
-            otherAdmin.Rooms.Add(cr2);
-            room.Users.Add(cr);
-            room.Users.Add(cr2);
+            _repository.Add(room);
+
+            // Add both admins to the room
+            _repository.AddUserRoom(otherAdmin, room);
+            _repository.AddUserRoom(admin, room);
 
             chatService.KickUser(admin, otherAdmin, room);
 
             Assert.False(otherAdmin.Rooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.False(room.Users.Select(c => c.ChatUserKeyNavigation).ToList().Contains(otherAdmin));
-
-            _repository.Remove(admin);
-            _repository.Remove(otherAdmin);
         }
 
         //DisconnectClient tests
@@ -1399,7 +1076,6 @@ namespace JabbR_Core.Tests.Services
                 Id = "foo",
                 UserKeyNavigation = user
             });
-
             user.ConnectedClients.Add(new ChatClient
             {
                 Id = "bar",
@@ -1412,8 +1088,6 @@ namespace JabbR_Core.Tests.Services
 
             Assert.Equal(1, user.ConnectedClients.Count);
             Assert.Equal("bar", user.ConnectedClients.First().Id);
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -1438,8 +1112,6 @@ namespace JabbR_Core.Tests.Services
             Assert.Equal(0, user.ConnectedClients.Count);
             Assert.Equal("userId", userId);
             Assert.Equal((int)UserStatus.Offline, user.Status);
-
-            _repository.Remove(user);
         }
 
         //LockRoom tests
@@ -1456,6 +1128,7 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room"
             };
+            _repository.Add(room);
 
             //add relationships 
             ChatRoomOwners cro = new ChatRoomOwners()
@@ -1465,27 +1138,17 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-
-            room.Users.Add(cr);
             room.Owners.Add(cro);
             user.OwnedRooms.Add(cro);
-            user.Rooms.Add(cr);
+            _repository.Add(cro);
+
+            _repository.AddUserRoom(user, room);
 
             chatService.LockRoom(user, room);
 
             Assert.True(room.Private);
             Assert.True(user.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -1502,7 +1165,9 @@ namespace JabbR_Core.Tests.Services
                 CreatorKeyNavigation = user,
                 Private = true
             };
-            //Relationship ALL THE THINGS
+            _repository.Add(room);
+
+            //Add owner, make the user allowed and add user to room
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -1510,46 +1175,44 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+            _repository.Add(cro);
             ChatPrivateRoomUsers cra = new ChatPrivateRoomUsers()
             {
                 ChatRoomKey = room.Key,
                 ChatUserId = user.Id,
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
-            };
-            room.Owners.Add(cro);
-            user.OwnedRooms.Add(cro);
+            };           
             room.AllowedUsers.Add(cra);
             user.AllowedRooms.Add(cra);
-            user.Rooms.Add(cr);
-            room.Users.Add(cr);
+            _repository.Add(cra);
+
+            _repository.AddUserRoom(user, room);
 
             Assert.Throws<HubException>(() => chatService.LockRoom(user, room));
-
-            _repository.Remove(user);
         }
 
         [Fact]
         public void LocksRoom()
         {
+            // Create a user
             var user = new ChatUser
             {
                 Name = "foo"
             };
             _repository.Add(user);
+
+            // Create a room
             var room = new ChatRoom
             {
                 Name = "Room",
                 CreatorKeyNavigation = user
             };
+            _repository.Add(room);
+
+            // Make the user a room owner
             ChatRoomOwners cro = new ChatRoomOwners()
             {
                 ChatRoomKey = room.Key,
@@ -1557,26 +1220,18 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
             room.Owners.Add(cro);
             user.OwnedRooms.Add(cro);
-            user.Rooms.Add(cr);
-            room.Users.Add(cr);
+            _repository.Add(cro);
+
+            // Add the user to the room
+            _repository.AddUserRoom(user, room);
 
             chatService.LockRoom(user, room);
 
             Assert.True(room.Private);
             Assert.True(user.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user));
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -1586,23 +1241,38 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "foo"
             };
-            //Online and offline users
+            _repository.Add(creator);
+
+            // Create some online and offline users
             var users = Enumerable.Range(0, 5).Select(i => new ChatUser
             {
                 Name = "user_" + i
             }).ToList();
-
             var offlineUsers = Enumerable.Range(6, 10).Select(i => new ChatUser
             {
                 Name = "user_" + i,
                 Status = (int)UserStatus.Offline
             }).ToList();
 
+            // Create a room
             var room = new ChatRoom
             {
                 Name = "room",
                 CreatorKeyNavigation = creator
             };
+            _repository.Add(room);
+
+            // Add users to the repository and to the room
+            foreach (var user in users)
+            {
+                _repository.Add(user);
+                _repository.AddUserRoom(user, room);
+            }
+            foreach (var user in offlineUsers)
+            {
+                _repository.Add(user);
+                _repository.AddUserRoom(user, room);
+            }
 
             //Relationship
             ChatRoomOwners cro = new ChatRoomOwners()
@@ -1612,38 +1282,9 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = creator
             };
-
             room.Owners.Add(cro);
             creator.OwnedRooms.Add(cro);
-
-            _repository.Add(room);
-
-            foreach (var u in users)
-            {
-                ChatRoomUsers ur = new ChatRoomUsers()
-                {
-                    ChatRoomKey = room.Key,
-                    ChatUserId = u.Id,
-                    ChatRoomKeyNavigation = room,
-                    ChatUserKeyNavigation = u
-                };
-                room.Users.Add(ur);
-                u.Rooms.Add(ur);
-                _repository.Add(u);
-            }
-            foreach (var u in offlineUsers)
-            {
-                ChatRoomUsers ur = new ChatRoomUsers()
-                {
-                    ChatRoomKey = room.Key,
-                    ChatUserId = u.Id,
-                    ChatRoomKeyNavigation = room,
-                    ChatUserKeyNavigation = u
-                };
-                room.Users.Add(ur);
-                u.Rooms.Add(ur);
-                _repository.Add(u);
-            }
+            _repository.Add(cro);
 
             chatService.LockRoom(creator, room);
 
@@ -1651,18 +1292,13 @@ namespace JabbR_Core.Tests.Services
             {
                 Assert.True(u.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
                 Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(u));
-                _repository.Remove(u);
             }
 
             foreach (var u in offlineUsers)
             {
                 Assert.False(u.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
                 Assert.False(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(u));
-                _repository.Remove(u);
             }
-
-            _repository.Remove(room);
-
         }
 
         [Fact]
@@ -1679,24 +1315,15 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room"
             };
+            _repository.Add(room);
 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            room.Users.Add(cr);
-            admin.Rooms.Add(cr);
+            _repository.AddUserRoom(admin, room);
 
             chatService.LockRoom(admin, room);
 
             Assert.True(room.Private);
             Assert.True(admin.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
             Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(admin));
-
-            _repository.Remove(admin);
         }
 
         // Allow User tests
@@ -1707,12 +1334,10 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "foo"
             };
-
             var user2 = new ChatUser
             {
                 Name = "foo2"
             };
-
             _repository.Add(user);
             _repository.Add(user2);
 
@@ -1720,6 +1345,7 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room",
             };
+            _repository.Add(room);
 
             ChatRoomOwners cro = new ChatRoomOwners()
             {
@@ -1728,24 +1354,13 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-
-            room.Users.Add(cr);
-            user.Rooms.Add(cr);
             room.Owners.Add(cro);
             user.OwnedRooms.Add(cro);
+            _repository.Add(cro);
+
+            _repository.AddUserRoom(user, room);
 
             Assert.Throws<HubException>(() => chatService.AllowUser(user, user2, room));
-
-            _repository.Remove(user);
-            _repository.Remove(user2);
         }
 
         [Fact]
@@ -1762,20 +1377,11 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-            room.Users.Add(cr);
-            user.Rooms.Add(cr);
+            _repository.AddUserRoom(user, room);
 
             Assert.Throws<HubException>(() => chatService.AllowUser(user, user, room));
-
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -1797,6 +1403,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             //Add relationships
             ChatRoomOwners cro = new ChatRoomOwners()
@@ -1806,7 +1413,9 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
+            room.Owners.Add(cro);
+            user.OwnedRooms.Add(cro);
+            _repository.Add(cro);
             ChatPrivateRoomUsers cra = new ChatPrivateRoomUsers()
             {
                 ChatRoomKey = room.Key,
@@ -1814,26 +1423,13 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user2
             };
-
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-
-            room.Users.Add(cr);
             room.AllowedUsers.Add(cra);
-            room.Owners.Add(cro);
-            user.OwnedRooms.Add(cro);
-            user.Rooms.Add(cr);
             user2.AllowedRooms.Add(cra);
+            _repository.Add(cra);
+
+            _repository.AddUserRoom(user, room);
 
             Assert.Throws<HubException>(() => chatService.AllowUser(user, user2, room));
-
-            _repository.Remove(user);
-            _repository.Remove(user2);
         }
 
         [Fact]
@@ -1855,6 +1451,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             //Add relationships
             ChatRoomOwners cro = new ChatRoomOwners()
@@ -1864,27 +1461,16 @@ namespace JabbR_Core.Tests.Services
                 ChatRoomKeyNavigation = room,
                 ChatUserKeyNavigation = user
             };
-
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = user.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user
-            };
-
             room.Owners.Add(cro);
             user.OwnedRooms.Add(cro);
-            user.Rooms.Add(cr);
-            room.Users.Add(cr);
+            _repository.Add(cro);
+
+            _repository.AddUserRoom(user, room);
 
             chatService.AllowUser(user, user2, room);
 
             Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(user2));
             Assert.True(user2.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            _repository.Remove(user);
-            _repository.Remove(user2);
         }
 
         [Fact]
@@ -1901,24 +1487,15 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             //add relationship
-            ChatRoomUsers cr = new ChatRoomUsers()
-            {
-                ChatRoomKey = room.Key,
-                ChatUserId = admin.Id,
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            room.Users.Add(cr);
-            admin.Rooms.Add(cr);
+            _repository.AddUserRoom(admin, room);
 
             chatService.AllowUser(admin, admin, room);
 
             Assert.True(room.AllowedUsers.Select(c => c.ChatUserKeyNavigation).ToList().Contains(admin));
             Assert.True(admin.AllowedRooms.Select(c => c.ChatRoomKeyNavigation).ToList().Contains(room));
-
-            _repository.Remove(admin);
         }
 
         // Unallow user tests
@@ -1942,15 +1519,7 @@ namespace JabbR_Core.Tests.Services
             {
                 Name = "Room",
             };
-
-            // Add user1 to the room and create the relationship between them
-            ChatRoomUsers ur = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user1,
-            };
-            room.Users.Add(ur);
-            user1.Rooms.Add(ur);
+            _repository.Add(room);
 
             // Make user1 the owner of room
             ChatRoomOwners uro = new ChatRoomOwners()
@@ -1960,12 +1529,12 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(uro);
             user1.OwnedRooms.Add(uro);
+            _repository.Add(uro);
+
+            // Add user1 to the room and create the relationship between them
+            _repository.AddUserRoom(user1, room);
 
             Assert.Throws<HubException>(() => chatService.UnallowUser(user1, user2, room));
-
-            // Clean up
-            _repository.Remove(user1);
-            _repository.Remove(user2);
         }
 
         [Fact]
@@ -1985,15 +1554,7 @@ namespace JabbR_Core.Tests.Services
                 Private = true,
                 CreatorKeyNavigation = user
             };
-
-            // Add the user to the room and create the relationship between them
-            ChatRoomUsers ur = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user,
-            };
-            room.Users.Add(ur);
-            user.Rooms.Add(ur);
+            _repository.Add(room);
 
             // Make the user the owner of room
             ChatRoomOwners uro = new ChatRoomOwners()
@@ -2003,6 +1564,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(uro);
             user.OwnedRooms.Add(uro);
+            _repository.Add(uro);
 
             // Allow the user in the room
             ChatPrivateRoomUsers ura = new ChatPrivateRoomUsers()
@@ -2012,11 +1574,12 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura);
             user.AllowedRooms.Add(ura);
+            _repository.Add(ura);
+
+            // Add the user to the room and create the relationship between them
+            _repository.AddUserRoom(user, room);
 
             Assert.Throws<HubException>(() => chatService.UnallowUser(user, user, room));
-
-            // Clean up
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -2040,21 +1603,12 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             // Add user1 to the room
-            ChatRoomUsers ur = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user1
-            };
-            room.Users.Add(ur);
-            user1.Rooms.Add(ur);
+            _repository.AddUserRoom(user1, room);
 
             Assert.Throws<HubException>(() => chatService.UnallowUser(user1, user2, room));
-
-            // Clean up
-            _repository.Remove(user1);
-            _repository.Remove(user2);
         }
 
         [Fact]
@@ -2082,17 +1636,10 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             // Add admin to the room
-            ChatRoomUsers ur = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatRoomKey = room.Key,
-                ChatUserKeyNavigation = admin,
-                ChatUserId = admin.Id
-            };
-            room.Users.Add(ur);
-            admin.Rooms.Add(ur);
+            _repository.AddUserRoom(admin, room);
 
             // Make user2 allowed in the room
             ChatPrivateRoomUsers ura = new ChatPrivateRoomUsers()
@@ -2102,6 +1649,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura);
             user2.AllowedRooms.Add(ura);
+            _repository.Add(ura);
 
             // Have the admin unallow user2 from the room
             chatService.UnallowUser(admin, user2, room);
@@ -2110,10 +1658,6 @@ namespace JabbR_Core.Tests.Services
             Assert.False(user2.Rooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
             Assert.False(room.AllowedUsers.Select(r => r.ChatUserKeyNavigation).Contains(user2));
             Assert.False(user2.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
-
-            // Clean up
-            _repository.Remove(admin);
-            _repository.Remove(user2);
         }
 
         [Fact]
@@ -2137,15 +1681,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
-
-            // Add the user1 to the room
-            ChatRoomUsers ur = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user1
-            };
-            room.Users.Add(ur);
-            user1.Rooms.Add(ur);
+            _repository.Add(room);
 
             // Make user1 the owner of the room
             ChatRoomOwners uro = new ChatRoomOwners()
@@ -2155,12 +1691,12 @@ namespace JabbR_Core.Tests.Services
             };
             user1.OwnedRooms.Add(uro);
             room.Owners.Add(uro);
+            _repository.Add(uro);
+
+            // Add the user1 to the room
+            _repository.AddUserRoom(user1, room);
 
             Assert.Throws<HubException>(() => chatService.UnallowUser(user1, user2, room));
-
-            // Clean up
-            _repository.Remove(user1);
-            _repository.Remove(user2);
         }
 
         [Fact]
@@ -2184,6 +1720,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             // Make user1 and user2 owners of the room
             ChatRoomOwners uro1 = new ChatRoomOwners()
@@ -2193,6 +1730,7 @@ namespace JabbR_Core.Tests.Services
             };
             user1.OwnedRooms.Add(uro1);
             room.Owners.Add(uro1);
+            _repository.Add(uro1);
             ChatRoomOwners uro2 = new ChatRoomOwners()
             {
                 ChatRoomKeyNavigation = room,
@@ -2200,6 +1738,7 @@ namespace JabbR_Core.Tests.Services
             };
             user2.OwnedRooms.Add(uro2);
             room.Owners.Add(uro2);
+            _repository.Add(uro2);
 
             // Make user1 and user2 allowed in the room
             ChatPrivateRoomUsers ura1 = new ChatPrivateRoomUsers()
@@ -2209,6 +1748,7 @@ namespace JabbR_Core.Tests.Services
             };
             user1.AllowedRooms.Add(ura1);
             room.AllowedUsers.Add(ura1);
+            _repository.Add(ura1);
             ChatPrivateRoomUsers ura2 = new ChatPrivateRoomUsers()
             {
                 ChatRoomKeyNavigation = room,
@@ -2216,22 +1756,11 @@ namespace JabbR_Core.Tests.Services
             };
             user2.AllowedRooms.Add(ura2);
             room.AllowedUsers.Add(ura2);
+            _repository.Add(ura2);
 
             // Add user1 and user2 to the room
-            ChatRoomUsers ur1 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user1
-            };
-            user1.Rooms.Add(ur1);
-            room.Users.Add(ur1);
-            ChatRoomUsers ur2 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user2
-            };
-            user2.Rooms.Add(ur2);
-            room.Users.Add(ur2);
+            _repository.AddUserRoom(user1, room);
+            _repository.AddUserRoom(user2, room);
 
             Assert.Throws<HubException>(() => chatService.UnallowUser(user1, user2, room));
         }
@@ -2257,6 +1786,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             // Make user1 the owner of the room
             ChatRoomOwners uro = new ChatRoomOwners()
@@ -2266,15 +1796,10 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(uro);
             user1.OwnedRooms.Add(uro);
+            _repository.Add(uro);
 
             // Add user1 to the room
-            ChatRoomUsers ur = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = user1
-            };
-            room.Users.Add(ur);
-            user1.Rooms.Add(ur);
+            _repository.AddUserRoom(user1, room);
 
             // Make user2 allowed in the room
             ChatPrivateRoomUsers ura = new ChatPrivateRoomUsers()
@@ -2284,6 +1809,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura);
             user2.AllowedRooms.Add(ura);
+            _repository.Add(ura);
 
             chatService.UnallowUser(user1, user2, room);
 
@@ -2291,10 +1817,6 @@ namespace JabbR_Core.Tests.Services
             Assert.False(user2.Rooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
             Assert.False(room.AllowedUsers.Select(r => r.ChatUserKeyNavigation).Contains(user2));
             Assert.False(user2.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
-
-            // Clean up
-            _repository.Remove(user1);
-            _repository.Remove(user2);
         }
 
         [Fact]
@@ -2319,15 +1841,10 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             // Add the admin to the room
-            ChatRoomUsers ur = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            room.Users.Add(ur);
-            admin.Rooms.Add(ur);
+            _repository.AddUserRoom(admin, room);
 
             // Make both users allowed in the room
             ChatPrivateRoomUsers ura1 = new ChatPrivateRoomUsers()
@@ -2337,6 +1854,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura1);
             admin.AllowedRooms.Add(ura1);
+            _repository.Add(ura1);
             ChatPrivateRoomUsers ura2 = new ChatPrivateRoomUsers()
             {
                 ChatRoomKeyNavigation = room,
@@ -2344,6 +1862,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura2);
             user.AllowedRooms.Add(ura2);
+            _repository.Add(ura2);
 
             chatService.UnallowUser(admin, user, room);
 
@@ -2351,10 +1870,6 @@ namespace JabbR_Core.Tests.Services
             Assert.False(user.Rooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
             Assert.False(room.AllowedUsers.Select(r => r.ChatUserKeyNavigation).Contains(user));
             Assert.False(user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
-
-            // Clean up
-            _repository.Remove(admin);
-            _repository.Remove(user);
         }
 
         [Fact]
@@ -2379,6 +1894,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             // Make owner the room owner
             ChatRoomOwners uro = new ChatRoomOwners()
@@ -2388,6 +1904,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(uro);
             owner.OwnedRooms.Add(uro);
+            _repository.Add(uro);
 
             // Make both users allowed in the room
             ChatPrivateRoomUsers ura1 = new ChatPrivateRoomUsers()
@@ -2397,6 +1914,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura1);
             admin.AllowedRooms.Add(ura1);
+            _repository.Add(ura1);
             ChatPrivateRoomUsers ura2 = new ChatPrivateRoomUsers()
             {
                 ChatRoomKeyNavigation = room,
@@ -2404,22 +1922,11 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura2);
             owner.AllowedRooms.Add(ura2);
+            _repository.Add(ura2);
 
             // Add the admin and the owner to the room
-            ChatRoomUsers ur1 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            room.Users.Add(ur1);
-            admin.Rooms.Add(ur1);
-            ChatRoomUsers ur2 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = owner
-            };
-            room.Users.Add(ur2);
-            owner.Rooms.Add(ur2);
+            _repository.AddUserRoom(admin, room);
+            _repository.AddUserRoom(owner, room);
 
             chatService.UnallowUser(admin, owner, room);
 
@@ -2427,10 +1934,6 @@ namespace JabbR_Core.Tests.Services
             Assert.False(owner.Rooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
             Assert.False(room.AllowedUsers.Select(r => r.ChatUserKeyNavigation).Contains(owner));
             Assert.False(owner.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
-
-            // Clean up
-            _repository.Remove(admin);
-            _repository.Remove(owner);
         }
 
         [Fact]
@@ -2456,6 +1959,7 @@ namespace JabbR_Core.Tests.Services
                 Private = true,
                 CreatorKeyNavigation = creator
             };
+            _repository.Add(room);
 
             // Make both users the owners of the room
             ChatRoomOwners uro1 = new ChatRoomOwners()
@@ -2465,6 +1969,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(uro1);
             admin.OwnedRooms.Add(uro1);
+            _repository.Add(uro1);
             ChatRoomOwners uro2 = new ChatRoomOwners()
             {
                 ChatRoomKeyNavigation = room,
@@ -2472,6 +1977,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(uro2);
             creator.OwnedRooms.Add(uro2);
+            _repository.Add(uro2);
 
             // Make both users allowed in the room
             ChatPrivateRoomUsers ura1 = new ChatPrivateRoomUsers()
@@ -2481,6 +1987,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura1);
             admin.AllowedRooms.Add(ura1);
+            _repository.Add(ura1);
             ChatPrivateRoomUsers ura2 = new ChatPrivateRoomUsers()
             {
                 ChatRoomKeyNavigation = room,
@@ -2488,15 +1995,10 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura2);
             creator.AllowedRooms.Add(ura2);
+            _repository.Add(ura2);
 
             // Add the admin to the room
-            ChatRoomUsers ur1 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            room.Users.Add(ur1);
-            admin.Rooms.Add(ur1);
+            _repository.AddUserRoom(admin, room);
 
             chatService.UnallowUser(admin, creator, room);
 
@@ -2504,10 +2006,6 @@ namespace JabbR_Core.Tests.Services
             Assert.False(creator.Rooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
             Assert.False(room.AllowedUsers.Select(r => r.ChatUserKeyNavigation).Contains(creator));
             Assert.False(creator.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
-
-            // Clean up
-            _repository.Remove(admin);
-            _repository.Remove(creator);
         }
 
         [Fact]
@@ -2532,6 +2030,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             // Make owner a room owner
             ChatRoomOwners uro1 = new ChatRoomOwners()
@@ -2541,6 +2040,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.Owners.Add(uro1);
             owner.OwnedRooms.Add(uro1);
+            _repository.Add(uro1);
 
             //Make both users allowed in the room
             ChatPrivateRoomUsers ura1 = new ChatPrivateRoomUsers()
@@ -2550,6 +2050,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura1);
             admin.AllowedRooms.Add(ura1);
+            _repository.Add(ura1);
             ChatPrivateRoomUsers ura2 = new ChatPrivateRoomUsers()
             {
                 ChatRoomKeyNavigation = room,
@@ -2557,28 +2058,13 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura2);
             owner.AllowedRooms.Add(ura2);
+            _repository.Add(ura2);
 
             // Add both users to the room
-            ChatRoomUsers ur1 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            room.Users.Add(ur1);
-            admin.Rooms.Add(ur1);
-            ChatRoomUsers ur2 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = owner
-            };
-            room.Users.Add(ur2);
-            owner.Rooms.Add(ur2);
+            _repository.AddUserRoom(admin, room);
+            _repository.AddUserRoom(owner, room);
 
             Assert.Throws<HubException>(() => chatService.UnallowUser(owner, admin, room));
-
-            // Clean up
-            _repository.Remove(admin);
-            _repository.Remove(owner);
         }
 
         [Fact]
@@ -2604,6 +2090,7 @@ namespace JabbR_Core.Tests.Services
                 Name = "Room",
                 Private = true
             };
+            _repository.Add(room);
 
             //Make both users allowed in the room
             ChatPrivateRoomUsers ura1 = new ChatPrivateRoomUsers()
@@ -2613,6 +2100,7 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura1);
             admin.AllowedRooms.Add(ura1);
+            _repository.Add(ura1);
             ChatPrivateRoomUsers ura2 = new ChatPrivateRoomUsers()
             {
                 ChatRoomKeyNavigation = room,
@@ -2620,22 +2108,11 @@ namespace JabbR_Core.Tests.Services
             };
             room.AllowedUsers.Add(ura2);
             otherAdmin.AllowedRooms.Add(ura2);
+            _repository.Add(ura2);
 
             // Add both users to the room
-            ChatRoomUsers ur1 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = admin
-            };
-            room.Users.Add(ur1);
-            admin.Rooms.Add(ur1);
-            ChatRoomUsers ur2 = new ChatRoomUsers()
-            {
-                ChatRoomKeyNavigation = room,
-                ChatUserKeyNavigation = otherAdmin
-            };
-            room.Users.Add(ur2);
-            otherAdmin.Rooms.Add(ur2);
+            _repository.AddUserRoom(admin, room);
+            _repository.AddUserRoom(otherAdmin, room);
 
             chatService.UnallowUser(admin, otherAdmin, room);
 
@@ -2643,10 +2120,6 @@ namespace JabbR_Core.Tests.Services
             Assert.False(otherAdmin.Rooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
             Assert.False(room.AllowedUsers.Select(r => r.ChatUserKeyNavigation).Contains(otherAdmin));
             Assert.False(otherAdmin.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room));
-
-            // Clean up
-            _repository.Remove(admin);
-            _repository.Remove(otherAdmin);
         }
 
         // Add Admin tests
@@ -2739,7 +2212,6 @@ namespace JabbR_Core.Tests.Services
                 IsAdmin = false
             };
             var room = new ChatRoom();
-
             _repository.Add(nonAdmin);
             _repository.Add(room);
 

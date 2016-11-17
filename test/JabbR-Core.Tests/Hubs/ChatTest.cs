@@ -35,11 +35,17 @@ namespace JabbR_Core.Tests.Hubs
         private IJabbrRepository _repository;
         private IRecentMessageCache _recentMessageCache;
         private OptionsManager<ApplicationSettings> _settings;
+        private DbContextOptionsBuilder<JabbrContext> _options;
+
         public ChatTest()
         {
             // Fetch new instances of the required objects
-            _context = new JabbrContext(new DbContextOptions<JabbrContext>());
-            _repository = new InMemoryRepository(_context);
+            _options = new DbContextOptionsBuilder<JabbrContext>();
+            string dbConnection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRChatTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            _options.UseInMemoryDatabase<JabbrContext>(dbConnection);
+            DbContextOptions<JabbrContext> options = _options.Options;
+            _context = new JabbrContext(options);
+            _repository = new Repository(_context);
 
             _cache = new DefaultCache();
             _recentMessageCache = new RecentMessageCache();
@@ -58,6 +64,10 @@ namespace JabbR_Core.Tests.Hubs
             // Establish new Chat hub with normal SignalR connection + pipeline
             var chat = new TestableChat(_repository, _settings, _chatService, connection);
             chat.Clients = new HubConnectionContext(pipeline.Object, chat.MockConnection.Object, "Chat", connectionId);
+
+            // Delete the database and recreate a clean one to prepare for the next test
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
 
             // Include required claims with request for authentication
             // Adam's LoginFakerMiddleware runs but doesn't establish Hub context
@@ -80,7 +90,6 @@ namespace JabbR_Core.Tests.Hubs
                 Identity = claimsIdentity.ToString()
             };
 
-            // Add to repository for methods that perform user verification
             _repository.Add(user);
 
             // Establish request properties here, investigate query string
