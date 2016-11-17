@@ -20,7 +20,7 @@ namespace JabbR_Core.Commands
             ChatRoom room = context.Repository.VerifyRoom(targetRoomName, mustBeOpen: false);
 
             // ensure the user could join the room if they wanted to
-            callingUser.EnsureAllowed(room);
+            callingUser.EnsureAllowed(room, context.Repository);
 
             context.NotificationService.ListAllowedUsers(room);
         }

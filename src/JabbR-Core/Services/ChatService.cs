@@ -398,7 +398,7 @@ namespace JabbR_Core.Services
 
         public void SetInviteCode(ChatUser user, ChatRoom room, string inviteCode)
         {
-            EnsureOwnerOrAdmin(user, room);
+            //EnsureOwnerOrAdmin(user, room);
             if (!room.Private)
             {
                 throw new HubException(LanguageResources.InviteCode_PrivateRoomRequired);
