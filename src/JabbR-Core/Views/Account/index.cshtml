@@ -6,7 +6,7 @@
 
 @{
     var userModel = Model;
-    var gravatar = "https://secure.gravatar.com/avatar/{0}?s=48&d=mm"; //+ userModel.Hash;
+    var gravatar = "https://secure.gravatar.com/avatar/" + userModel.Hash + "?s=48&d=mm";
     var passwordUrl = /*userModel.HasPassword ? Url.Content("~/account/changepassword") : */Url.Content("~/account/newpassword");
 }
 <!DOCTYPE html>
