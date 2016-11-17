@@ -29,7 +29,7 @@ namespace JabbR_Core.Tests.Services
         {
             // Set up the db context and repository
             _options = new DbContextOptionsBuilder<JabbrContext>();
-            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRChatTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbRChatServiceTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             _options.UseInMemoryDatabase<JabbrContext>(connection);
             DbContextOptions<JabbrContext> options = _options.Options;
             _context = new JabbrContext(options);
@@ -1053,8 +1053,8 @@ namespace JabbR_Core.Tests.Services
             _repository.Add(room);
 
             // Add both admins to the room
-            _repository.AddUserRoom(admin, room);
             _repository.AddUserRoom(otherAdmin, room);
+            _repository.AddUserRoom(admin, room);
 
             chatService.KickUser(admin, otherAdmin, room);
 
