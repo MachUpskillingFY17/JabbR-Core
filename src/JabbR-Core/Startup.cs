@@ -106,7 +106,7 @@ namespace JabbR_Core
 
             services.AddScoped<ICache>(provider => null);
             services.AddScoped<IChatService, ChatService>();
-            services.AddScoped<IJabbrRepository, PersistedRepository>();
+            services.AddScoped<IJabbrRepository, Repository>();
             services.AddSingleton<ApplicationSettings>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IRecentMessageCache, RecentMessageCache>();
@@ -135,14 +135,29 @@ namespace JabbR_Core
 
             // Register Content Providers and File Upload Handlers
             services.AddTransient<IList<IContentProvider>>(provider =>
-                new List<IContentProvider>() { new GitHubIssuesContentProvider(),
-                                               new GitHubIssueCommentsContentProvider(),
-                                               new YouTubeContentProvider(),
-                                               new ImageContentProvider(provider.GetService<UploadProcessor>()),
-                                               new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>()),
+                new List<IContentProvider>() { new AudioContentProvider(),
+                                               new BashQDBContentProvider(),
                                                new BBCContentProvider(),
+                                               new ConfiguredContentProvider(provider.GetService<IOptions<ApplicationSettings>>()),
+                                               new DictionaryContentProvider(),
+                                               new GitHubIssuesContentProvider(),
+                                               new GitHubIssueCommentsContentProvider(),
+                                               new GoogleDocsFormProvider(),
+                                               new GoogleDocsPresentationsContentProvider(),
+                                               new GoogleMapsContentProvider(),
+                                               new ImageContentProvider(provider.GetService<UploadProcessor>()),
                                                new ImgurContentProvider(),
+                                               new NerdDinnerContentProvider(),
+                                               new NugetNuggetContentProvider(),
+                                               new ScreencastContentProvider(),
+                                               new SlideShareContentProvider(),
+                                               new SoundCloudContentProvider(),
                                                new SpotifyContentProvider(),
+                                               new UrbanDictionaryContentProvider(),
+                                               new UserVoiceContentProvider(),
+                                               new UStreamContentProvider(),
+                                               new XkcdContentProvider(),
+                                               new YouTubeContentProvider(),
                                                new _9gagContentProvider()});
             //services.AddTransient<IList<IUploadHandler>>(provider =>
             //    new List<IUploadHandler>() { new AzureBlobStorageHandler(provider.GetService<ApplicationSettings>()), new LocalFileSystemStorageHandler(provider.GetService<ApplicationSettings>())});
@@ -194,9 +209,10 @@ namespace JabbR_Core
                     .ScriptSources(s => s.Self().CustomSources("ajax.aspnetcdn.com", "code.jquery.com", "api.github.com", "avatars.githubusercontent.com",
                                                                "*.twitter.com", "cdn.syndication.twimg.com").UnsafeEval())
                     .StyleSources(s => s.Self().CustomSources("platform.twitter.com").UnsafeInline())
-                    .ImageSources(s => s.CustomSources("*", "data:"))
-                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com", "*.spotify.com"))
-                    .ObjectSources(s => s.CustomSources("*.youtube.com")));
+                    .ImageSources(s => s.CustomSources("*", "data:", "nerddinner.com"))
+                    .FrameSources(s => s.CustomSources("*.twitter.com", "*.youtube.com", "*.spotify.com", "*.bing.com", "w.soundcloud.com", "www.slideshare.net"))
+                    .ObjectSources(s => s.CustomSources("*.youtube.com"))
+                    .FontSources(s => s.CustomSources("public.slidesharecdn.com")));
                     // Left out to support many image sources
                     // Uncomment to restrict image sources including data:image elements
                     //.ImageSources(s=> s.Self().CustomSources("secure.gravatar.com", "syndication.twitter.com", "platform.twitter.com", "pbs.twimg.com",

@@ -87,6 +87,7 @@ namespace JabbR_Core.Hubs
             if (reconnecting)
             {
                 // If the user was marked as offline then mark them inactive
+
                 if (user.Status == (int)UserStatus.Offline)
                 {
                     user.Status = (int)UserStatus.Inactive;
@@ -530,10 +531,12 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.ChangeGravatar(ChatUser user)
         {
-            Clients.Caller.hash = user.Hash;
+            //Clients.Caller.hash = user.Hash;
 
             // Update the calling client
             Clients.User(user.Id).gravatarChanged(user.Hash);
+            Clients.Caller.gravatarChanged(user.Hash);
+
 
             // Create the view model
             var userViewModel = new UserViewModel(user);
@@ -542,6 +545,7 @@ namespace JabbR_Core.Hubs
             foreach (var room in user.Rooms.Select(u => u.ChatRoomKeyNavigation))
             {
                 Clients.Group(room.Name).changeGravatar(userViewModel, room.Name);
+                Clients.Caller.changeGravatar(userViewModel, room.Name);
             }
         }
 

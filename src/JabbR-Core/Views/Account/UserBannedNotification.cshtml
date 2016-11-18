@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "User Banned";
+    Layout = "_Layout.cshtml";
+}
+
+<center>
+    <h3>@ViewData["Title"]</h3>
+    <p>
+        This account has been banned by an Admin.
+    </p>
+</center>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

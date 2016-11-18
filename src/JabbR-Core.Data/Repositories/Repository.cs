@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JabbR_Core.Data.Repositories
 {
-    public class PersistedRepository : IJabbrRepository
+    public class Repository : IJabbrRepository
     {
         private readonly JabbrContext _db;
 
@@ -17,7 +17,7 @@ namespace JabbR_Core.Data.Repositories
         private static readonly Func<JabbrContext, string, ChatClient> getClientByIdWithUser = (db, clientId) => db.ChatClients.Include(c => c.UserKeyNavigation).FirstOrDefault(u => u.Id == clientId);
         private static readonly Func<JabbrContext, string, string, DateTimeOffset, ChatUser> getUserByRequestResetPasswordId = (db, userName, requestId, now) => db.AspNetUsers.FirstOrDefault(u => u.Name == userName && u.RequestPasswordResetId != null && u.RequestPasswordResetId.Equals(requestId, StringComparison.OrdinalIgnoreCase) && u.RequestPasswordResetValidThrough > now);
 
-        public PersistedRepository(JabbrContext db)
+        public Repository(JabbrContext db)
         {
             _db = db;
             Console.WriteLine($"Created repository {GetHashCode()} with Context Hash {db.GetHashCode()}");
@@ -87,8 +87,6 @@ namespace JabbR_Core.Data.Repositories
         public void Add(ChatRoomOwners owner)
         {
             _db.ChatRoomOwners.Add(owner);
-
-
             _db.SaveChanges();
             
         }
