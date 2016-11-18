@@ -87,7 +87,6 @@ namespace JabbR_Core.Hubs
             if (reconnecting)
             {
                 // If the user was marked as offline then mark them inactive
-
                 if (user.Status == (int)UserStatus.Offline)
                 {
                     user.Status = (int)UserStatus.Inactive;
@@ -112,7 +111,6 @@ namespace JabbR_Core.Hubs
             // something about the natural authentication data flow 
             // establishes this in SignalR for us. For now, call explicitly
             //Delete this in the future (when auth is setup properly)
-
             var userViewModel = new UserViewModel(user);
             Clients.Caller.userNameChanged(userViewModel);
 
@@ -120,8 +118,6 @@ namespace JabbR_Core.Hubs
         }
         public List<LobbyRoomViewModel> GetRooms()
         {
-            //return _lobbyRoomList;
-
             return _repository.Rooms.Select(r => new LobbyRoomViewModel()
             {
                 Name = r.Name,
@@ -342,7 +338,6 @@ namespace JabbR_Core.Hubs
         }
         void INotificationService.JoinRoom(ChatUser user, ChatRoom room)
         {
-
             var userViewModel = new UserViewModel(user);
             var roomViewModel = new RoomViewModel
             {
@@ -454,7 +449,7 @@ namespace JabbR_Core.Hubs
         {
             // Set some client state
             Clients.Caller.name = user.Name;
-            //Clients.Caller.id = user.Id;
+            Clients.Caller.id = user.Id;
             Clients.Caller.hash = user.Hash;
 
             // Tell the client a user was created
@@ -724,7 +719,6 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.Invite(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
         {
-
             // Send the invite message to the sendee
             Clients.User(targetUser.Id).sendInvite(user.Name, targetUser.Name, targetRoom.Name);
 
@@ -750,7 +744,6 @@ namespace JabbR_Core.Hubs
 
         void INotificationService.LeaveRoom(ChatUser user, ChatRoom room)
         {
-
             LeaveRoom(user, room);
         }
 
