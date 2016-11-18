@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{575CF6F1-A57B-4BAA-80AC-79FE62E749C3}"
+	ProjectSection(SolutionItems) = preProject
+		src\JabbR-Core\LanguageResources.Designer.cs = src\JabbR-Core\LanguageResources.Designer.cs
+		src\JabbR-Core\LanguageResources.resx = src\JabbR-Core\LanguageResources.resx
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F9783D31-E74F-46CD-8C34-02B1DE58C670}"
 	ProjectSection(SolutionItems) = preProject

@@ -199,7 +199,7 @@ namespace JabbR_Core.Commands
                            select new CommandMetaData
                            {
                                Name = commandAttribute.CommandName,
-                               //Description = commandAttribute.Description,
+                               Description = commandAttribute.Description,
                                Arguments = commandAttribute.Arguments,
                                Group = commandAttribute.Group,
                                ConfirmMessage = commandAttribute.ConfirmMessage

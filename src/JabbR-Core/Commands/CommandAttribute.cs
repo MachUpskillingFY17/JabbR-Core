@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Resources;
 
 namespace JabbR_Core.Commands
@@ -20,8 +21,7 @@ namespace JabbR_Core.Commands
                 {
                     return String.Empty;
                 }
-
-                var resourceManager = new ResourceManager(typeof(LanguageResources));
+                var resourceManager = new ResourceManager("Jabbr-Core.LanguageResources", typeof(LanguageResources).GetTypeInfo().Assembly);
                 return resourceManager.GetString(DescriptionResourceKey);
             }
         }
@@ -33,8 +33,7 @@ namespace JabbR_Core.Commands
                 {
                     return null;
                 }
-
-                var resourceManager = new ResourceManager(typeof(LanguageResources));
+                var resourceManager = new ResourceManager("Jabbr-Core.LanguageResources", typeof(LanguageResources).GetTypeInfo().Assembly);
                 return resourceManager.GetString(ConfirmMessageResourceKey);
             }
         }
