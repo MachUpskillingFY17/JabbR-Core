@@ -51,6 +51,7 @@ namespace JabbR_Core
             if (env.IsDevelopment())
             {
                 builder.AddUserSecrets();
+                builder.AddApplicationInsightsSettings(developerMode: true);
             }
 
             builder.AddEnvironmentVariables();
@@ -191,8 +192,9 @@ namespace JabbR_Core
                 ////as the system (at some time) disposes chat
                 //return new Chat(repository, settings, recentMessageCache, chatService, processor, scope);
             });
+            services.AddApplicationInsightsTelemetry(_configuration);
 
-           // return services.BuildServiceProvider(validateScopes: true);
+            // return services.BuildServiceProvider(validateScopes: true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -313,6 +315,10 @@ namespace JabbR_Core
 
             app.UseMvcWithDefaultRoute();
             app.UseSignalR();
+            // Add Application Insights monitoring to the request pipeline as a very first middleware.
+            app.UseApplicationInsightsRequestTelemetry();
+            // Add Application Insights exceptions handling to the request pipeline.
+            app.UseApplicationInsightsExceptionTelemetry();
         }
     }
 }

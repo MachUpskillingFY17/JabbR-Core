@@ -7,7 +7,10 @@
     <meta charset="UTF-8" />
     <title>JabbR</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    @{
+
+    @Html.ApplicationInsightsJavaScript(TelemetryConfiguration)
+    
+     @{
         WriteLiteral(Bundle.Css()
             .Add("~/Content/bootstrap.min.css")
             .Add("~/Content/bootstrap-responsive.min.css")
@@ -16,6 +19,7 @@
             .Add("~/Content/emoji20.css")
             .Render("~/Content/JabbR_#.css"));
     }
+
 </head>
 <body>
     <div class="container">
