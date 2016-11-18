@@ -378,10 +378,11 @@ namespace JabbR_Core.Hubs
             }
 
             string userId = Context.User.GetUserId();
-
             ChatUser user = _repository.VerifyUserId(userId);
-
             ChatRoom room = _repository.GetRoomByName(roomName);
+
+            // Populate the user's allowed rooms list
+            user.AllowedRooms = _repository.GetAllowedRooms(user).ToList();
 
             if (room == null || (room.Private && !user.AllowedRooms.Select(r => r.ChatRoomKeyNavigation).Contains(room)))
             {
