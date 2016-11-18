@@ -12,11 +12,12 @@ Further documentation below on
 JabbR is a chat application similar to IRC, built with ASP.NET Core, using SignalR and Entity Framework.
 
 #### Commands
-Currently ported is a number of custom commands. 
+Below is a list of commands to use while chatting.
 
 Join and leave a room. 
 ```
 /join [roomName]
+To join a private room /join [roomName] [inviteCode]
 /leave [roomName]
 ```
 Find users. 
@@ -52,6 +53,7 @@ Inline image and content support for your favorite sites:
 - Dictionary.com 
 - GitHub (issues and comments)
 - Imgur
+- Nerd Dinner
 - Slideshare
 - Soundcloud 
 - Spotify
@@ -86,7 +88,7 @@ No executable found matching command "dotnet-user-secrets"
 To set a user secret, you need to use `dotnet user-secrets set <key> <value>`, like so
 
 ```bash
-$ dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+$ dotnet user-secrets set "connectionString" "Server=MYAPPNAME.database.windows.net,1433;Initial Catalog=MYCATALOG;Persist Security Info=False;User ID={plaintext user};Password={plaintext password};MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 ```
 
 Alternatively, if you want to use [LocalDB, an alternative built in database](https://blogs.msdn.microsoft.com/sqlexpress/2011/07/12/introducing-localdb-an-improved-sql-express/), you 
@@ -170,11 +172,12 @@ $ dotnet user-secrets set "Authentication:<ProviderName>:AppSecret" "<AppSecret>
 You can run the written tests from either Visual Studio or your Console. 
 
 #### From the Console
-In order to run the written tests, you must open a command prompt or PowerShell command window. In the window, navigate to folder containing the source code of your test project (this will be in JabbR-Core.Tests).
+In order to run the written tests, you must open a command prompt or PowerShell command window. In the window, navigate to folder containing the source code of your test project (this will be in test\JabbR-Core.Tests).
 To run the .NET CLI test runner, type `dotnet test` and press enter. It should run the tests and print out if there were any that had errors, skipped, or failed, along with where they might have failed. 
 
 #### From Visual Studio
- Show the Test Explorer window by choosing **Test > Windows > Test Explorer**. The Test Explorer window will show inside Visual Studio, and your test should be visible (if they're not, try building your project to kick off the test discovery process). If you click the Run All link in the Test Explorer window, it will run your tests and show you success and failure. You can click on an individual test result to get failure information as well as stack trace information.
+ Show the Test Explorer window by choosing **Test > Windows > Test Explorer**. The Test Explorer window will show inside Visual Studio, and your tests should be visible (if they're not, try building your project to kick off the test discovery process). 
+ If you click the Run All link in the Test Explorer window, it will run your tests and show you successes and failurees. You can click on an individual test result to get failure information as well as stack trace information.
 
 ### To Write
 
