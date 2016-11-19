@@ -139,6 +139,9 @@ namespace JabbR_Core.Services
 
         public static IList<string> GetAllowedClientIds(this IJabbrRepository repository, ChatRoom room)
         {
+            // Populate room's allowed users list
+            room.AllowedUsers = repository.GetAllowedUsers(room).ToList();
+
             string[] allowedUserKeys = room.AllowedUsers.Select(u => u.ChatUserId).ToArray();
             return repository.Clients.Where(c => allowedUserKeys.Contains(c.UserId)).Select(c => c.Id).ToList();
         }

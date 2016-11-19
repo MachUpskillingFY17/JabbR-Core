@@ -183,12 +183,19 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatPrivateRoomUsers> GetAllowedRooms(ChatUser user)
         {
-            // All public and private rooms the user can see.
+            // All private rooms the user has access to
             var rooms = _db.ChatPrivateRoomUsers
                 .Include(r => r.ChatRoomKeyNavigation)
-                .Where(r =>
-                       (!r.ChatRoomKeyNavigation.Private) ||
-                       (r.ChatRoomKeyNavigation.Private && r.ChatRoomKeyNavigation.AllowedUsers.Any(u => u.ChatUserId == user.Id)));
+                .Where(r => r.ChatRoomKeyNavigation.AllowedUsers.Any(u => u.ChatUserId == user.Id));
+            return rooms;
+        }
+
+        public IQueryable<ChatPrivateRoomUsers> GetAllowedUsers(ChatRoom room)
+        {
+            // Users allowed in the room
+            var rooms = _db.ChatPrivateRoomUsers
+                .Include(r => r.ChatUserKeyNavigation)
+                .Where(r => r.ChatRoomKeyNavigation.AllowedUsers.Any(u => u.ChatRoomKey == room.Key));
             return rooms;
         }
 
@@ -248,10 +255,17 @@ namespace JabbR_Core.Data.Repositories
 
         public IQueryable<ChatUser> GetOnlineUsers(ChatRoom room)
         {
-            return _db.Entry(room)
-                      .Collection(r => r.Users)
-                      .Query()
-                      .Online();
+            //return _db.Entry(room)
+            //          .Collection(r => r.Users)
+            //          .Query()
+            //          .Online();
+
+            var entry = _db.Entry(room);
+            var collection = entry.Collection(r => r.Users);
+            var query = collection.Query();
+            var online = query.Online();
+
+            return online;
         }
 
         public IQueryable<ChatUser> GetOnlineUsers()
@@ -302,6 +316,26 @@ namespace JabbR_Core.Data.Repositories
                 _db.Remove(chatUserChatRoom.First());
                 _db.SaveChanges();
             }
+        }
+
+        public void AllowUserInPrivateRoom(ChatUser user, ChatRoom room)
+        {
+            // First, create a ChatPrivateRoomUsers object to represent this relationship
+            ChatPrivateRoomUsers allowed = new ChatPrivateRoomUsers()
+            {
+                ChatRoomKey = room.Key,
+                ChatUserId = user.Id,
+                ChatRoomKeyNavigation = room,
+                ChatUserKeyNavigation = user
+            };
+
+            // Add the relationship to the room's user list
+            room.AllowedUsers.Add(allowed);
+            user.AllowedRooms.Add(allowed);
+
+            // Update the db
+            _db.Add(allowed);
+            _db.SaveChanges();
         }
 
         public void Add(ChatClient client)

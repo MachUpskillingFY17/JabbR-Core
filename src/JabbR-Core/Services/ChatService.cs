@@ -364,18 +364,8 @@ namespace JabbR_Core.Services
                 // First, check if the invite code is correct
                 if (!String.IsNullOrEmpty(inviteCode) && String.Equals(inviteCode, room.InviteCode, StringComparison.OrdinalIgnoreCase))
                 {
-                    // Create a ChatUserChatRoomAllowed object to represent this relationship
-                    ChatPrivateRoomUsers allowed = new ChatPrivateRoomUsers()
-                    {
-                        ChatRoomKey = room.Key,
-                        ChatUserId = user.Id,
-                        ChatRoomKeyNavigation = room,
-                        ChatUserKeyNavigation = user
-                    };
-
-                    // It is, add the user to the allowed users so that future joins will work
-                    room.AllowedUsers.Add(allowed);
-                    user.AllowedRooms.Add(allowed);
+                    // Create a ChatPrivateRoomUser object to represent this relationship
+                    _repository.AllowUserInPrivateRoom(user, room);
                 }
                 if (!room.IsUserAllowed(user))
                 {
@@ -560,20 +550,7 @@ namespace JabbR_Core.Services
                 // See if the user is already allowed in the room, otherwise make this user allowed
                 if (!targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser))
                 {
-                    // Create the allowed user relationship
-                    var allowed = new ChatPrivateRoomUsers()
-                    {
-                        ChatRoomKey = targetRoom.Key,
-                        ChatUserId = targetUser.Id,
-                        ChatRoomKeyNavigation = targetRoom,
-                        ChatUserKeyNavigation = targetUser
-                    };
-
-                    targetRoom.AllowedUsers.Add(allowed);
-                    targetUser.AllowedRooms.Add(allowed);
-
-                    // JC: Add allowed relationship to db
-                    _repository.Add(allowed);
+                    _repository.AllowUserInPrivateRoom(targetUser, targetRoom);
                 }
             }
         }
@@ -759,9 +736,6 @@ namespace JabbR_Core.Services
                 throw new HubException(String.Format(LanguageResources.RoomNotPrivate, targetRoom.Name));
             }
 
-            // Create a ChatPrivateRoomUsers object to represent this relationship
-            ChatPrivateRoomUsers userroomAllowed;
-
             // JC: Find the allowed user relationship
             var isAllowed = targetRoom.AllowedUsers.Select(r => r.ChatUserKeyNavigation).ToList().Contains(targetUser);
             if (isAllowed)
@@ -769,22 +743,8 @@ namespace JabbR_Core.Services
                 throw new HubException(String.Format(LanguageResources.RoomUserAlreadyAllowed, targetUser.Name, targetRoom.Name));
             } else
             {
-                // Populate object
-                userroomAllowed = new ChatPrivateRoomUsers()
-                {
-                    ChatRoomKey = targetRoom.Key,
-                    ChatUserId = targetUser.Id,
-                    ChatRoomKeyNavigation = targetRoom,
-                    ChatUserKeyNavigation = targetUser
-                };
+                _repository.AllowUserInPrivateRoom(targetUser, targetRoom);
             }
-
-            targetRoom.AllowedUsers.Add(userroomAllowed);
-            targetUser.AllowedRooms.Add(userroomAllowed);
-
-            // Update db
-            _repository.Add(userroomAllowed);
-            _repository.CommitChanges();
         }
 
         public void UnallowUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom)
@@ -854,18 +814,7 @@ namespace JabbR_Core.Services
             foreach (var u in targetRoom.Users.Online())
             {
                 // Create ChatPrivateRoomUsers object to represent this relationship
-                var uIsAllowed = new ChatPrivateRoomUsers()
-                {
-                    ChatRoomKey = targetRoom.Key,
-                    ChatUserId = u.Id,
-                    ChatRoomKeyNavigation = targetRoom,
-                    ChatUserKeyNavigation = u
-                };
-
-                // Add the relationship to the user, room, and repository
-                u.AllowedRooms.Add(uIsAllowed);
-                targetRoom.AllowedUsers.Add(uIsAllowed);
-                _repository.Add(uIsAllowed);
+                _repository.AllowUserInPrivateRoom(u, targetRoom);
 
                 // Check to see if the calling user is in the online users list
                 if(u == user)
@@ -877,16 +826,7 @@ namespace JabbR_Core.Services
             // If the calling user wasn't already added, add them now
             if (!isUserOnline)
             {
-                var isAllowed = new ChatPrivateRoomUsers()
-                {
-                    ChatRoomKey = targetRoom.Key,
-                    ChatUserId = user.Id,
-                    ChatRoomKeyNavigation = targetRoom,
-                    ChatUserKeyNavigation = user
-                };
-                targetRoom.AllowedUsers.Add(isAllowed);
-                user.AllowedRooms.Add(isAllowed);
-                _repository.Add(isAllowed);
+                _repository.AllowUserInPrivateRoom(user, targetRoom);
             }
 
             _repository.CommitChanges();

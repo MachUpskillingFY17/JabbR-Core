@@ -18,6 +18,7 @@ namespace JabbR_Core.Data.Repositories
         IQueryable<ChatMessage> GetMessagesByRoom(ChatRoom room);
         IQueryable<ChatMessage> GetPreviousMessages(string messageId);
         IQueryable<ChatPrivateRoomUsers> GetAllowedRooms(ChatUser user);
+        IQueryable<ChatPrivateRoomUsers> GetAllowedUsers(ChatRoom room);
         IQueryable<ChatRoomOwners> GetOwnedRooms(ChatUser user);
         IQueryable<ChatUser> GetRoomOwners(ChatRoom room);
         IQueryable<Notification> GetNotificationsByUser(ChatUser user);
@@ -37,6 +38,7 @@ namespace JabbR_Core.Data.Repositories
 
         void AddUserRoom(ChatUser user, ChatRoom room);
         void RemoveUserRoom(ChatUser user, ChatRoom room);
+        void AllowUserInPrivateRoom(ChatUser user, ChatRoom room);
 
         void Add(ChatClient client);
         void Add(ChatMessage message);
