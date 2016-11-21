@@ -22,7 +22,7 @@ namespace JabbR_Core
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
-                .UseUrls("http://*:5000")
+               // .UseUrls("http://*:5000")
                 .UseConfiguration(config)
                 .Build();
 

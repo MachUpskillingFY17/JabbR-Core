@@ -72,7 +72,7 @@ namespace JabbR_Core.Controllers
             };
 
 
-            return View("index", viewModel);
+            return View("Index", viewModel);
 
 
         }

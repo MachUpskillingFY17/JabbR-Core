@@ -28,7 +28,7 @@ namespace JabbR_Core.Controllers
         private IMembershipService _membershipService;
 
         private readonly IJabbrRepository _repository;
-        private readonly IEmailSender _emailSender;
+        //private readonly IEmailSender _emailSender;
 
         private readonly UserManager<ChatUser> _userManager;
         private readonly SignInManager<ChatUser> _signInManager;
@@ -39,8 +39,8 @@ namespace JabbR_Core.Controllers
             SignInManager<ChatUser> signInManager,
             IHttpContextAccessor context,
             IJabbrRepository repository,
-            IOptions<ApplicationSettings> settings,
-            IEmailSender emailsender
+            IOptions<ApplicationSettings> settings
+            //IEmailSender emailsender
             )
         {
 
@@ -49,7 +49,7 @@ namespace JabbR_Core.Controllers
             _repository = repository;
             _userManager = userManager;
             _signInManager = signInManager;
-            _emailSender = emailsender;
+           // _emailSender = emailsender;
         }
 
         [HttpGet]
@@ -225,20 +225,22 @@ namespace JabbR_Core.Controllers
                 {
                     await _userManager.AddClaimsAsync(user, new List<Claim>() { new Claim(JabbRClaimTypes.Identifier, user.Id) });
                     //_settings.NewUserForceEmailConfirmation = true;
-                    if (_settings.NewUserForceEmailConfirmation)
+                    /*if (_settings.NewUserForceEmailConfirmation)
                     {
                         // Send an email with this link
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code },
                             protocol: HttpContext.Request.Scheme);
-                        await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                            $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                     //   await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                       //     $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
                          //await _signInManager.SignInAsync(user, isPersistent: false);
                     }
                     else
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                    }
+                    }*/
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+
                     return View("RegisterConfirmation");
                 }
                 AddErrors(result);
@@ -499,8 +501,8 @@ namespace JabbR_Core.Controllers
                 // Send an email with this link
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+               // await _emailSender.SendEmailAsync(model.Email, "Reset Password",
+                 //  $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
                 return View("ForgotPasswordConfirmation");
             }
 

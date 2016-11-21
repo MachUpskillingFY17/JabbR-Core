@@ -72,7 +72,7 @@ namespace JabbR_Core
             //string connection = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=JabbREFTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=True";
             //If not running in Development (ie the env variable ASPNETCORE_ENVIRONMENT!=DEVELOPMENT) then the format to set at cmd line (on Windows)
             //set connectionString=Server=(localdb)\mssqllocaldb;Database=aspnet-application;Trusted_Connection=True;MultipleActiveResultSets=true
-            bool inMem = false;
+            bool inMem = true;
             string connection = _configuration["connectionString"];
             // services.AddTransient<JabbrContext, JabbrContext>();
 
@@ -205,7 +205,7 @@ namespace JabbR_Core
 
 
             bool fileLogging = false;
-            bool consoleLogging = false;
+            bool consoleLogging = true;
             bool.TryParse(_configuration["Logging:FileLogging"], out fileLogging);
             bool.TryParse(_configuration["Logging:ConsoleLogging"], out consoleLogging);
             if (fileLogging)
