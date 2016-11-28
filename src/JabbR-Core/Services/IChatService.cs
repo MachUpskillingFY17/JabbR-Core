@@ -25,6 +25,7 @@ namespace JabbR_Core.Services
         void KickUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom);
         void AllowUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom);
         void UnallowUser(ChatUser user, ChatUser targetUser, ChatRoom targetRoom);
+    
         void LockRoom(ChatUser user, ChatRoom targetRoom);
         void CloseRoom(ChatUser user, ChatRoom targetRoom);
         void OpenRoom(ChatUser user, ChatRoom targetRoom);
