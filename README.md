@@ -120,3 +120,26 @@ if (!string.IsNullOrEmpty(facebookAppId) && !string.IsNullOrEmpty(facebookAppSec
 [No problem, read more about Azure DB's and connections here](https://azure.microsoft.com/en-us/documentation/articles/sql-database-develop-dotnet-simple/)
 
 [Learn more about safe storage of user secrets in .NET](https://docs.asp.net/en/latest/fundamentals/configuration.html)
+
+## Testing
+
+### To Run
+
+You can run the written tests from either Visual Studio or your Console. 
+
+#### From the Console
+In order to run the written tests, you must open a command prompt or PowerShell command window. In the window, navigate to folder containing the source code of your test project (this will be in JabbR-Core.Tests).
+To run the .NET CLI test runner, type `dotnet test` and press enter. It should run the tests and print out if there were any that had errors, skipped, or failed, along with where they might have failed. 
+
+#### From Visual Studio
+ Show the Test Explorer window by choosing **Test > Windows > Test Explorer**. The Test Explorer window will show inside Visual Studio, and your test should be visible (if they're not, try building your project to kick off the test discovery process). If you click the Run All link in the Test Explorer window, it will run your tests and show you success and failure. You can click on an individual test result to get failure information as well as stack trace information.
+
+### To Write
+
+We used xUnit to write our tests. A verbose guide on writing tests for .Net Core with xUnit can be found 
+[here](https://xunit.github.io/docs/getting-started-dotnet-core.html).
+Basically:
+ - A reference to xUnit should already be in the project.json of the JabbR-Core.Tests library. 
+ - Make sure your class has a using statement for xUnit. (`using Xunit;`)
+ - Tests should use the `[Fact]` tag and always have an assertion statement. 
+ - You can also write Theories, which are tests that are true for a particular set of data. 
