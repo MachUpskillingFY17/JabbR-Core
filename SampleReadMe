@@ -1,0 +1,51 @@
+This is a step by step on how to get JabbR Core running in a docker container on Azure, using Visual Studios and the Docker Engine command line.
+
+Download Docker
+You can download Docker (Here)[https://www.docker.com/microsoft]. You can test that Docker is installed by simply typing docker into your command line. If Docker is successfully installed, you will see a list of commands that the Docker Engine can run.
+Getting Started with a Docker VM on Azure
+Before you start, it is suggested that you log into your Azure account and grab your Azure subscription ID, which can be found in the subscriptions tab of your Azure portal.
+In the command line, run :
+
+docker-machine create –driver azure –azure-subcription-id [The subscription ID] [MachineName]
+
+Where 'The subscription ID' is your Azure subscription ID and 'MachineName' is the name of your new Virtual Machine.
+
+If you head to your Azure portal resources, you will see a new Availability Set, Virtual Network, Virtual Machine, Firewall/Network security group and a Public IP Address. They should all have the same name as your Machine Name, with their endings differing
+
+Back in the command line run docker-machine env [MachineName]. This will set your machine as the default machine.
+
+Next open up your project in Visual Studio. Once everything is open and loaded up, right click on the project , press Add and then Docker Support. The following files should have been added to your project:
+	- .dockerignore
+	- docker-compose.dev.debug.yml
+	- docker-compose.dev.release.yml
+	- docker-compose.yml
+	- Dockerfile
+
+Now that you have Docker support in your project, lets get your project into a container !
+
+In your command line, go to the src folder of your project (the same folder that contains your project.json). Inside this folder you want to run  dotnet build and then dotnet publish.
+
+After its done publishing, copy and paste the Dockerfile  into bin/Debug/netcoreapp1/publish folder that will also contain your dll file that was created after the publish command.
+
+
+Inside the publish folder run docker build -t [ImageName] . (don’t forget the ‘.’) -- (Your ImageName can be whatever you would like to name it. It is the image that will run in the Docker container)
+
+After I run docker run -d -p 5000:80 [ImageName]. This will run the image in a container in your docker machine on the cloud. 
+
+The '-p' lets you decide the port number you would like to go to, to access your image in the container. In my example, 5000 is the port number I want to navigate to, and 80 is the port number that is exposed in the Dockerfile. If you look at your Dockerfile, it should have a line that says EXPOSE [NUM]. You can change both the 5000 and the 80 to whatever values you like. If you change the 80 in the Dockerfile, be sure to change it when running the command.
+
+You will also need to allow users to browse to port 5000 (or the port of your choosing) on Azure. If you go back to your portal , go to your firewall resource. Add a new Inbound security rule:
+	- Name = whatever you would like 
+	- Priority = default value
+	- Source = any 
+	- Service = custom
+	- Protocol = Any
+	- Port range = 5000 (or which ever port number you decide)
+	- Action = Allow
+
+Now port 5000 is available. However you still need the IP address of your virtual machine. You can get it one of two ways:
+	1. While in your azure portal, click on the new Public IP Address that was created in Azure for you. And in the right corner you will see your IP address, that will be used to access the container.
+	2. In your command line run docker-machine ls. In the URL column it will display your IP address.
+
+To finally access your project in the container, head to http://[IP-Address]:5000 and remember, 5000 can be any port number you chose! 
+
